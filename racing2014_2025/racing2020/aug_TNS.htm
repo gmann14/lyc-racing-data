@@ -1,0 +1,1722 @@
+
+
+
+<!doctype html>
+
+<head>
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="description" content="sailwave results">
+<meta name="viewport" content="width=device-width">
+
+<title>Sailwave results for LYC Handicap at August TNS Mahone Marine 2020</title>
+
+<style type="text/css">
+body {font:100% arial, helvetica, sans-serif; text-align: center;}
+.hardleft  {text-align: left; float: left;  margin: 15px 0  15px 25px;}
+.hardright {text-align: right; float: right; margin: 15px 25px 15px 0;}
+table {text-align: left; margin: 0px auto 30px auto; font-size: 1em; border-collapse: collapse; border: 1px #999 solid;}
+td, th {padding: 4px; border: 1px #999 solid; vertical-align: top;}
+.caption {padding: 5px; text-align: center; border: 0; font-weight: bold;}
+h1 {font-size: 1.6em;}
+h2 {font-size: 1.4em;}
+h3 {font-size: 1.2em;}
+th {background-color: #ddd;}
+p {text-align: center;}
+.contents {text-align: left; margin-left: 20%;}
+.natflag {border: 1px #999 solid;}
+.nattext {font-size: 0.8em;}
+.place1 {font-weight: bold; background-color: #ffffaa;}
+.place2 {font-weight: bold; background-color: #aaaaff;}
+.place3 {font-weight: bold; background-color: #ffaaaa;}
+.placen {}
+</style>
+
+<script type="text/javascript">
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script>
+
+function swGetURLArgs() {
+
+  var url = location.href;
+  var qs  = url.substring(url.indexOf('?') + 1).split('&');
+
+  for(var i = 0, result = {}; i < qs.length; i++) {
+    qs[i]            = qs[i].split('=');
+    result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+  }
+
+  return result;
+}
+
+//
+//  name=HighlightWins3v3
+//  dependencies=jQuery
+//  description=Highlight winning scores in summary tables.
+//  author=Jon Eskdale based on an idea by Colin Jenkins
+//  date=2016-07-04
+//  version=3.0  For use with Sailwave from V2.22.x
+//  Requires the following lines in the Results.htm file (Results.htm is in the Templates directory)
+//  string.set("summary.col.race.rank1.td",   "rank1")
+//  string.set("summary.col.race.rank2.td",   "rank2")
+//  string.set("summary.col.race.rank3.td",   "rank3")
+
+//  url=http://sailwave.com
+//  email=jon@sailwave.com
+//  twitter=eskdale
+//  comments=Edit colours to colours of your choice
+//
+
+$(document).ready(function() {
+var selectorRank1 = '.rank1';
+var selectorRank2 = '.rank2';
+var selectorRank3 = '.rank3';
+
+// Results with these codes will not get highlighted add or remove codes to your choice
+var ignoreText   = /^(?!.*\b(DNC|DNF|DNS|OCS|BFD|UFD|RET|DSQ|DGM|DNE)\b).*/i
+
+// Edit these colours to change the highlight colours for 1st, 2nd and 3rd
+var winsColour   = '#ffd700';
+var twoColour    = '#6a91c5';
+var threeColour  = '#da6841';
+
+
+// Change the background color for cells with class of rank1-3 and don't have a code specified
+$(function () {
+
+  $(selectorRank1).filter(function() {
+    return ignoreText.test($(this).text());
+  }).css("background", winsColour);
+  $(selectorRank2).filter(function() {
+        return ignoreText.test($(this).text());
+  }).css("background", twoColour);
+  $(selectorRank3).filter(function() {
+        return ignoreText.test($(this).text());
+  }).css("background", threeColour);
+
+});
+});
+</script>
+
+</head>
+
+<body>
+
+<header>
+</header>
+
+<div id="wrap">
+
+<img class="hardright" src="crest.png" alt="event burgee" />
+<img class="hardleft"  src="crest.png" alt="venue burgee" />
+
+<h1>LYC Handicap</h1>
+<h2>August TNS Mahone Marine</h2>
+
+<div style="clear:both;"></div>
+
+<style>
+div.applicant-break {page-break-after:always;}
+</style>
+<h3 class="seriestitle">Results as of  8:42 on August 28, 2020</h3>
+<h3 class="summarytitle" id="summaryp">P Division</h3>
+<div class="caption summarycaption">Sailed: 4, Discards: 1, To count: 3, Rating system: PHRFTOT, Entries: 12, Scoring system: Appendix A-LYC</div>
+<table class="summarytable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="race" />
+<col class="race" />
+<col class="race" />
+<col class="race" />
+<col class="total" />
+<col class="nett" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th><a class="racelink" href="#r1p">06/08/20</a><br />#37 &nbsp;</th>
+<th><a class="racelink" href="#r2p">13/08/20</a><br />&nbsp; &nbsp;</th>
+<th><a class="racelink" href="#r3p">20/07/20</a><br />#6,1,6 &nbsp;</th>
+<th><a class="racelink" href="#r4p">27/07/20</a><br />#43 &nbsp;</th>
+<th>Total</th>
+<th>Nett</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Rumble Fish</td>
+<td>J29 IB</td>
+<td>31991</td>
+<td>LYC</td>
+<td>117</td>
+<td class="rank3">(3.5)</td>
+<td class="rank2">2.0</td>
+<td class="rank1">1.0</td>
+<td class="rank2">2.0</td>
+<td>8.5</td>
+<td>5.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Poohsticks</td>
+<td>J92</td>
+<td>8</td>
+<td>LYC</td>
+<td>96</td>
+<td class="rank2">2.0</td>
+<td class="rank3">3.0</td>
+<td>(5.0)</td>
+<td class="rank1">1.0</td>
+<td>11.0</td>
+<td>6.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>PARADIGM SHIFT</td>
+<td>J29 OB</td>
+<td>117</td>
+<td>LYC</td>
+<td>114</td>
+<td>(5.0)</td>
+<td class="rank1">1.0</td>
+<td class="rank2">2.0</td>
+<td class="rank3">3.0</td>
+<td>11.0</td>
+<td>6.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz 105</td>
+<td>J105</td>
+<td>209</td>
+<td>LYC</td>
+<td>87</td>
+<td class="rank1">1.0</td>
+<td>4.0</td>
+<td>6.0</td>
+<td>(14.0 DNC)</td>
+<td>25.0</td>
+<td>11.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Mojo</td>
+<td>J105</td>
+<td>606</td>
+<td>LYC</td>
+<td>87</td>
+<td class="rank3">3.5</td>
+<td>5.0</td>
+<td>8.0</td>
+<td>(14.0 DNC)</td>
+<td>30.5</td>
+<td>16.5</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>V-tack</td>
+<td>J105</td>
+<td>??</td>
+<td>LYC</td>
+<td>87</td>
+<td>(14.0 DNC)</td>
+<td>6.0</td>
+<td>7.0</td>
+<td>14.0 DNC</td>
+<td>41.0</td>
+<td>27.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz</td>
+<td>J27</td>
+<td>7049</td>
+<td>LYC</td>
+<td>132</td>
+<td>6.0</td>
+<td>(14.0 DNC)</td>
+<td>10.0</td>
+<td>14.0 DNC</td>
+<td>44.0</td>
+<td>30.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>B</td>
+<td>P</td>
+<td>Restless</td>
+<td>IOD</td>
+<td>11</td>
+<td>CYC</td>
+<td>150</td>
+<td>(14.0 DNC)</td>
+<td>14.0 DNC</td>
+<td class="rank3">3.0</td>
+<td>14.0 DNC</td>
+<td>45.0</td>
+<td>31.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Still Magnetic</td>
+<td>J80</td>
+<td>294</td>
+<td>&nbsp;</td>
+<td>117</td>
+<td>(14.0 DNC)</td>
+<td>14.0 DNC</td>
+<td>14.0 DNC</td>
+<td>4.0</td>
+<td>46.0</td>
+<td>32.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Hot Mess</td>
+<td>Olson 29</td>
+<td>2</td>
+<td>LYC</td>
+<td>99</td>
+<td>(14.0 DNC)</td>
+<td>14.0 DNC</td>
+<td>4.0</td>
+<td>14.0 DNC</td>
+<td>46.0</td>
+<td>32.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>B</td>
+<td>P</td>
+<td>Tsunami</td>
+<td>C&C 24</td>
+<td>428</td>
+<td>LYC</td>
+<td>222</td>
+<td>(14.0 DNC)</td>
+<td>14.0 DNC</td>
+<td>14.0 DNC</td>
+<td>5.0</td>
+<td>47.0</td>
+<td>33.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Wandrian</td>
+<td>Ben 36.7</td>
+<td>109</td>
+<td>LYC</td>
+<td>75</td>
+<td>(14.0 DNC)</td>
+<td>14.0 DNC</td>
+<td>9.0</td>
+<td>14.0 DNC</td>
+<td>51.0</td>
+<td>37.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="summarytitle" id="summarys">S Division</h3>
+<div class="caption summarycaption">Sailed: 4, Discards: 1, To count: 3, Rating system: PHRFTOT, Entries: 10, Scoring system: Appendix A-LYC</div>
+<table class="summarytable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="race" />
+<col class="race" />
+<col class="race" />
+<col class="race" />
+<col class="total" />
+<col class="nett" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th><a class="racelink" href="#r1s">06/08/20</a><br />#37 &nbsp;</th>
+<th><a class="racelink" href="#r2s">13/08/20</a><br />&nbsp; &nbsp;</th>
+<th><a class="racelink" href="#r3s">20/07/20</a><br />#6,1,6 &nbsp;</th>
+<th><a class="racelink" href="#r4s">27/07/20</a><br />#43 &nbsp;</th>
+<th>Total</th>
+<th>Nett</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Ping</td>
+<td>Sonar</td>
+<td>754</td>
+<td>LYC</td>
+<td>171</td>
+<td class="rank1">1.0</td>
+<td class="rank3">(3.0)</td>
+<td class="rank1">1.0</td>
+<td class="rank1">1.0</td>
+<td>6.0</td>
+<td>3.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Barbarian</td>
+<td>Sonar</td>
+<td>829</td>
+<td>LYC</td>
+<td>171</td>
+<td>(12.0 DNC)</td>
+<td class="rank1">1.0</td>
+<td class="rank2">2.0</td>
+<td class="rank2">2.0</td>
+<td>17.0</td>
+<td>5.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>So-Gnarly</td>
+<td>Sonar</td>
+<td>366</td>
+<td>LYC</td>
+<td>171</td>
+<td>5.0</td>
+<td>4.0</td>
+<td>(8.0)</td>
+<td class="rank3">3.0</td>
+<td>20.0</td>
+<td>12.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Echo</td>
+<td>Sonar</td>
+<td>571</td>
+<td>LYC</td>
+<td>171</td>
+<td class="rank3">3.0</td>
+<td>5.0</td>
+<td>4.0</td>
+<td>(12.0 DNC)</td>
+<td>24.0</td>
+<td>12.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Pi</td>
+<td>Sonar</td>
+<td>415</td>
+<td>LYC</td>
+<td>171</td>
+<td class="rank2">2.0</td>
+<td>6.0</td>
+<td>(12.0 DNC)</td>
+<td>12.0 DNC</td>
+<td>32.0</td>
+<td>20.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Martha Jane</td>
+<td>Sonar</td>
+<td>83</td>
+<td>LYC</td>
+<td>171</td>
+<td>(12.0 DNC)</td>
+<td class="rank2">2.0</td>
+<td>7.0</td>
+<td>12.0 DNC</td>
+<td>33.0</td>
+<td>21.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Model T</td>
+<td>Sonar</td>
+<td>462</td>
+<td>LYC</td>
+<td>171</td>
+<td>4.0</td>
+<td>(12.0 DNC)</td>
+<td>5.0</td>
+<td>12.0 DNC</td>
+<td>33.0</td>
+<td>21.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Shenanagans</td>
+<td>Sonar</td>
+<td>425</td>
+<td>LYC</td>
+<td>171</td>
+<td>(12.0 DNC)</td>
+<td>7.0</td>
+<td>6.0</td>
+<td>12.0 DNC</td>
+<td>37.0</td>
+<td>25.0</td>
+</tr>
+<tr class="odd summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>SOT After</td>
+<td>Sonar</td>
+<td>835</td>
+<td>LYC</td>
+<td>171</td>
+<td>(12.0 DNC)</td>
+<td>12.0 DNC</td>
+<td class="rank3">3.0</td>
+<td>12.0 DNC</td>
+<td>39.0</td>
+<td>27.0</td>
+</tr>
+<tr class="even summaryrow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Jean</td>
+<td>Sonar</td>
+<td>xxx</td>
+<td>LYC</td>
+<td>171</td>
+<td>(12.0 DNC)</td>
+<td>12.0 DNC</td>
+<td>9.0</td>
+<td>12.0 DNC</td>
+<td>45.0</td>
+<td>33.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r1p">06/08/20 - P Division&nbsp;-&nbsp;#37</h3>
+<div class="caption racecaption">
+Start: Start 1, Finishes: Finish time, Time: 18:30:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz 105</td>
+<td>J105</td>
+<td>209</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:31:25</td>
+<td>1:01:25</td>
+<td>1:09:45</td>
+<td>81.452</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Poohsticks</td>
+<td>J92</td>
+<td>8</td>
+<td>LYC</td>
+<td>96</td>
+<td>18:30:00</td>
+<td>19:32:43</td>
+<td>1:02:43</td>
+<td>1:10:11</td>
+<td>94.289</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Rumble Fish</td>
+<td>J29 IB</td>
+<td>31991</td>
+<td>LYC</td>
+<td>117</td>
+<td>18:30:00</td>
+<td>19:35:01</td>
+<td>1:05:01</td>
+<td>1:10:23</td>
+<td>117</td>
+<td>3.5</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Mojo</td>
+<td>J105</td>
+<td>606</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:31:59</td>
+<td>1:01:59</td>
+<td>1:10:23</td>
+<td>87.048</td>
+<td>3.5</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>PARADIGM SHIFT</td>
+<td>J29 OB</td>
+<td>117</td>
+<td>LYC</td>
+<td>114</td>
+<td>18:30:00</td>
+<td>19:38:24</td>
+<td>1:08:24</td>
+<td>1:14:24</td>
+<td>150.408</td>
+<td>5.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz</td>
+<td>J27</td>
+<td>7049</td>
+<td>LYC</td>
+<td>132</td>
+<td>18:30:00</td>
+<td>19:52:44</td>
+<td>1:22:44</td>
+<td>1:27:31</td>
+<td>291.941</td>
+<td>6.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r2p">13/08/20 - P Division</h3>
+<div class="caption racecaption">
+Start: Start 1, Finishes: Finish time, Time: 18:30:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>PARADIGM SHIFT</td>
+<td>J29 OB</td>
+<td>117</td>
+<td>LYC</td>
+<td>114</td>
+<td>18:30:00</td>
+<td>20:02:04</td>
+<td>1:32:04</td>
+<td>1:40:08</td>
+<td>13.187</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Rumble Fish</td>
+<td>J29 IB</td>
+<td>31991</td>
+<td>LYC</td>
+<td>117</td>
+<td>18:30:00</td>
+<td>20:19:15</td>
+<td>1:49:15</td>
+<td>1:58:16</td>
+<td>113.634</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Poohsticks</td>
+<td>J92</td>
+<td>8</td>
+<td>LYC</td>
+<td>96</td>
+<td>18:30:00</td>
+<td>20:16:14</td>
+<td>1:46:14</td>
+<td>1:58:54</td>
+<td>96</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz 105</td>
+<td>J105</td>
+<td>209</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>20:20:58</td>
+<td>1:50:58</td>
+<td>2:06:01</td>
+<td>123.669</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Mojo</td>
+<td>J105</td>
+<td>606</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>20:37:54</td>
+<td>2:07:54</td>
+<td>2:25:15</td>
+<td>222.655</td>
+<td>5.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>V-tack</td>
+<td>J105</td>
+<td>??</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>20:39:29</td>
+<td>2:09:29</td>
+<td>2:27:03</td>
+<td>231.911</td>
+<td>6.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r3p">20/07/20 - P Division&nbsp;-&nbsp;#6,1,6</h3>
+<div class="caption racecaption">
+Start: Start 1, Finishes: Finish time, Time: 18:30:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Rumble Fish</td>
+<td>J29 IB</td>
+<td>31991</td>
+<td>LYC</td>
+<td>117</td>
+<td>18:30:00</td>
+<td>19:41:44</td>
+<td>1:11:44</td>
+<td>1:17:39</td>
+<td>75.969</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>PARADIGM SHIFT</td>
+<td>J29 OB</td>
+<td>117</td>
+<td>LYC</td>
+<td>114</td>
+<td>18:30:00</td>
+<td>19:41:55</td>
+<td>1:11:55</td>
+<td>1:18:13</td>
+<td>77.505</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>B</td>
+<td>P</td>
+<td>Restless</td>
+<td>IOD</td>
+<td>11</td>
+<td>CYC</td>
+<td>150</td>
+<td>18:30:00</td>
+<td>19:46:10</td>
+<td>1:16:10</td>
+<td>1:18:25</td>
+<td>113.111</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Hot Mess</td>
+<td>Olson 29</td>
+<td>2</td>
+<td>LYC</td>
+<td>99</td>
+<td>18:30:00</td>
+<td>19:42:05</td>
+<td>1:12:05</td>
+<td>1:20:17</td>
+<td>78.901</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Poohsticks</td>
+<td>J92</td>
+<td>8</td>
+<td>LYC</td>
+<td>96</td>
+<td>18:30:00</td>
+<td>19:43:45</td>
+<td>1:13:45</td>
+<td>1:22:32</td>
+<td>92.864</td>
+<td>5.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz 105</td>
+<td>J105</td>
+<td>209</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:43:03</td>
+<td>1:13:03</td>
+<td>1:22:57</td>
+<td>87</td>
+<td>6.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>V-tack</td>
+<td>J105</td>
+<td>??</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:43:20</td>
+<td>1:13:20</td>
+<td>1:23:17</td>
+<td>89.374</td>
+<td>7.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Mojo</td>
+<td>J105</td>
+<td>606</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:45:32</td>
+<td>1:15:32</td>
+<td>1:25:47</td>
+<td>107.805</td>
+<td>8.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Wandrian</td>
+<td>Ben 36.7</td>
+<td>109</td>
+<td>LYC</td>
+<td>87</td>
+<td>18:30:00</td>
+<td>19:48:32</td>
+<td>1:18:32</td>
+<td>1:29:11</td>
+<td>132.938</td>
+<td>9.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Buzz</td>
+<td>J27</td>
+<td>7049</td>
+<td>LYC</td>
+<td>144</td>
+<td>18:30:00</td>
+<td>19:58:23</td>
+<td>1:28:23</td>
+<td>1:31:49</td>
+<td>215.46</td>
+<td>10.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r4p">27/07/20 - P Division&nbsp;-&nbsp;#43</h3>
+<div class="caption racecaption">
+Start: Start 1, Finishes: Finish time, Time: 18:30:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Poohsticks</td>
+<td>J92</td>
+<td>8</td>
+<td>LYC</td>
+<td>96</td>
+<td>18:30:00</td>
+<td>19:25:12</td>
+<td>0:55:12</td>
+<td>1:01:47</td>
+<td>65.716</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Rumble Fish</td>
+<td>J29 IB</td>
+<td>31991</td>
+<td>LYC</td>
+<td>129</td>
+<td>18:30:00</td>
+<td>19:30:03</td>
+<td>1:00:03</td>
+<td>1:03:49</td>
+<td>117.617</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>PARADIGM SHIFT</td>
+<td>J29 OB</td>
+<td>117</td>
+<td>LYC</td>
+<td>126</td>
+<td>18:30:00</td>
+<td>19:30:50</td>
+<td>1:00:50</td>
+<td>1:04:57</td>
+<td>126</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>A</td>
+<td>P</td>
+<td>Still Magnetic</td>
+<td>J80</td>
+<td>294</td>
+<td>&nbsp;</td>
+<td>117</td>
+<td>18:30:00</td>
+<td>19:30:02</td>
+<td>1:00:02</td>
+<td>1:04:59</td>
+<td>117.439</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>B</td>
+<td>P</td>
+<td>Tsunami</td>
+<td>C&C 24</td>
+<td>428</td>
+<td>LYC</td>
+<td>240</td>
+<td>18:30:00</td>
+<td>19:48:36</td>
+<td>1:18:36</td>
+<td>1:11:24</td>
+<td>316.128</td>
+<td>5.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r1s">06/08/20 - S Division&nbsp;-&nbsp;#37</h3>
+<div class="caption racecaption">
+Start: Start 2, Finishes: Finish time, Time: 18:36:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Ping</td>
+<td>Sonar</td>
+<td>754</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:42:55</td>
+<td>1:06:55</td>
+<td>1:06:49</td>
+<td>154.086</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Pi</td>
+<td>Sonar</td>
+<td>415</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:43:30</td>
+<td>1:07:30</td>
+<td>1:07:24</td>
+<td>160.006</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Echo</td>
+<td>Sonar</td>
+<td>571</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:44:35</td>
+<td>1:08:35</td>
+<td>1:08:29</td>
+<td>171</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Model T</td>
+<td>Sonar</td>
+<td>462</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:44:49</td>
+<td>1:08:49</td>
+<td>1:08:43</td>
+<td>173.368</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>So-Gnarly</td>
+<td>Sonar</td>
+<td>366</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:45:28</td>
+<td>1:09:28</td>
+<td>1:09:22</td>
+<td>179.964</td>
+<td>5.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r2s">13/08/20 - S Division</h3>
+<div class="caption racecaption">
+Start: Start 2, Finishes: Finish time, Time: 18:36:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Barbarian</td>
+<td>Sonar</td>
+<td>829</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:51:41</td>
+<td>1:15:41</td>
+<td>1:15:34</td>
+<td>88.815</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Martha Jane</td>
+<td>Sonar</td>
+<td>83</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:01:01</td>
+<td>1:25:01</td>
+<td>1:24:54</td>
+<td>164.512</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Ping</td>
+<td>Sonar</td>
+<td>754</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:01:18</td>
+<td>1:25:18</td>
+<td>1:25:11</td>
+<td>166.81</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>So-Gnarly</td>
+<td>Sonar</td>
+<td>366</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:01:49</td>
+<td>1:25:49</td>
+<td>1:25:42</td>
+<td>171</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Echo</td>
+<td>Sonar</td>
+<td>571</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:02:01</td>
+<td>1:26:01</td>
+<td>1:25:54</td>
+<td>172.622</td>
+<td>5.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Pi</td>
+<td>Sonar</td>
+<td>415</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:06:11</td>
+<td>1:30:11</td>
+<td>1:30:03</td>
+<td>206.415</td>
+<td>6.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Shenanagans</td>
+<td>Sonar</td>
+<td>425</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>20:14:28</td>
+<td>1:38:28</td>
+<td>1:38:20</td>
+<td>273.595</td>
+<td>7.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r3s">20/07/20 - S Division&nbsp;-&nbsp;#6,1,6</h3>
+<div class="caption racecaption">
+Start: Start 2, Finishes: Finish time, Time: 18:44:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Ping</td>
+<td>Sonar</td>
+<td>754</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:00:22</td>
+<td>1:16:22</td>
+<td>1:16:15</td>
+<td>136.633</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Barbarian</td>
+<td>Sonar</td>
+<td>829</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:00:30</td>
+<td>1:16:30</td>
+<td>1:16:23</td>
+<td>137.788</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>SOT After</td>
+<td>Sonar</td>
+<td>835</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:02:48</td>
+<td>1:18:48</td>
+<td>1:18:41</td>
+<td>157.715</td>
+<td>3.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Echo</td>
+<td>Sonar</td>
+<td>571</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:02:54</td>
+<td>1:18:54</td>
+<td>1:18:47</td>
+<td>158.582</td>
+<td>4.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Model T</td>
+<td>Sonar</td>
+<td>462</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:04:20</td>
+<td>1:20:20</td>
+<td>1:20:13</td>
+<td>171</td>
+<td>5.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Shenanagans</td>
+<td>Sonar</td>
+<td>425</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:05:00</td>
+<td>1:21:00</td>
+<td>1:20:53</td>
+<td>176.776</td>
+<td>6.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Martha Jane</td>
+<td>Sonar</td>
+<td>83</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:06:07</td>
+<td>1:22:07</td>
+<td>1:22:00</td>
+<td>186.451</td>
+<td>7.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>So-Gnarly</td>
+<td>Sonar</td>
+<td>366</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:09:56</td>
+<td>1:25:56</td>
+<td>1:25:49</td>
+<td>219.518</td>
+<td>8.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Jean</td>
+<td>Sonar</td>
+<td>xxx</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:44:00</td>
+<td>20:15:27</td>
+<td>1:31:27</td>
+<td>1:31:19</td>
+<td>267.314</td>
+<td>9.0</td>
+</tr>
+</tbody>
+</table>
+<h3 class="racetitle" id="r4s">27/07/20 - S Division&nbsp;-&nbsp;#43</h3>
+<div class="caption racecaption">
+Start: Start 2, Finishes: Finish time, Time: 18:36:00
+</div>
+<table class="racetable" cellspacing="0" cellpadding="0" border="0">
+<colgroup span="14">
+<col class="exclude" />
+<col class="fleet" />
+<col class="division" />
+<col class="boat" />
+<col class="class" />
+<col class="sailno" />
+<col class="club" />
+<col class="rating" />
+<col class="start" />
+<col class="finish" />
+<col class="elapsed" />
+<col class="corrected" />
+<col class="bcr" />
+<col class="points" />
+</colgroup>
+<thead>
+<tr class="titlerow">
+<th>&nbsp;</th>
+<th>Fleet</th>
+<th>Division</th>
+<th>Boat</th>
+<th>Class</th>
+<th>SailNo</th>
+<th>Club</th>
+<th>LYC PHRF</th>
+<th>Start</th>
+<th>Finish</th>
+<th>Elapsed</th>
+<th>Corrected</th>
+<th>BCR</th>
+<th>Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Ping</td>
+<td>Sonar</td>
+<td>754</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:33:06</td>
+<td>0:57:06</td>
+<td>0:57:01</td>
+<td>171</td>
+<td>1.0</td>
+</tr>
+<tr class="even racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>Barbarian</td>
+<td>Sonar</td>
+<td>829</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:34:25</td>
+<td>0:58:25</td>
+<td>0:58:20</td>
+<td>187.049</td>
+<td>2.0</td>
+</tr>
+<tr class="odd racerow">
+<td>&nbsp;</td>
+<td>S</td>
+<td>S</td>
+<td>So-Gnarly</td>
+<td>Sonar</td>
+<td>366</td>
+<td>LYC</td>
+<td>171</td>
+<td>18:36:00</td>
+<td>19:39:09</td>
+<td>1:03:09</td>
+<td>1:03:04</td>
+<td>244.744</td>
+<td>3.0</td>
+</tr>
+</tbody>
+</table>
+
+<p class="hardleft"><a href="http://www.lyc.ca/results.html">www.lyc.ca/results.html</a><br /><a href="mailto:"></a></p>
+<p class="hardright"><a href="http://www.lyc.ca/results.html">www.lyc.ca/results.html</a><br /><a href="mailto:"></a></p>
+<p>Sailwave Scoring Software 2.28.1<br /><a href="http://www.sailwave.com">www.sailwave.com</a></p>
+
+</div>
+
+<footer>
+</footer>
+
+<div id="scrollbottom"></div>
+
+</body>
+</html>
+
+
