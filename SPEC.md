@@ -424,6 +424,41 @@ CREATE INDEX idx_weather_date ON weather(date);
 - Track how each boat's rating changed over the years
 - Useful for understanding handicap adjustments and their impact on results
 
+#### 2e. Data Validation & Stewardship
+
+- Expect some fields to require human review/correction, especially:
+  - boat ownership / skipper history
+  - boat name aliases and spelling cleanup
+  - sail number inconsistencies
+  - duplicate-entity merges
+  - caption/doc metadata for ancillary historical pages
+- Use **CSV-first workflows** so data can be round-tripped through Google Sheets or similar no-code tools
+
+**Recommended stewarded CSVs:**
+
+- `enrichment/boat_owners.csv` — boat_name, sail_number, owner_name, year_start, year_end
+- `enrichment/boat_aliases.csv` — raw_name, raw_sail_number, canonical_boat_name, canonical_sail_number, notes
+- `enrichment/skipper_aliases.csv` — raw_name, canonical_name, notes
+- `enrichment/manual_fixes.csv` — source_path, field_name, old_value, new_value, reason, reviewer
+- `enrichment/duplicate_review.csv` — candidate_a, candidate_b, suggested_match_type, decision, reviewer
+
+**Recommended workflow:**
+
+1. Generate review CSVs from parser/load outputs
+2. Upload CSVs to Google Sheets for club-member review
+3. Lock header/schema and add simple data-validation rules in the sheet
+4. Re-download as CSV
+5. Import via dedicated scripts that validate before applying changes
+6. Keep imported CSVs version-controlled for auditability
+
+**Rules of thumb:**
+
+- Prefer additive correction files over editing parsed raw data by hand
+- Keep every manual correction attributable to a source row and reviewer
+- Make import scripts idempotent so corrected CSVs can be safely re-applied
+- Separate “suggested match” outputs from “approved correction” inputs
+- Treat manual stewardship data as part of the pipeline, not a one-off cleanup
+
 ### Phase 3: Query & Analysis Tools
 
 #### 3a. Python Query Library
@@ -625,6 +660,10 @@ lyc-racing-data/
 │   ├── backfill_weather.py
 │   ├── backfill_tides.py
 │   ├── boat_owners.csv
+│   ├── boat_aliases.csv
+│   ├── skipper_aliases.csv
+│   ├── manual_fixes.csv
+│   ├── duplicate_review.csv
 │   └── import_owners.py
 ├── lyc_racing/                      # Phase 3 query library
 │   ├── __init__.py
