@@ -610,6 +610,31 @@ Pre-built analysis notebooks in `notebooks/`:
 - **Attendance vs performance comparisons**
 - **Return rate** — which boats keep coming back season after season
 
+### 4.1.3 Analytics Dimensions / Filter Model
+
+Many archive metrics are definition-sensitive. The same chart can mean materially different things depending on which races, participants, and time basis are included. The implementation should therefore treat metric definitions as structured configuration, not just chart labels.
+
+**Dimensions that should eventually be explicit:**
+
+- **Time basis** — elapsed time, corrected time, finish rank, series points
+- **Population** — boats only, helms/skippers only, combined participants
+- **Event scope** — handicap-only, all events, exclude flagged special events, Thursday-only, Sunday-only, trophy-only, championship-only
+- **Aggregation** — per-race average, per-boat average, winner average, median, percentile
+- **Grouping** — by year, decade, class, fleet, course, day of week, owner/skipper
+- **Thresholds** — minimum races, minimum seasons, minimum finishes
+
+**Examples that depend on these dimensions:**
+
+- “Average Thursday race length” could mean elapsed time or corrected time, and could be computed across all finishers, just winners, or at the event level
+- “Win percentage” could mean individual race wins or overall series wins, and could include or exclude class/division-only results
+- “Fleet size” could mean boats, helms, or both, and could include or exclude special regattas/championships
+
+**Recommendation:**
+
+- Create a single source of truth for public metric definitions
+- Surface those definitions in the UI via glossary/info tooltips
+- Record definition changes in a changelog so published stats remain auditable over time
+
 ### 4.2 Predictive & Interactive
 
 - **Race predictor** — given entered boats + wind forecast, predict finishing order from historical data

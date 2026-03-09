@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+from collections import defaultdict
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -37,6 +38,134 @@ def _collapse_whitespace(text: str | None) -> str:
     if text is None:
         return ""
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _looks_like_variant_name(name: str) -> bool:
+    lowered = _collapse_whitespace(name).lower()
+    return bool(
+        re.search(r"\boverall\b|\bsummary\b", lowered)
+        or re.search(r"\ba\s*&\s*b\b", lowered)
+        or re.search(r"\ba,b\b", lowered)
+        or re.search(r"\ball\b", lowered)
+    )
+
+
+def _canonical_source_stem(source_file: str | None) -> str:
+    stem = Path(source_file or "").stem.lower().replace("-", "_")
+    stem = re.sub(r"_(overall|summary|all|ab)$", "", stem)
+    stem = re.sub(r"(overall|summary|all|ab)$", "", stem)
+    return stem
+
+
+def _canonical_event_name(name: str) -> str:
+    cleaned = _collapse_whitespace(name)
+    cleaned = re.sub(r"\s+\boverall\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+\bsummary\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+A\s*&\s*B(?:\s*&\s*S)?\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+A,B(?:\s*&\s*S)?\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+ALL\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    return cleaned.strip(" -")
+
+
+def _event_rows(conn: sqlite3.Connection) -> list[dict]:
+    return conn.execute(
+        """
+        SELECT e.id, e.year, e.name, e.slug, e.event_type, e.month, e.source_format,
+               e.source_file, e.races_sailed, e.entries,
+               COUNT(DISTINCT r.id) AS race_count,
+               COUNT(DISTINCT ss.id) AS standings_count,
+               COUNT(DISTINCT res.id) AS result_count
+        FROM events e
+        LEFT JOIN races r ON r.event_id = e.id
+        LEFT JOIN series_standings ss ON ss.event_id = e.id
+        LEFT JOIN results res ON res.race_id = r.id
+        GROUP BY e.id
+        """
+    ).fetchall()
+
+
+def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], dict[int, list[dict]]]:
+    event_rows = _event_rows(conn)
+    grouped: dict[tuple[int, str], list[dict]] = defaultdict(list)
+    singletons: list[dict] = []
+
+    for event in event_rows:
+        source_root = _canonical_source_stem(event["source_file"])
+        original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
+        is_variant = source_root != original_stem or _looks_like_variant_name(event["name"])
+        event["source_root"] = source_root
+        event["is_variant"] = is_variant
+        if source_root:
+            grouped[(event["year"], source_root)].append(event)
+        else:
+            singletons.append(event)
+
+    event_meta: dict[int, dict] = {}
+    groups_by_primary: dict[int, list[dict]] = {}
+
+    def primary_key(event: dict) -> tuple:
+        original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
+        return (
+            int(not event["is_variant"]),
+            int(original_stem == event["source_root"]),
+            int((event["race_count"] or 0) > 0),
+            event["result_count"] or 0,
+            event["standings_count"] or 0,
+            -event["id"],
+        )
+
+    for _, group in grouped.items():
+        if len(group) == 1 and not group[0]["is_variant"]:
+            singletons.append(group[0])
+            continue
+
+        primary = max(group, key=primary_key)
+        canonical_name = _canonical_event_name(primary["name"])
+        member_ids = [event["id"] for event in sorted(group, key=lambda item: item["id"])]
+        variant_sources = [
+            {
+                "event_id": event["id"],
+                "name": event["name"],
+                "source_file": event["source_file"],
+                "race_count": event["race_count"],
+                "standings_count": event["standings_count"],
+                "result_count": event["result_count"],
+                "is_primary": event["id"] == primary["id"],
+            }
+            for event in sorted(group, key=lambda item: item["id"])
+        ]
+        groups_by_primary[primary["id"]] = group
+        for event in group:
+            event_meta[event["id"]] = {
+                "canonical_event_id": primary["id"],
+                "canonical_name": canonical_name,
+                "is_variant_view": event["id"] != primary["id"],
+                "group_event_ids": member_ids,
+                "variant_sources": variant_sources,
+            }
+
+    for event in singletons:
+        event_meta[event["id"]] = {
+            "canonical_event_id": event["id"],
+            "canonical_name": event["name"],
+            "is_variant_view": False,
+            "group_event_ids": [event["id"]],
+            "variant_sources": [
+                {
+                    "event_id": event["id"],
+                    "name": event["name"],
+                    "source_file": event["source_file"],
+                    "race_count": event["race_count"],
+                    "standings_count": event["standings_count"],
+                    "result_count": event["result_count"],
+                    "is_primary": True,
+                }
+            ],
+        }
+        groups_by_primary[event["id"]] = [event]
+
+    return event_meta, groups_by_primary
 
 
 def _event_metrics(conn: sqlite3.Connection) -> dict[int, dict]:
@@ -143,11 +272,13 @@ def _excluded_event_map(conn: sqlite3.Connection) -> dict[int, dict]:
 def export_overview(conn: sqlite3.Connection) -> dict:
     """Export high-level stats for the home page."""
     excluded = _excluded_event_map(conn)
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
     placeholders = ",".join("?" for _ in excluded) if excluded else None
     where = f"WHERE e.id NOT IN ({placeholders})" if placeholders else ""
     stats = {
         "total_seasons": conn.execute("SELECT COUNT(*) as n FROM seasons").fetchone()["n"],
         "total_events": conn.execute("SELECT COUNT(*) as n FROM events").fetchone()["n"],
+        "canonical_event_count": len(groups_by_primary),
         "total_races": conn.execute("SELECT COUNT(*) as n FROM races").fetchone()["n"],
         "total_results": conn.execute("SELECT COUNT(*) as n FROM results").fetchone()["n"],
         "total_boats": conn.execute("SELECT COUNT(*) as n FROM boats").fetchone()["n"],
@@ -155,6 +286,9 @@ def export_overview(conn: sqlite3.Connection) -> dict:
             f"SELECT COUNT(*) AS n FROM events e {where}",
             tuple(excluded.keys()),
         ).fetchone()["n"],
+        "handicap_canonical_event_count": sum(
+            1 for primary_id in groups_by_primary if primary_id not in excluded
+        ),
         "handicap_results": conn.execute(
             f"""
             SELECT COUNT(*) AS n
@@ -177,6 +311,7 @@ def export_overview(conn: sqlite3.Connection) -> dict:
 def export_seasons(conn: sqlite3.Connection) -> None:
     """Export season list with event counts."""
     excluded = _excluded_event_map(conn)
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
     rows = conn.execute("""
         SELECT s.year,
                COUNT(e.id) as event_count,
@@ -188,7 +323,12 @@ def export_seasons(conn: sqlite3.Connection) -> None:
         GROUP BY s.year
         ORDER BY s.year DESC
     """).fetchall()
+    primary_ids = set(groups_by_primary.keys())
     for row in rows:
+        canonical_events = [
+            primary_id for primary_id in primary_ids
+            if conn.execute("SELECT year FROM events WHERE id = ?", (primary_id,)).fetchone()["year"] == row["year"]
+        ]
         special_count = sum(
             1
             for event_id, meta in excluded.items()
@@ -196,13 +336,16 @@ def export_seasons(conn: sqlite3.Connection) -> None:
         )
         row["special_event_count"] = special_count
         row["handicap_event_count"] = row["event_count"] - special_count
+        row["canonical_event_count"] = len(canonical_events)
+        row["handicap_canonical_event_count"] = sum(1 for event_id in canonical_events if event_id not in excluded)
     _write_json(OUTPUT_DIR / "seasons.json", rows)
 
 
 def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
     """Export detail for a single season."""
     excluded = _excluded_event_map(conn)
-    events = conn.execute("""
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
+    rows = conn.execute("""
         SELECT e.id, e.name, e.slug, e.event_type, e.month, e.source_format,
                COALESCE(e.races_sailed, (SELECT COUNT(*) FROM races r WHERE r.event_id = e.id)) as races_sailed,
                COALESCE(e.entries, (SELECT COUNT(DISTINCT res.participant_id)
@@ -212,11 +355,43 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
         WHERE e.year = ?
         ORDER BY e.event_type, e.name
     """, (year,)).fetchall()
-    for event in events:
-        meta = excluded.get(event["id"])
-        event["special_event_kind"] = meta["kind"] if meta else None
-        event["exclude_from_handicap_stats"] = bool(meta)
-        event["special_event_reasons"] = meta["reasons"] if meta else []
+    events = []
+    for event in rows:
+        meta = event_meta[event["id"]]
+        if meta["canonical_event_id"] != event["id"]:
+            continue
+        group_ids = meta["group_event_ids"]
+        placeholders = ",".join("?" for _ in group_ids)
+        merged_races = conn.execute(
+            f"SELECT COUNT(DISTINCT id) AS n FROM races WHERE event_id IN ({placeholders})",
+            tuple(group_ids),
+        ).fetchone()["n"]
+        merged_entries = conn.execute(
+            f"""
+            SELECT COUNT(DISTINCT res.participant_id) AS n
+            FROM results res
+            JOIN races r ON r.id = res.race_id
+            WHERE r.event_id IN ({placeholders})
+            """,
+            tuple(group_ids),
+        ).fetchone()["n"]
+        special_meta = excluded.get(event["id"])
+        events.append(
+            {
+                **event,
+                "name": meta["canonical_name"],
+                "slug": event["slug"],
+                "races_sailed": merged_races or event["races_sailed"],
+                "entries": merged_entries or event["entries"],
+                "canonical_event_id": meta["canonical_event_id"],
+                "is_variant_view": False,
+                "variant_view_count": len(group_ids) - 1,
+                "variant_sources": meta["variant_sources"],
+                "special_event_kind": special_meta["kind"] if special_meta else None,
+                "exclude_from_handicap_stats": bool(special_meta),
+                "special_event_reasons": special_meta["reasons"] if special_meta else [],
+            }
+        )
 
     # Unique boats that raced this year
     boats = conn.execute("""
@@ -237,6 +412,7 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
 def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
     """Export full detail for a single event."""
     excluded = _excluded_event_map(conn)
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
     event = conn.execute("""
         SELECT e.*, s.year as season_year
         FROM events e
@@ -245,53 +421,79 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
     """, (event_id,)).fetchone()
     if not event:
         return
+    meta = event_meta[event_id]
+    group_ids = meta["group_event_ids"]
+    group_placeholders = ",".join("?" for _ in group_ids)
 
     # Backfill races_sailed/entries from actual data when NULL
-    if event["races_sailed"] is None:
+    if event["races_sailed"] is None or len(group_ids) > 1:
         event["races_sailed"] = conn.execute(
-            "SELECT COUNT(*) as n FROM races WHERE event_id = ?", (event_id,)
+            f"SELECT COUNT(DISTINCT id) as n FROM races WHERE event_id IN ({group_placeholders})",
+            tuple(group_ids),
         ).fetchone()["n"]
-    if event["entries"] is None:
+    if event["entries"] is None or len(group_ids) > 1:
         event["entries"] = conn.execute("""
             SELECT COUNT(DISTINCT res.participant_id) as n
             FROM results res JOIN races r ON res.race_id = r.id
-            WHERE r.event_id = ?
-        """, (event_id,)).fetchone()["n"]
+            WHERE r.event_id IN ({group_placeholders})
+        """.format(group_placeholders=group_placeholders), tuple(group_ids)).fetchone()["n"]
 
-    meta = excluded.get(event_id)
-    event["special_event_kind"] = meta["kind"] if meta else None
-    event["exclude_from_handicap_stats"] = bool(meta)
-    event["special_event_reasons"] = meta["reasons"] if meta else []
+    special_meta = excluded.get(meta["canonical_event_id"])
+    event["name"] = meta["canonical_name"]
+    event["canonical_event_id"] = meta["canonical_event_id"]
+    event["is_variant_view"] = meta["is_variant_view"]
+    event["variant_sources"] = meta["variant_sources"]
+    event["exclude_from_handicap_stats"] = bool(special_meta)
+    event["special_event_kind"] = special_meta["kind"] if special_meta else None
+    event["special_event_reasons"] = special_meta["reasons"] if special_meta else []
 
     # Series standings
-    standings = conn.execute("""
+    standings_rows = conn.execute(f"""
         SELECT ss.rank, ss.summary_scope, ss.fleet, ss.division,
-               ss.phrf_rating, ss.total_points, ss.nett_points,
+               ss.phrf_rating, ss.total_points, ss.nett_points, ss.participant_id,
                p.display_name, p.participant_type, p.sail_number, p.raw_class,
-               b.name as boat_name, b.class as boat_class, b.id as boat_id
+               b.name as boat_name, b.class as boat_class, b.id as boat_id,
+               ss.event_id
         FROM series_standings ss
         JOIN participants p ON ss.participant_id = p.id
         LEFT JOIN boats b ON p.boat_id = b.id
-        WHERE ss.event_id = ?
+        WHERE ss.event_id IN ({group_placeholders})
         ORDER BY ss.summary_scope, ss.rank
-    """, (event_id,)).fetchall()
+    """, tuple(group_ids)).fetchall()
+    standing_seen: set[tuple] = set()
+    standings = []
+    for row in standings_rows:
+        key = (row["participant_id"], row["summary_scope"])
+        if key in standing_seen:
+            continue
+        standing_seen.add(key)
+        row.pop("participant_id", None)
+        row.pop("event_id", None)
+        standings.append(row)
 
     # Races
-    races = conn.execute("""
+    race_rows = conn.execute(f"""
         SELECT r.id, r.race_key, r.race_number, r.date, r.start_time,
-               r.wind_direction, r.wind_speed_knots, r.course, r.distance_nm, r.notes
+               r.wind_direction, r.wind_speed_knots, r.course, r.distance_nm, r.notes,
+               r.event_id
         FROM races r
-        WHERE r.event_id = ?
+        WHERE r.event_id IN ({group_placeholders})
         ORDER BY r.race_number, r.race_key
-    """, (event_id,)).fetchall()
+    """, tuple(group_ids)).fetchall()
+    race_map: dict[tuple, dict] = {}
+    for race in race_rows:
+        key = (race["race_number"], race["race_key"], race["date"])
+        if key not in race_map:
+            race_map[key] = {**race, "results": [], "_participant_ids": set()}
+        race_map[key]["id"] = min(race_map[key]["id"], race["id"])
 
     # Results per race
-    for race in races:
-        race["results"] = conn.execute("""
+    for race in race_rows:
+        results = conn.execute("""
             SELECT res.rank, res.fleet, res.division, res.phrf_rating,
                    res.start_time, res.finish_time, res.elapsed_time,
                    res.corrected_time, res.bcr, res.points, res.status,
-                   p.display_name, p.participant_type, p.sail_number, p.raw_class,
+                   p.id as participant_id, p.display_name, p.participant_type, p.sail_number, p.raw_class,
                    b.name as boat_name, b.class as boat_class, b.id as boat_id
             FROM results res
             JOIN participants p ON res.participant_id = p.id
@@ -299,6 +501,19 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
             WHERE res.race_id = ?
             ORDER BY res.rank NULLS LAST
         """, (race["id"],)).fetchall()
+        merged_race = race_map[(race["race_number"], race["race_key"], race["date"])]
+        for row in results:
+            if row["participant_id"] in merged_race["_participant_ids"]:
+                continue
+            merged_race["_participant_ids"].add(row["participant_id"])
+            row.pop("participant_id", None)
+            merged_race["results"].append(row)
+
+    races = sorted(race_map.values(), key=lambda item: (item["race_number"] or 999, item["race_key"] or ""))
+    for race in races:
+        race.pop("_participant_ids", None)
+        race.pop("event_id", None)
+        race["results"] = sorted(race["results"], key=lambda item: (item["rank"] is None, item["rank"] or 9999))
 
     data = {**event, "standings": standings, "races": races}
     _write_json(OUTPUT_DIR / "events" / f"{event_id}.json", data)
@@ -331,6 +546,7 @@ def export_boats(conn: sqlite3.Connection) -> None:
 def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
     """Export detail for a single boat."""
     excluded = _excluded_event_map(conn)
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
     placeholders = ",".join("?" for _ in excluded) if excluded else None
     where = f"AND e.id NOT IN ({placeholders})" if placeholders else ""
     boat = conn.execute("SELECT * FROM boats WHERE id = ?", (boat_id,)).fetchone()
@@ -371,8 +587,8 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
     """.format(where=where), (boat_id, *excluded.keys())).fetchall()
 
     # Trophy wins (series standings rank 1)
-    trophies = conn.execute("""
-        SELECT e.year, e.name, e.event_type, ss.summary_scope, ss.nett_points
+    trophy_rows = conn.execute("""
+        SELECT e.id as event_id, e.year, e.name, e.event_type, ss.summary_scope, ss.nett_points
         FROM series_standings ss
         JOIN events e ON ss.event_id = e.id
         JOIN participants p ON ss.participant_id = p.id
@@ -380,6 +596,15 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
         {where}
         ORDER BY e.year DESC, e.name
     """.format(where=where), (boat_id, *excluded.keys())).fetchall()
+    seen_trophies: set[int] = set()
+    trophies = []
+    for row in trophy_rows:
+        canonical_id = event_meta[row["event_id"]]["canonical_event_id"] if "event_id" in row else None
+        if canonical_id in seen_trophies:
+            continue
+        if canonical_id is not None:
+            seen_trophies.add(canonical_id)
+        trophies.append(row)
 
     data = {**boat, "stats": stats, "seasons": seasons, "trophies": trophies}
     _write_json(OUTPUT_DIR / "boats" / f"{boat_id}.json", data)
@@ -425,19 +650,30 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
     """.format(where=where), tuple(excluded.keys())).fetchall()
 
     # Most trophy/series wins
-    most_trophies = conn.execute("""
-        SELECT b.id, b.name, b.class, b.sail_number,
-               COUNT(*) as trophy_wins
+    trophy_rows = conn.execute("""
+        SELECT b.id, b.name, b.class, b.sail_number, e.id as event_id
         FROM series_standings ss
         JOIN participants p ON ss.participant_id = p.id
         JOIN boats b ON p.boat_id = b.id
         JOIN events e ON ss.event_id = e.id
         WHERE ss.rank = 1
         {where_and}
-        GROUP BY b.id
-        ORDER BY trophy_wins DESC
-        LIMIT 25
     """.format(where_and=(f"AND e.id NOT IN ({placeholders})" if placeholders else "")), tuple(excluded.keys())).fetchall()
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
+    trophy_counts: dict[int, dict] = {}
+    seen_trophy_keys: set[tuple[int, int]] = set()
+    for row in trophy_rows:
+        canonical_event_id = event_meta[row["event_id"]]["canonical_event_id"]
+        key = (row["id"], canonical_event_id)
+        if key in seen_trophy_keys:
+            continue
+        seen_trophy_keys.add(key)
+        entry = trophy_counts.setdefault(
+            row["id"],
+            {"id": row["id"], "name": row["name"], "class": row["class"], "sail_number": row["sail_number"], "trophy_wins": 0},
+        )
+        entry["trophy_wins"] += 1
+    most_trophies = sorted(trophy_counts.values(), key=lambda item: (-item["trophy_wins"], item["name"]))[:25]
 
     # Best win percentage (min 20 races)
     best_pct = conn.execute("""
@@ -485,40 +721,53 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
 
 def export_trophy_history(conn: sqlite3.Connection) -> None:
     """Export winner history for each trophy/event name."""
+    excluded = _excluded_event_map(conn)
+    event_meta, groups_by_primary = _canonical_event_groups(conn)
     # Get distinct trophy events
-    trophies = conn.execute("""
-        SELECT DISTINCT e.name, e.slug, e.event_type
-        FROM events e
-        WHERE e.event_type IN ('trophy', 'championship')
-        ORDER BY e.name
-    """).fetchall()
-
-    # Deduplicate by slug
-    seen_slugs: set[str] = set()
     unique_trophies = []
-    for t in trophies:
-        slug = t.get("slug") or t["name"]
-        if slug not in seen_slugs:
-            seen_slugs.add(slug)
-            unique_trophies.append(t)
+    for primary_id, group in groups_by_primary.items():
+        primary = next(event for event in group if event["id"] == primary_id)
+        if primary["event_type"] not in {"trophy", "championship"}:
+            continue
+        canonical_name = event_meta[primary_id]["canonical_name"]
+        slug = primary["slug"]
+        unique_trophies.append({"id": primary_id, "name": canonical_name, "slug": slug, "event_type": primary["event_type"]})
 
     trophy_list = []
     for trophy in unique_trophies:
-        winners = conn.execute("""
-            SELECT e.year, e.id as event_id,
+        group_ids = event_meta[trophy["id"]]["group_event_ids"]
+        placeholders = ",".join("?" for _ in group_ids)
+        winner_rows = conn.execute(f"""
+            SELECT e.year, e.id as event_id, ss.summary_scope,
                    p.display_name, b.name as boat_name, b.class as boat_class,
                    b.id as boat_id, ss.nett_points
             FROM series_standings ss
             JOIN events e ON ss.event_id = e.id
             JOIN participants p ON ss.participant_id = p.id
             LEFT JOIN boats b ON p.boat_id = b.id
-            WHERE e.slug = ? AND ss.rank = 1 AND ss.summary_scope = 'overall'
+            WHERE e.id IN ({placeholders}) AND ss.rank = 1
             ORDER BY e.year
-        """, (trophy["slug"],)).fetchall()
+        """, tuple(group_ids)).fetchall()
+        winners = []
+        seen_years: set[int] = set()
+        preferred = sorted(
+            winner_rows,
+            key=lambda row: (
+                row["year"],
+                0 if row["summary_scope"] == "overall" else 1,
+                row["nett_points"] if row["nett_points"] is not None else 999999,
+            ),
+        )
+        for row in preferred:
+            if row["year"] in seen_years:
+                continue
+            seen_years.add(row["year"])
+            row.pop("summary_scope", None)
+            winners.append(row)
 
         # Fallback: for events with no series standings (race-only), get race winner
         if not winners:
-            winners = conn.execute("""
+            winners = conn.execute(f"""
                 SELECT e.year, e.id as event_id,
                        p.display_name, b.name as boat_name, b.class as boat_class,
                        b.id as boat_id, res.points as nett_points
@@ -527,9 +776,9 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 JOIN events e ON rc.event_id = e.id
                 JOIN participants p ON res.participant_id = p.id
                 LEFT JOIN boats b ON p.boat_id = b.id
-                WHERE e.slug = ? AND res.rank = 1
+                WHERE e.id IN ({placeholders}) AND res.rank = 1
                 ORDER BY e.year
-            """, (trophy["slug"],)).fetchall()
+            """, tuple(group_ids)).fetchall()
 
         trophy_list.append({
             "name": trophy["name"],

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { useHashParam, useJsonData } from "@/lib/use-data";
 import type { SeasonDetail, EventSummary, EventDetail } from "@/lib/data";
+import InfoTip from "@/components/InfoTip";
 
 const MONTH_ORDER: Record<string, number> = {
   january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
@@ -17,6 +18,10 @@ function sortByMonth(events: EventSummary[]): EventSummary[] {
     if (ma !== mb) return ma - mb;
     return a.name.localeCompare(b.name);
   });
+}
+
+function formatReason(reason: string): string {
+  return reason.replaceAll("_", " ");
 }
 
 function EventRaceDetail({ eventId }: { eventId: number }) {
@@ -39,6 +44,27 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
 
   return (
     <div className="bg-cream/50 border-t border-border/50 animate-fade-in">
+      <div className="px-4 py-3 text-xs text-gray-500 border-b border-border/30 space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium text-navy">{event.name}</span>
+          {event.variant_sources.length > 1 && (
+            <span className="rounded bg-blue-light px-2 py-0.5 text-navy-light">
+              merged {event.variant_sources.length} source views
+            </span>
+          )}
+          {event.exclude_from_handicap_stats && (
+            <span className="rounded bg-red-50 px-2 py-0.5 text-red-700">
+              excluded from handicap stats
+            </span>
+          )}
+        </div>
+        {event.special_event_reasons.length > 0 && (
+          <div>
+            Reason: {event.special_event_reasons.map(formatReason).join(", ")}
+          </div>
+        )}
+      </div>
+
       {/* Series standings */}
       {hasStandings && (
         <div className="px-4 py-3">
@@ -164,20 +190,39 @@ function EventRow({
   return (
     <>
       <tr
-        className="border-b border-border/50 last:border-0 cursor-pointer hover:bg-cream/50 transition-colors"
-        onClick={() => onToggle(event.id)}
+        className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
       >
-        <td className="py-1.5 flex items-center gap-1.5">
-          <span
-            className={`text-[10px] text-gray-400 transition-transform inline-block ${
-              isExpanded ? "rotate-90" : ""
-            }`}
+        <td className="py-1.5">
+          <button
+            type="button"
+            onClick={() => onToggle(event.id)}
+            className="flex w-full items-start gap-1.5 text-left"
           >
-            &#9654;
-          </span>
-          <span className="text-navy-light hover:text-gold transition-colors">
-            {event.name}
-          </span>
+            <span
+              className={`mt-1 text-[10px] text-gray-400 transition-transform inline-block ${
+                isExpanded ? "rotate-90" : ""
+              }`}
+            >
+              &#9654;
+            </span>
+            <span>
+              <span className="text-navy-light hover:text-gold transition-colors">
+                {event.name}
+              </span>
+              <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
+                {event.variant_view_count > 0 && (
+                  <span className="rounded bg-blue-light px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-navy-light">
+                    merged variants
+                  </span>
+                )}
+                {event.exclude_from_handicap_stats && (
+                  <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-red-700">
+                    special
+                  </span>
+                )}
+              </span>
+            </span>
+          </button>
         </td>
         {showMonth && (
           <td className="py-1.5 text-gray-400 capitalize">
@@ -260,10 +305,8 @@ export default function SeasonDetailPanel() {
     }
   }, [season]);
 
-  // Reset expanded event when season changes
-  useEffect(() => {
-    setExpandedId(null);
-  }, [year]);
+  const visibleExpandedId =
+    season?.events.some((event) => event.id === expandedId) ? expandedId : null;
 
   const toggleEvent = (id: number) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -286,6 +329,7 @@ export default function SeasonDetailPanel() {
   const tns = season.events.filter((e) => e.event_type === "tns");
   const trophies = season.events.filter((e) => e.event_type === "trophy");
   const champs = season.events.filter((e) => e.event_type === "championship");
+  const specialEvents = season.events.filter((e) => e.exclude_from_handicap_stats);
 
   return (
     <div
@@ -296,8 +340,8 @@ export default function SeasonDetailPanel() {
         <div>
           <h2 className="text-2xl font-bold text-navy">{year} Season</h2>
           <p className="text-gray-400 text-sm">
-            {season.events.length} events &middot; {season.boats.length} boats
-            &middot; Click an event to see results
+            {season.events.length} canonical events &middot; {season.boats.length} boats
+            &middot; Click an event to see merged results
           </p>
         </div>
         <a
@@ -310,11 +354,25 @@ export default function SeasonDetailPanel() {
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <EventTable title="Thursday Night Series" events={tns} expandedId={expandedId} onToggle={toggleEvent} />
-          <EventTable title="Trophy Races" events={trophies} expandedId={expandedId} onToggle={toggleEvent} />
-          <EventTable title="Championships" events={champs} expandedId={expandedId} onToggle={toggleEvent} />
+          <EventTable title="Thursday Night Series" events={tns} expandedId={visibleExpandedId} onToggle={toggleEvent} />
+          <EventTable title="Trophy Races" events={trophies} expandedId={visibleExpandedId} onToggle={toggleEvent} />
+          <EventTable title="Championships" events={champs} expandedId={visibleExpandedId} onToggle={toggleEvent} />
         </div>
         <div>
+          <div className="mb-4 rounded-lg border border-border bg-cream/50 p-4 text-xs text-gray-500">
+            <div className="flex items-center gap-1 font-bold text-navy">
+              Season Notes
+              <InfoTip term="canonical event" />
+            </div>
+            <p className="mt-2">
+              This season shows canonical events. Duplicate overall or division views are merged into a single event detail.
+            </p>
+            {specialEvents.length > 0 && (
+              <p className="mt-2">
+                {specialEvents.length} events are flagged as special and excluded from handicap leaderboards.
+              </p>
+            )}
+          </div>
           <h3 className="font-bold text-navy mb-2 text-sm">
             Boats ({season.boats.length})
           </h3>

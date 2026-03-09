@@ -12,18 +12,36 @@ function readJson<T>(relativePath: string): T {
 export interface Overview {
   total_seasons: number;
   total_events: number;
+  canonical_event_count: number;
   total_races: number;
   total_results: number;
   total_boats: number;
+  handicap_events: number;
+  handicap_canonical_event_count: number;
+  handicap_results: number;
   year_range: { first: number; last: number };
 }
 
 export interface SeasonSummary {
   year: number;
   event_count: number;
+  special_event_count: number;
+  handicap_event_count: number;
+  canonical_event_count: number;
+  handicap_canonical_event_count: number;
   tns_count: number;
   trophy_count: number;
   championship_count: number;
+}
+
+export interface EventVariantSource {
+  event_id: number;
+  name: string;
+  source_file: string | null;
+  race_count: number;
+  standings_count: number;
+  result_count: number;
+  is_primary: boolean;
 }
 
 export interface EventSummary {
@@ -35,6 +53,13 @@ export interface EventSummary {
   source_format: string;
   races_sailed: number | null;
   entries: number | null;
+  canonical_event_id: number;
+  is_variant_view: boolean;
+  variant_view_count: number;
+  variant_sources: EventVariantSource[];
+  special_event_kind: string | null;
+  exclude_from_handicap_stats: boolean;
+  special_event_reasons: string[];
 }
 
 export interface BoatSummary {
@@ -156,6 +181,12 @@ export interface EventDetail {
   source_format: string;
   races_sailed: number | null;
   entries: number | null;
+  canonical_event_id: number;
+  is_variant_view: boolean;
+  variant_sources: EventVariantSource[];
+  special_event_kind: string | null;
+  exclude_from_handicap_stats: boolean;
+  special_event_reasons: string[];
   standings: Standing[];
   races: Race[];
 }
@@ -181,6 +212,7 @@ export interface Leaderboards {
   most_seasons: LeaderboardEntry[];
   most_trophies: LeaderboardEntry[];
   best_win_pct: LeaderboardEntry[];
+  excluded_event_count: number;
   fleet_by_year: Array<{
     year: number;
     unique_boats: number;

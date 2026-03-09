@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getLeaderboards, type LeaderboardEntry } from "@/lib/data";
+import InfoTip from "@/components/InfoTip";
 
 export default function LeaderboardsPage() {
   const lb = getLeaderboards();
@@ -9,6 +10,15 @@ export default function LeaderboardsPage() {
       <h1 className="text-3xl font-bold text-navy mb-2">Leaderboards</h1>
       <p className="text-gray-500 mb-6">
         All-time rankings across {lb.fleet_by_year.length} seasons of racing.
+        These tables use the handicap dataset and currently exclude{" "}
+        {lb.excluded_event_count} flagged special events.{" "}
+        <Link
+          href="/methodology/"
+          className="text-navy-light hover:text-gold transition-colors"
+        >
+          Methodology
+        </Link>
+        .
       </p>
 
       <div className="grid md:grid-cols-2 gap-8">
@@ -20,7 +30,7 @@ export default function LeaderboardsPage() {
             { key: "class", label: "Class" },
             { key: "wins", label: "Wins", align: "right" },
             { key: "total_races", label: "Races", align: "right" },
-            { key: "win_pct", label: "Win %", align: "right", suffix: "%" },
+            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %" },
           ]}
         />
 
@@ -42,7 +52,7 @@ export default function LeaderboardsPage() {
           columns={[
             { key: "name", label: "Boat", link: true },
             { key: "class", label: "Class" },
-            { key: "trophy_wins", label: "Trophies", align: "right" },
+            { key: "trophy_wins", label: "Trophies", align: "right", infoTerm: "trophy wins" },
           ]}
         />
 
@@ -52,7 +62,7 @@ export default function LeaderboardsPage() {
           columns={[
             { key: "name", label: "Boat", link: true },
             { key: "class", label: "Class" },
-            { key: "win_pct", label: "Win %", align: "right", suffix: "%" },
+            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %" },
             { key: "wins", label: "Wins", align: "right" },
             { key: "total_races", label: "Races", align: "right" },
           ]}
@@ -68,6 +78,7 @@ interface Column {
   align?: "right";
   link?: boolean;
   suffix?: string;
+  infoTerm?: string;
 }
 
 function LeaderboardTable({
@@ -95,7 +106,10 @@ function LeaderboardTable({
                   c.align === "right" ? "text-right" : ""
                 }`}
               >
-                {c.label}
+                <span className="inline-flex items-center gap-1">
+                  <span>{c.label}</span>
+                  {c.infoTerm && <InfoTip term={c.infoTerm} />}
+                </span>
               </th>
             ))}
           </tr>

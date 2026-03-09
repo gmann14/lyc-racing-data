@@ -34,6 +34,7 @@ function Nav() {
     { href: "/boats/", label: "Boats" },
     { href: "/leaderboards/", label: "Leaderboards" },
     { href: "/trophies/", label: "Trophies" },
+    { href: "/methodology/", label: "Methodology" },
   ];
   return (
     <nav className="bg-navy">

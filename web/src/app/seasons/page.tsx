@@ -22,7 +22,7 @@ export default function SeasonsPage() {
           >
             <div className="text-2xl font-bold text-navy">{s.year}</div>
             <div className="text-sm text-gray-500 mt-1">
-              {s.event_count} events
+              {s.handicap_canonical_event_count} core events
             </div>
             <div className="flex flex-wrap gap-1.5 mt-2">
               {s.tns_count > 0 && (
@@ -38,6 +38,11 @@ export default function SeasonsPage() {
               {s.championship_count > 0 && (
                 <span className="text-xs bg-navy/10 text-navy-light px-1.5 py-0.5 rounded">
                   {s.championship_count} champ
+                </span>
+              )}
+              {s.special_event_count > 0 && (
+                <span className="text-xs bg-red-50 text-red-700 px-1.5 py-0.5 rounded">
+                  {s.special_event_count} special
                 </span>
               )}
             </div>

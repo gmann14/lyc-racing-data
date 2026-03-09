@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { getOverview, getLeaderboards } from "@/lib/data";
+import InfoTip from "@/components/InfoTip";
 
 export default function HomePage() {
   const overview = getOverview();
   const leaderboards = getLeaderboards();
   const topBoats = leaderboards.most_wins.slice(0, 5);
+  const maxBoats = Math.max(...leaderboards.fleet_by_year.map((f) => f.unique_boats));
 
   return (
     <div>
@@ -18,16 +20,30 @@ export default function HomePage() {
           {overview.total_seasons} seasons of Lunenburg Yacht Club racing
           history, fully searchable and browsable.
         </p>
+        <p className="mt-3 text-sm text-gray-400 max-w-2xl mx-auto">
+          Public leaderboards use canonical events and exclude{" "}
+          {leaderboards.excluded_event_count} flagged special events by default.{" "}
+          <Link
+            href="/methodology/"
+            className="text-navy-light hover:text-gold transition-colors"
+          >
+            See methodology
+          </Link>
+          .
+        </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {[
           { label: "Seasons", value: overview.total_seasons },
-          { label: "Events", value: overview.total_events.toLocaleString() },
+          {
+            label: "Core Events",
+            value: overview.handicap_canonical_event_count.toLocaleString(),
+          },
           {
             label: "Race Results",
-            value: overview.total_results.toLocaleString(),
+            value: overview.handicap_results.toLocaleString(),
           },
           { label: "Boats", value: overview.total_boats },
         ].map((stat, i) => (
@@ -39,6 +55,7 @@ export default function HomePage() {
             <div className="text-3xl font-bold text-white">{stat.value}</div>
             <div className="text-xs text-white/60 mt-1 uppercase tracking-wider">
               {stat.label}
+              {stat.label === "Core Events" && <InfoTip term="canonical event" className="ml-1 align-middle" />}
             </div>
           </div>
         ))}
@@ -52,6 +69,9 @@ export default function HomePage() {
             <h2 className="text-xl font-bold text-navy">
               Top Boats by Race Wins
             </h2>
+            <p className="mt-1 text-xs text-gray-400">
+              Handicap-only results, excluding flagged special events.
+            </p>
           </div>
           <div className="p-5">
             <table className="w-full text-sm">
@@ -102,13 +122,13 @@ export default function HomePage() {
             <h2 className="text-xl font-bold text-navy">
               Fleet Size Over Time
             </h2>
+            <p className="mt-1 text-xs text-gray-400">
+              Unique boats per year in the handicap dataset.
+            </p>
           </div>
           <div className="p-5">
             <div className="space-y-1">
               {leaderboards.fleet_by_year.map((fy) => {
-                const maxBoats = Math.max(
-                  ...leaderboards.fleet_by_year.map((f) => f.unique_boats)
-                );
                 const pct = (fy.unique_boats / maxBoats) * 100;
                 return (
                   <div
