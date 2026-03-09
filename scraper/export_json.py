@@ -878,10 +878,12 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
             FROM results r2
             JOIN participants p2 ON r2.participant_id = p2.id
             WHERE p2.boat_id IS NOT NULL AND r2.rank IS NOT NULL
+              AND (r2.status IS NULL OR r2.status = '')
             GROUP BY r2.race_id
         ) race_sizes ON race_sizes.race_id = res.race_id
         {where}
         AND res.rank IS NOT NULL
+        AND (res.status IS NULL OR res.status = '')
         GROUP BY b.id
         HAVING total_races >= 20
         ORDER BY avg_finish_pct ASC
