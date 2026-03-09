@@ -244,6 +244,8 @@ MANUAL_BOAT_NAME_ALIASES = {
     "489": "Sail 489",  # sail number used as name, avoids separate boat entry
     "andrea": "Andrea 4",  # same sail 272, J/30, 1 result vs 47
     "sail415": "Ping",  # synthetic name from 2014 Sonar NAs, sail 415 = Ping in 2014
+    "gbailly": "SOT After",  # skipper name used as boat name, same sail 835
+    "gregb": "SOT After",  # skipper name used as boat name, sailed SOT After (366 then 835)
 }
 
 SCHEMA_SQL = """
@@ -1068,7 +1070,7 @@ class DatabaseLoader:
             if not group:
                 continue
 
-            manual_rule = _manual_boat_rule(group[0][1])
+            manual_rule = _manual_boat_rule(_canonicalize_boat_name(group[0][1]))
             if manual_rule:
                 canonical_name = manual_rule["canonical_name"]
                 canonical_sail = manual_rule["canonical_sail_number"]
