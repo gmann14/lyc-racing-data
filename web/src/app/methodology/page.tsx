@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getLeaderboards, getOverview } from "@/lib/data";
-import { METHODOLOGY_SECTIONS } from "@/lib/methodology";
+import {
+  METHODOLOGY_SECTIONS,
+  PUBLIC_METRIC_DEFINITIONS,
+} from "@/lib/methodology";
 
 export default function MethodologyPage() {
   const overview = getOverview();
@@ -51,6 +54,53 @@ export default function MethodologyPage() {
             </div>
           </section>
         ))}
+
+        <section>
+          <h2 className="text-xl font-bold text-navy mb-3">Metric Definitions</h2>
+          <p className="mb-4 max-w-3xl text-sm text-gray-600">
+            Some of the next analysis pages are definition-sensitive. Thursday
+            night race length, for example, can legitimately mean elapsed time
+            or corrected time, and can be averaged at the race level, the
+            finisher level, or the winner-only level. These definitions are
+            tracked here so future charts stay auditable.
+          </p>
+          <div className="grid gap-4">
+            {PUBLIC_METRIC_DEFINITIONS.map((metric) => (
+              <article
+                key={metric.key}
+                className="rounded-lg border border-border bg-card p-5 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-navy">{metric.label}</h3>
+                    <p className="mt-1 text-sm text-gray-500">{metric.summary}</p>
+                  </div>
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold uppercase tracking-wide ${
+                      metric.status === "live"
+                        ? "bg-teal-50 text-teal-700"
+                        : "bg-gold/15 text-navy"
+                    }`}
+                  >
+                    {metric.status}
+                  </span>
+                </div>
+                <dl className="mt-4 grid gap-3 text-sm text-gray-600 md:grid-cols-2">
+                  <DefinitionRow label="Time Basis" value={metric.dimensions.timeBasis} />
+                  <DefinitionRow label="Participant Scope" value={metric.dimensions.participantScope} />
+                  <DefinitionRow label="Event Scope" value={metric.dimensions.eventScope} />
+                  <DefinitionRow label="Aggregation" value={metric.dimensions.aggregation} />
+                  {metric.dimensions.inclusionNotes ? (
+                    <DefinitionRow
+                      label="Notes"
+                      value={metric.dimensions.inclusionNotes}
+                    />
+                  ) : null}
+                </dl>
+              </article>
+            ))}
+          </div>
+        </section>
       </div>
 
       <div className="mt-10 rounded-lg border border-border bg-cream/50 p-5 text-sm text-gray-600">
@@ -84,6 +134,15 @@ function MetricCard({
       <div className="text-xs uppercase tracking-wider text-gray-400">{label}</div>
       <div className="mt-2 text-3xl font-bold text-navy">{value}</div>
       <div className="mt-2 text-sm text-gray-500">{note}</div>
+    </div>
+  );
+}
+
+function DefinitionRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs uppercase tracking-wider text-gray-400">{label}</dt>
+      <dd className="mt-1 leading-6">{value}</dd>
     </div>
   );
 }

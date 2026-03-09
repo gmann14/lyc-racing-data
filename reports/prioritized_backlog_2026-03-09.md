@@ -27,6 +27,7 @@
 5. **Analysis pages**
    - Participation-first pages are the safest next public-facing work.
    - Good candidates: attendance trends, Thursday/Sunday race-length breakdowns, most-active boats, and trophy timelines.
+   - Race-length charts should ship only after the published definition declares elapsed vs corrected time and the aggregation rule.
 
 ## What Still Needs Human Input
 

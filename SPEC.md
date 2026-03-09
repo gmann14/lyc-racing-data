@@ -634,6 +634,7 @@ Many archive metrics are definition-sensitive. The same chart can mean materiall
 - Create a single source of truth for public metric definitions
 - Surface those definitions in the UI via glossary/info tooltips
 - Record definition changes in a changelog so published stats remain auditable over time
+- When adding race-duration metrics, publish elapsed-time and corrected-time versions as separate metrics rather than letting one chart silently stand in for both
 
 ### 4.2 Predictive & Interactive
 

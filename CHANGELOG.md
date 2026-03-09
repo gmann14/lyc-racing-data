@@ -33,3 +33,4 @@ This file tracks changes to archive logic that materially affect published stats
 
 - Added a methodology/glossary page to explain canonical events, special-event exclusions, and headline leaderboard definitions.
 - Updated home, seasons, and leaderboards pages to surface canonical-event counts and special-event exclusions directly in the UI.
+- Added a structured metric-definition layer in the methodology page so future Thursday/Sunday race-duration stats can declare time basis, participant scope, event scope, and aggregation explicitly.
