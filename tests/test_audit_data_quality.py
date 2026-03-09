@@ -25,7 +25,7 @@ class TestHelpers:
 
     def test_placeholder_sail_number(self):
         assert audit._is_placeholder_sail_number("???")
-        assert not audit._is_placeholder_sail_number("999")
+        assert audit._is_placeholder_sail_number("999")  # ambiguous across many different boats
         assert not audit._is_placeholder_sail_number("34142")
 
     def test_classify_class_value(self):

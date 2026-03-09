@@ -85,6 +85,134 @@ MANUAL_BOAT_RULES = {
         "canonical_sail_number": "2",
         "canonical_class": "IOD",
     },
+    # Same-name Sonar groups with varying sail numbers (club fleet reassignments)
+    "shenanagans": {
+        "canonical_name": "Shenanagans",
+        "canonical_sail_number": "425",
+        "canonical_class": "Sonar",
+    },
+    "scamp": {
+        "canonical_name": "Scamp",
+        "canonical_sail_number": "17",
+        "canonical_class": "Sonar",
+    },
+    "barbarian": {
+        "canonical_name": "Barbarian",
+        "canonical_sail_number": "629",
+        "canonical_class": "Sonar",
+    },
+    "marthajane": {
+        "canonical_name": "Martha Jane",
+        "canonical_sail_number": "624",
+        "canonical_class": "Sonar",
+    },
+    "sotafter": {
+        "canonical_name": "SOT After",
+        "canonical_sail_number": "835",
+        "canonical_class": "Sonar",
+    },
+    # Same-name IOD groups (club fleet, different sail assignments)
+    "aileen": {
+        "canonical_name": "Aileen",
+        "canonical_sail_number": "1",
+        "canonical_class": "IOD",
+    },
+    "coachman": {
+        "canonical_name": "Coachman",
+        "canonical_sail_number": "12RED",
+        "canonical_class": "IOD",
+    },
+    "ibis": {
+        "canonical_name": "IBIS",
+        "canonical_sail_number": "6",
+        "canonical_class": "IOD",
+    },
+    # Same-name keelboat groups with sail number typos
+    "seafever": {
+        "canonical_name": "Sea Fever",
+        "canonical_sail_number": "4514",
+        "canonical_class": "CS30",
+    },
+    "rushhour": {
+        "canonical_name": "Rush Hour",
+        "canonical_sail_number": "2270",
+        "canonical_class": "J/24",
+    },
+    "waiwhare": {
+        "canonical_name": "WAI WHARE",
+        "canonical_sail_number": "KC",
+        "canonical_class": "S2 7.9",
+    },
+    "isleview": {
+        "canonical_name": "Isleview",
+        "canonical_sail_number": "25771",
+        "canonical_class": "J/24",
+    },
+    "crest": {
+        "canonical_name": "Crest",
+        "canonical_sail_number": "AUS1384",
+        "canonical_class": "Etchells",
+    },
+    "hakunamatata": {
+        "canonical_name": "HAKUNA MATATA",
+        "canonical_sail_number": "160",
+        "canonical_class": "J/29 O/B",
+    },
+    "scotchmist": {
+        "canonical_name": "Scotch Mist",
+        "canonical_sail_number": "34429",
+        "canonical_class": "J/29 O/B",
+    },
+    "armada": {
+        "canonical_name": "Armada",
+        "canonical_sail_number": "20320",
+        "canonical_class": "C&C 30",
+    },
+    "hearts3": {
+        "canonical_name": "Hearts3",
+        "canonical_sail_number": "355",
+        "canonical_class": "Sonar",
+    },
+    "gosling": {
+        "canonical_name": "Gosling",
+        "canonical_sail_number": "42634",
+        "canonical_class": "J/29 O/B",
+    },
+    "stella": {
+        "canonical_name": "Stella",
+        "canonical_sail_number": "652",
+        "canonical_class": "Sonar",
+    },
+    "thinice": {
+        "canonical_name": "Thin Ice",
+        "canonical_sail_number": "USA107",
+        "canonical_class": "Viper",
+    },
+    "maestral": {
+        "canonical_name": "Maestral",
+        "canonical_sail_number": "264",
+        "canonical_class": "J/29",
+    },
+    "andrea4": {
+        "canonical_name": "Andrea 4",
+        "canonical_sail_number": "272",
+        "canonical_class": "J/30",
+    },
+    "andrea5": {
+        "canonical_name": "Andrea 5",
+        "canonical_sail_number": "CAN506",
+        "canonical_class": "J/105",
+    },
+    "buzz": {
+        "canonical_name": "Buzz",
+        "canonical_sail_number": "7049",
+        "canonical_class": "J/27",
+    },
+    "shoreeast": {
+        "canonical_name": "Shore East",
+        "canonical_sail_number": "655",
+        "canonical_class": "Sonar",
+    },
 }
 
 MANUAL_BOAT_NAME_ALIASES = {
@@ -94,6 +222,23 @@ MANUAL_BOAT_NAME_ALIASES = {
     "paridigmshift": "Paradigm Shift",
     "shenaigans": "Shenanagans",
     "shenanigans": "Shenanagans",
+    # Cross-name merges: misspellings and abbreviations
+    "hakumamatata": "HAKUNA MATATA",
+    "j160": "HAKUNA MATATA",  # sail 160 used as boat name
+    "scotchmistiv": "Scotch Mist",  # same sail 34429, 0 results
+    "pshift": "Paradigm Shift",  # abbreviation, same sail 117, 0 results
+    "blackhull": "Armada",  # same sail 20320, C&C 30, 1 result
+    "grocho": "Gosling",  # typo, same sail 42634, 0 results
+    "andrea5ofsunnybrook": "Andrea 5",  # verbose variant, same sail CAN506
+    "maestro": "Maestral",  # same sail 264, 0 results
+    "hearts": "Hearts3",  # same sail 355, Sonar, 2 results vs 106
+    "652": "Stella",  # sail number used as name, same Sonar 652
+    "awsome2": "Awesome 2.0",  # typo
+    "etchels22": "Etchells",  # class name typo (used as boat class)
+    "viper": "Thin Ice",  # class used as boat name, same sail USA107
+    "489": "Sail 489",  # sail number used as name, avoids separate boat entry
+    "andrea": "Andrea 4",  # same sail 272, J/30, 1 result vs 47
+    "sail415": "Ping",  # synthetic name from 2014 Sonar NAs, sail 415 = Ping in 2014
 }
 
 SCHEMA_SQL = """
@@ -301,9 +446,12 @@ def _is_placeholder_sail_number(sail_number: str | None) -> bool:
         return True
     if re.fullmatch(r"[?X]+", cleaned):
         return True
-    if cleaned in {"0", "000", "9999", "1111111"}:
+    if cleaned in {"0", "000", "999", "9999", "1111111"}:
         return True
-    if "?" in cleaned or "X" in cleaned:
+    if "?" in cleaned:
+        return True
+    # Pure X strings already caught above; also catch mixed like "XX1X"
+    if re.fullmatch(r"X+\d*X*", cleaned):
         return True
     return False
 
@@ -316,8 +464,36 @@ def _normalize_boat_name_key(name: str | None) -> str:
     return text
 
 
+_CLASS_ALIASES: dict[str, str] = {
+    # Typos
+    "Far 30": "Farr 30",
+    "Ooen 40": "Open 40",
+    "Niagra 30": "Niagara 30",
+    "Benneteau 28.5": "Beneteau 28.5",
+    # Abbreviations / alternate names
+    "E22": "Etchells",
+    "Etchells-22": "Etchells",
+    "K25": "Kirby 25",
+}
+
+# Built at first use from _CLASS_ALIASES — maps lowercased key → canonical value
+_class_alias_lookup: dict[str, str] | None = None
+
+
+def _get_class_alias_lookup() -> dict[str, str]:
+    global _class_alias_lookup
+    if _class_alias_lookup is None:
+        _class_alias_lookup = {k.lower(): v for k, v in _CLASS_ALIASES.items()}
+    return _class_alias_lookup
+
+
 def _normalize_boat_class(raw_class: str | None) -> str | None:
     text = _collapse_whitespace(raw_class)
+    if not text:
+        return None
+
+    # Strip trailing artifact punctuation (??, **, ##) from class values
+    text = re.sub(r"\s*(\?{2,}|\*{2,}|#{2,})\s*$", "", text).strip()
     if not text:
         return None
 
@@ -334,6 +510,16 @@ def _normalize_boat_class(raw_class: str | None) -> str | None:
     if compact.startswith("J/"):
         return compact
 
+    # Normalize "C & C" → "C&C" and ensure space before hull number
+    cc_match = re.fullmatch(r"C\s*&\s*C\s*(\d.*)", text, flags=re.IGNORECASE)
+    if cc_match:
+        return f"C&C {cc_match.group(1)}"
+
+    # Check explicit alias table
+    alias = _get_class_alias_lookup().get(text.lower())
+    if alias:
+        return alias
+
     return text
 
 
@@ -344,8 +530,18 @@ def _boat_class_family(raw_class: str | None) -> str | None:
     return re.sub(r"\s+[IO]/B$", "", normalized)
 
 
+def _clean_boat_name_artifacts(name: str) -> str:
+    """Strip trailing **, ?? and ## artifacts from boat names.
+
+    Preserves !! (e.g. Crackerjack!!) as intentional boat name styling.
+    """
+    cleaned = re.sub(r"\s*(\*{2,}|\?{2,}|#{2,})\s*$", "", name)
+    return cleaned.strip()
+
+
 def _canonicalize_boat_name(name: str | None) -> str:
     cleaned = _collapse_whitespace(name)
+    cleaned = _clean_boat_name_artifacts(cleaned)
     alias = MANUAL_BOAT_NAME_ALIASES.get(_normalize_boat_name_key(cleaned))
     return alias or cleaned
 
@@ -395,12 +591,21 @@ def _manual_boat_rule(name: str | None) -> dict | None:
     return MANUAL_BOAT_RULES.get(key)
 
 
+def _is_rating_band_class(raw_class: str | None) -> bool:
+    """Return True if the class value is a rating band (e.g. A3/15, D3/19).
+
+    Rating bands are fleet groupings, not boat design classes."""
+    normalized = _normalize_boat_class(raw_class)
+    if not normalized:
+        return False
+    return bool(re.fullmatch(r"[A-D]\d+/\d+[A-Z]?", normalized))
+
+
 def _class_quality_score(raw_class: str | None) -> tuple[int, int]:
     normalized = _normalize_boat_class(raw_class)
     if not normalized:
         return (0, 0)
-    is_rating_band = bool(re.fullmatch(r"[A-D]\d+/\d+[A-Z]?", normalized))
-    return (0 if is_rating_band else 1, len(normalized))
+    return (0 if _is_rating_band_class(raw_class) else 1, len(normalized))
 
 
 def _name_quality_score(name: str | None) -> tuple[int, int]:
@@ -487,21 +692,43 @@ def _classify_event_type(title: str | None, h1: str | None, h2: str | None,
     return "trophy"
 
 
+def _parse_footer_date(footer_date: str | None) -> str | None:
+    """Extract month from an unambiguous footer date like 'Thursday, Jun 1 2000'."""
+    if not footer_date:
+        return None
+    text = footer_date.lower()
+    month_map = {
+        "jan": "january", "feb": "february", "mar": "march", "apr": "april",
+        "may": "may", "jun": "june", "jul": "july", "aug": "august",
+        "sep": "september", "oct": "october", "nov": "november", "dec": "december",
+    }
+    for abbr, full in month_map.items():
+        if abbr in text:
+            return full
+    return None
+
+
 def _detect_month(title: str | None, h2: str | None, source_path: str,
-                  race_date: str | None = None) -> str | None:
-    """Detect the month from event title or filename."""
+                  race_date: str | None = None,
+                  footer_date: str | None = None) -> str | None:
+    """Detect the month from event title, filename, or footer date."""
     combined = " ".join(filter(None, [title, h2, source_path])).lower()
     for month in ["january", "february", "march", "april", "may", "june",
                    "july", "august", "september", "october", "november", "december"]:
         if month in combined:
             return month
-    # Short forms in filenames
+    # Short forms and season names in filenames
     for short, full in [("jan_", "january"), ("feb_", "february"), ("mar_", "march"),
                         ("apr_", "april"), ("jun_", "june"), ("jul_", "july"),
                         ("aug_", "august"), ("sep_", "september"), ("sept_", "september"),
-                        ("oct_", "october"), ("nov_", "november"), ("dec_", "december")]:
+                        ("oct_", "october"), ("nov_", "november"), ("dec_", "december"),
+                        ("_fall", "september"), ("fall_", "september")]:
         if short in combined:
             return full
+    # Footer date is unambiguous (e.g. "Thursday, Jun 1 2000")
+    from_footer = _parse_footer_date(footer_date)
+    if from_footer:
+        return from_footer
     parsed_date = _parse_legacy_date(race_date)
     if parsed_date:
         return parsed_date.strftime("%B").lower()
@@ -682,6 +909,9 @@ class DatabaseLoader:
         normalized_name_key = _normalize_boat_name_key(normalized_name)
         normalized_sail = _normalize_sail_number(sail_number)
         normalized_class = _normalize_boat_class(boat_class)
+        # Rating bands (A3/15, D3/19) are fleet groupings, not boat designs
+        if _is_rating_band_class(normalized_class):
+            normalized_class = None
         normalized_club = _collapse_whitespace(club) or "LYC"
         manual_rule = _manual_boat_rule(normalized_name)
         if manual_rule:
@@ -692,7 +922,18 @@ class DatabaseLoader:
 
         key = (normalized_name_key, normalized_sail or "")
         if key in self._boat_cache:
-            return self._boat_cache[key]
+            cached_id = self._boat_cache[key]
+            # Upgrade boat class if this entry has better quality
+            if normalized_class:
+                existing_class = self.conn.execute(
+                    "SELECT class FROM boats WHERE id = ?", (cached_id,)
+                ).fetchone()
+                if existing_class and _class_quality_score(normalized_class) > _class_quality_score(existing_class[0]):
+                    self.conn.execute(
+                        "UPDATE boats SET class = ? WHERE id = ?",
+                        (normalized_class, cached_id),
+                    )
+            return cached_id
 
         candidates = self.conn.execute(
             "SELECT id, name, class, sail_number, club FROM boats"
@@ -750,6 +991,13 @@ class DatabaseLoader:
                 ),
             )
             boat_id = canonical[0]
+            # Upgrade boat class if current entry has better quality
+            existing_class = canonical[2]
+            if normalized_class and _class_quality_score(normalized_class) > _class_quality_score(existing_class):
+                self.conn.execute(
+                    "UPDATE boats SET class = ? WHERE id = ?",
+                    (normalized_class, boat_id),
+                )
             self._boat_cache[key] = boat_id
             return boat_id
 
@@ -1040,6 +1288,9 @@ class DatabaseLoader:
         for boat_id, name, raw_class, sail_number, club in remaining_boats:
             clean_name = _canonicalize_boat_name(name)
             clean_class = _normalize_boat_class(raw_class)
+            # Rating bands are fleet groupings, not boat designs
+            if _is_rating_band_class(clean_class):
+                clean_class = None
             clean_sail = _normalize_sail_number(sail_number)
             clean_club = _collapse_whitespace(club) or "LYC"
             try:
@@ -1276,6 +1527,11 @@ class DatabaseLoader:
             phrf = _safe_int(row.get("phrf_rating"))
             bcr = _safe_float(row.get("bcr"))
 
+            # Use rating band as fleet when fleet is not already set
+            fleet = row.get("fleet")
+            if not fleet and _is_rating_band_class(row.get("boat_class")):
+                fleet = _normalize_boat_class(row.get("boat_class"))
+
             try:
                 self.conn.execute(
                     """INSERT OR IGNORE INTO results
@@ -1284,7 +1540,7 @@ class DatabaseLoader:
                         finish_time, bcr, points, status, source_score_text)
                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (source_page_id, race_id, pid,
-                     row.get("fleet"), row.get("division"), phrf, rank,
+                     fleet, row.get("division"), phrf, rank,
                      row.get("start_time"), row.get("elapsed_time"),
                      row.get("corrected_time"), row.get("finish_time"),
                      bcr, points, row.get("status"), row.get("points"))
@@ -1320,6 +1576,7 @@ class DatabaseLoader:
             None,
             page.get("source_path", ""),
             meta.get("race_date", ""),
+            page.get("footer_date", ""),
         )
 
         cursor = self.conn.execute(

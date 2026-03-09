@@ -436,7 +436,8 @@ class TestDatabaseLoaderUnit:
         ).fetchone()[0]
 
         assert poohsticks == 1
-        assert aileen == 3
+        # Aileen now has a manual boat rule that merges all variants to sail 1
+        assert aileen == 1
         assert stats["merged_boats"] >= 0
         loader.close()
 
@@ -470,8 +471,9 @@ class TestDatabaseLoaderUnit:
         boats = loader.conn.execute(
             "SELECT name, sail_number, class FROM boats WHERE name = 'Gosling'"
         ).fetchall()
+        # Gosling now has a manual rule; 634 is related to 42634 so merged at creation
         assert boats == [("Gosling", "42634", "J/29 O/B")]
-        assert stats["merged_boats"] >= 1
+        assert stats["normalized_boats"] >= 1
         loader.close()
 
     def test_reconcile_merges_zero_result_same_name_sail_typo_variant(self, tmp_path):

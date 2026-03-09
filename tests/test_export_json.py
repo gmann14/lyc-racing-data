@@ -97,7 +97,7 @@ class TestExportIntegration:
         assert data["total_seasons"] >= 27
         assert data["total_events"] >= 700
         assert data["total_results"] >= 10000
-        assert data["total_boats"] >= 300
+        assert data["total_boats"] >= 250
         assert data["handicap_events"] < data["total_events"]
         assert data["handicap_results"] < data["total_results"]
         assert data["year_range"]["first"] == 1999
@@ -169,7 +169,7 @@ class TestExportIntegration:
         if not path.exists():
             pytest.skip("JSON not yet exported")
         data = json.loads(path.read_text())
-        assert len(data) >= 180
+        assert len(data) >= 150
         # First boat should have most results
         assert data[0]["total_results"] > 0
         assert "wins" in data[0]

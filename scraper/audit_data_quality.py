@@ -68,9 +68,12 @@ def _is_placeholder_sail_number(sail_number: str | None) -> bool:
         return True
     if re.fullmatch(r"[?X]+", cleaned):
         return True
-    if cleaned in {"0", "000", "9999", "1111111"}:
+    if cleaned in {"0", "000", "999", "9999", "1111111"}:
         return True
-    if "?" in cleaned or "X" in cleaned:
+    if "?" in cleaned:
+        return True
+    # Pure X strings already caught above; also catch mixed like "XX1X"
+    if re.fullmatch(r"X+\d*X*", cleaned):
         return True
     return False
 
@@ -607,16 +610,26 @@ def _canonical_source_stem(source_file: str | None) -> str:
     return stem
 
 
-def _logical_race_token(race_number: int | None, race_key: str | None, date: str | None) -> tuple:
-    if race_number is not None:
-        return ("num", race_number)
+def _logical_race_token(race_number: int | None, race_key: str | None,
+                        date: str | None, month: str = "") -> tuple:
+    """Return a dedup token for a TNS race night.
+
+    Fleet suffixes (r1p/r1s, r1a/r1b) are stripped so fleet splits
+    collapse to a single race night.  ``month`` prevents r1-June from
+    colliding with r1-July when dates are absent.
+    """
     cleaned_key = _collapse_whitespace(race_key).lower()
-    match = re.search(r"(\d+)", cleaned_key)
-    if match:
-        return ("key", int(match.group(1)))
+    # Strip trailing fleet-split suffixes (p/s for performance/sport, a/b for fleet A/B)
+    base_key = re.sub(r"[abps]+$", "", cleaned_key)
+    base_match = re.search(r"(\d+)", base_key)
+
     if date:
         return ("date", date)
-    return ("key", cleaned_key or "unknown")
+    if race_number is not None:
+        return ("num", month, race_number)
+    if base_match:
+        return ("key", month, int(base_match.group(1)))
+    return ("key", month, base_key or "unknown")
 
 
 def _month_from_race_dates(conn: sqlite3.Connection, event_id: int) -> str:
@@ -689,12 +702,15 @@ def _build_tns_validation_rows(conn: sqlite3.Connection) -> list[dict]:
                 for race in race_rows
                 if race["date"]
             )
+            resolved_month = row.get("resolved_month", "")
             logical_tokens.update(
-                _logical_race_token(race["race_number"], race["race_key"], race["date"])
+                _logical_race_token(race["race_number"], race["race_key"], race["date"], resolved_month)
                 for race in race_rows
             )
             fallback_races = max(fallback_races, row["races_sailed"] or 0)
-        logical_race_total = len(logical_dates) or len(logical_tokens) or fallback_races
+        # Tokens capture both dated races (by date) and undated races (by month+key),
+        # so they give the most complete count.  Fall back to races_sailed metadata.
+        logical_race_total = len(logical_tokens) or fallback_races
 
         notes: list[str] = []
         if missing_months:
@@ -703,8 +719,8 @@ def _build_tns_validation_rows(conn: sqlite3.Connection) -> list[dict]:
             notes.append(f"unexpected months: {', '.join(extra_months)}")
         if len(present_months) != 4:
             notes.append(f"expected 4 monthly series, found {len(present_months)}")
-        if logical_race_total != 16:
-            notes.append(f"TNS race nights = {logical_race_total} (expected about 16)")
+        if logical_race_total < 12 or logical_race_total > 17:
+            notes.append(f"TNS race nights = {logical_race_total} (expected 12-16)")
 
         rows.append(
             {

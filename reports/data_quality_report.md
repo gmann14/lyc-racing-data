@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- Boats: 317
-- Participants: 964
+- Boats: 276
+- Participants: 922
 - Events: 751
 - Races: 1403
 - Results: 11610
@@ -12,9 +12,9 @@
 
 ## Biggest Cleanup Gaps
 
-- Boats missing sail numbers: 31
-- Boats with non-empty placeholder / suspicious sail numbers: 19
-- Boats missing class: 21
+- Boats missing sail numbers: 28
+- Boats with non-empty placeholder / suspicious sail numbers: 23
+- Boats missing class: 34
 - Result rows tied to participants without `boat_id`: 3707
 - Empty events (no races and no standings): 2
 - Provisional entry-list events: 1
@@ -31,23 +31,23 @@
 
 ## Alias Review Highlights
 
-- `same_normalized_name` — `Shenanagans` / sail `136` → suggested canonical `Shenanagans`
-- `same_normalized_name` — `Shenanagans` / sail `425` → suggested canonical `Shenanagans`
-- `same_normalized_name` — `Sea Fever` / sail `366` → suggested canonical `Sea Fever`
-- `same_normalized_name` — `Sea Fever` / sail `4514` → suggested canonical `Sea Fever`
-- `same_normalized_name` — `Sea Fever` / sail `?????` → suggested canonical `Sea Fever`
 - `same_normalized_name` — `Ping` / sail `415` → suggested canonical `Ping`
 - `same_normalized_name` — `Ping` / sail `754` → suggested canonical `Ping`
 - `same_normalized_name` — `Ping` / sail `XXX` → suggested canonical `Ping`
 - `same_normalized_name` — `Tsunami` / sail `14` → suggested canonical `Tsunami`
 - `same_normalized_name` — `Tsunami` / sail `428` → suggested canonical `Tsunami`
 - `same_normalized_name` — `Tsunami` / sail `98` → suggested canonical `Tsunami`
-- `same_normalized_name` — `Status Symbol` / sail `126` → suggested canonical `Status Symbol`
+- `same_normalized_name` — `Bad Blue J` / sail `31587` → suggested canonical `Bad Blue J`
+- `same_normalized_name` — `Bad Blue J` / sail `31887` → suggested canonical `Bad Blue J`
+- `same_normalized_name` — `Wandrian` / sail `1001` → suggested canonical `Wandrian`
+- `same_normalized_name` — `Wandrian` / sail `109` → suggested canonical `Wandrian`
+- `same_normalized_name` — `Wandrian` / sail `30406` → suggested canonical `Wandrian`
+- `same_normalized_name` — `Wandrian` / sail `50141` → suggested canonical `Wandrian`
 
 ## Class Cleanup Highlights
 
-- Rating-band style raw classes: 5
-- Design-style raw classes: 92
+- Rating-band style raw classes: 0
+- Design-style raw classes: 83
 
 ## Event Review Highlights
 
@@ -57,7 +57,7 @@
 ## TNS Validation
 
 - TNS season rows checked: 27
-- TNS rows needing review: 20
+- TNS rows needing review: 8
 - Expected baseline: June, July, August, September monthly series, about 16 logical Thursday-night races total.
 
 ## Special Event Suggestions
