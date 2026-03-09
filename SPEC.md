@@ -335,11 +335,29 @@ CREATE INDEX idx_weather_date ON weather(date);
 
 ## 3. Implementation Phases
 
+This section is intended to be implementation-usable, not just conceptual. A junior or mid-level developer should be able to use it to understand:
+
+- which script or directory likely owns a problem,
+- what order to work in,
+- what not to change casually,
+- and how to validate each milestone before pushing.
+
 ### Phase 1: Scrape, Parse & Load
 
 **Goal:** Get all data into the SQLite database.
 
 **Acquisition principle:** **mirror first, parse second**. Keep an archival local copy of the source tree so parsing can be deterministic, resumable, and inspectable.
+
+**Current code ownership (practical mapping):**
+
+- Mirroring / source acquisition: `scraper/scrape_remote.py`
+- Source classification and inventory: `scraper/classify_sources.py`
+- Sailwave parsing: `scraper/parse_sailwave.py`
+- Legacy parsing: `scraper/parse_legacy.py`
+- Normalization + DB loading: `scraper/load_db.py`
+- High-confidence reconciliation: `scraper/reconcile_entities.py`
+- Public JSON generation: `scraper/export_json.py`
+- QA / review exports: `scraper/audit_data_quality.py`
 
 #### 1a. Scrape Remote Data (1999–2013)
 
@@ -379,6 +397,11 @@ CREATE INDEX idx_weather_date ON weather(date);
 - Create participant records for helm-based one-design results where no reliable boat identity exists
 - Output a review file of suspected duplicates for manual confirmation
 
+**Implementation note:**
+
+- Safe formatting and obvious alias cleanup should be automated
+- Ambiguous rename / successor-boat / ownership-history questions should go to review CSVs instead of being hard-coded blindly
+
 #### 1e. Load into SQLite
 
 - Insert parsed data into the schema above
@@ -391,7 +414,7 @@ CREATE INDEX idx_weather_date ON weather(date);
 - `scraper/parse_sailwave.py` — Sailwave HTML parser
 - `scraper/parse_legacy.py` — pre-Sailwave HTML parser
 - `scraper/load_db.py` — database loader
-- `scraper/deduplicate_boats.py` — entity resolution
+- `scraper/reconcile_entities.py` — high-confidence entity cleanup
 - `scraper/classify_sources.py` — classify pages/assets before parse/load
 - `lyc_racing.db` — the SQLite database
 
@@ -458,6 +481,14 @@ CREATE INDEX idx_weather_date ON weather(date);
 - Make import scripts idempotent so corrected CSVs can be safely re-applied
 - Separate “suggested match” outputs from “approved correction” inputs
 - Treat manual stewardship data as part of the pipeline, not a one-off cleanup
+
+**Implementation note for future import scripts:**
+
+- Treat CSV column names as a contract
+- Expect humans to add rows, not just edit existing ones
+- Preserve reviewer notes in any import log or audit table
+- Make imports idempotent and safe to re-run
+- Do not silently discard unresolved rows such as `needs_more_info`
 
 ### Phase 3: Query & Analysis Tools
 
@@ -678,10 +709,14 @@ lyc-racing-data/
 │   └── ...
 ├── scraper/                         # Phase 1 scripts
 │   ├── scrape_remote.py
+│   ├── classify_sources.py
 │   ├── parse_sailwave.py
 │   ├── parse_legacy.py
 │   ├── load_db.py
-│   └── deduplicate_boats.py
+│   ├── reconcile_entities.py
+│   ├── export_json.py
+│   ├── audit_data_quality.py
+│   └── audit_original_coverage.py
 ├── enrichment/                      # Phase 2 scripts
 │   ├── backfill_weather.py
 │   ├── backfill_tides.py
@@ -709,6 +744,35 @@ lyc-racing-data/
 ---
 
 ## 6. Execution Order
+
+### 6.0 Developer Handoff Notes
+
+Before implementing anything substantial, a new developer should:
+
+1. Read:
+   - `README.md`
+   - this file
+   - `CHANGELOG.md`
+   - `reports/current_status_2026-03-09.md`
+   - `reports/manual_review_inventory_2026-03-09.md`
+2. Regenerate the current state locally:
+   - parse
+   - load
+   - reconcile
+   - export
+   - audit
+3. Compare generated outputs against:
+   - `reports/data_quality_report.md`
+   - `reports/tns_validation.csv`
+   - a few affected `web/public/data/seasons/*.json`
+   - a few affected `web/public/data/events/*.json`
+
+**Rule of thumb:**
+
+- If the problem is extraction, start in a parser
+- If the problem is classification or event grouping, start in `scraper/load_db.py` or `scraper/export_json.py`
+- If the problem is review noise or “what still looks wrong?”, start in `scraper/audit_data_quality.py`
+- If the problem is public presentation, start in `web/src/`
 
 | Step | Phase | Description | Dependencies |
 |------|-------|-------------|--------------|
@@ -760,6 +824,13 @@ This is the recommended practical order for building the project with the fastes
 - Every source artifact has a manifest row
 - You can answer “what files do we have?” before writing parsers
 
+**Validation checklist for this milestone:**
+
+- Manifest row count matches mirrored file count expectations
+- Checksums/URLs/path preservation are populated
+- Re-running the mirror/classification step does not create duplicate records or path drift
+- Ancillary docs/images are catalogued separately from parseable result pages
+
 #### Milestone 2 — Parse 2014–2025 Sailwave data
 
 **Why second:** the local Sailwave era is more consistent and gives the fastest route to useful data and an MVP.
@@ -787,6 +858,13 @@ This is the recommended practical order for building the project with the fastes
 - Sailwave years parse repeatably with useful coverage stats
 - You can compute core standings/results metrics from parsed intermediates
 
+**Validation checklist for this milestone:**
+
+- Representative fixture tests cover summary-only, race-only, combined, and placeholder pages
+- Parser output contains enough provenance to map each row back to a source page
+- Known variants such as `_overall`, `_ab`, and `_all` do not silently become independent public events
+- Entry-list / competitor pages are classified, not treated as results
+
 #### Milestone 3 — Load an MVP database from Sailwave years only
 
 **Why third:** this unlocks a public-facing archive quickly without waiting for the harder legacy parsing work.
@@ -809,6 +887,13 @@ This is the recommended practical order for building the project with the fastes
 - `lyc_racing.db` exists
 - Core tables populate successfully for `2014–2025`
 - A simple query layer can read from the DB
+
+**Validation checklist for this milestone:**
+
+- No orphaned `results`, `races`, or `series_standings`
+- Row counts are stable on re-run
+- Source-page traceability is preserved
+- Load report clearly lists totals by year and by table
 
 #### Milestone 4 — Ship a public MVP
 
@@ -838,6 +923,13 @@ This is the recommended practical order for building the project with the fastes
 - People can browse results and a handful of analyses
 - The site can be regenerated from the local DB
 
+**Validation checklist for this milestone:**
+
+- Static build is reproducible in CI
+- A few representative season and event pages render correctly
+- No obviously broken links or stale JSON artifacts remain after export
+- Public wording avoids internal-only jargon unless translated into plain language
+
 #### Milestone 5 — Parse and load 1999–2013 legacy results
 
 **Why fifth:** legacy parsing is high-value but structurally messier; it should not block the MVP.
@@ -860,13 +952,20 @@ This is the recommended practical order for building the project with the fastes
 - Legacy result coverage is measurable year by year
 - Mixed-era leaderboards and longitudinal analyses become possible
 
+**Validation checklist for this milestone:**
+
+- Year-by-year coverage is measurable and reviewable
+- Legacy date/time formats are normalized consistently
+- Schedule-only or placeholder pages are not miscounted as missing results
+- Known recurring structures such as older Thursday-night sponsor series are classified consistently
+
 #### Milestone 6 — Reconcile entities and enrich data
 
 **Why sixth:** once both eras are loaded, you can do more reliable cross-year cleanup and enrichment.
 
 **Tasks:**
 
-1. Build `scraper/deduplicate_boats.py`
+1. Extend `scraper/reconcile_entities.py`
 2. Add ownership/skipper import workflow
 3. Backfill weather and tides
 4. Track rating-history changes where possible
@@ -881,6 +980,13 @@ This is the recommended practical order for building the project with the fastes
 
 - Cross-era boat and skipper history is trustworthy enough for analysis pages
 - Enrichment data can drive more advanced charts and stories
+
+**Validation checklist for this milestone:**
+
+- Review CSV counts decrease without introducing obvious bad merges
+- Human-reviewed imports are repeatable and auditable
+- Ambiguous cases remain reviewable instead of being forced into hard-coded mappings
+- Boat history and person history remain distinguishable in downstream stats
 
 #### Milestone 7 — Expand analysis and search
 
@@ -904,6 +1010,13 @@ This is the recommended practical order for building the project with the fastes
 - The archive supports both browsing and meaningful analytical exploration
 - New story pages/leaderboards can be generated with minimal manual work
 
+**Validation checklist for this milestone:**
+
+- Every published metric has a documented scope/definition
+- Charts declare inclusion/exclusion rules
+- Performance is acceptable for static builds and client-side use
+- Changing a metric definition requires updating methodology + changelog
+
 ### 6.2 First Deliverable Recommendation
 
 If the goal is to show progress publicly as soon as possible, the best first deliverable is:
@@ -923,6 +1036,34 @@ This gives a credible public archive quickly, while leaving legacy parsing, enri
 - **Entity resolution:** manual review queue, merge audit trail, before/after diff report
 - **Enrichment:** source attribution, refreshability, null-rate/completeness checks
 
+### 6.4 Standard Validation Commands
+
+These are the minimum commands a developer should expect to run before pushing substantive changes:
+
+```sh
+# Python tests
+.venv/bin/python -m pytest tests/ -q
+
+# Rebuild core outputs when pipeline logic changes
+.venv/bin/python -m scraper.parse_sailwave
+.venv/bin/python -m scraper.parse_legacy
+.venv/bin/python -m scraper.load_db --fresh
+.venv/bin/python -m scraper.reconcile_entities
+.venv/bin/python -m scraper.export_json
+.venv/bin/python -m scraper.audit_data_quality
+
+# Frontend validation when UI or exported JSON contracts change
+cd web && npx tsc --noEmit
+cd web && npm run lint
+```
+
+**Practical guidance:**
+
+- Run focused tests first when iterating on a single parser/export path
+- Run the full suite before push
+- If counts change materially, record the reason in `CHANGELOG.md`
+- If public metric semantics change, update the methodology/glossary and handoff docs as part of the same change
+
 ---
 
 ## 7. Working Assumptions
@@ -934,6 +1075,8 @@ These are current planning assumptions so implementation can proceed without blo
 3. **ClubSpot coexistence:** Assume ClubSpot will handle new/current results going forward, while this project focuses on organizing and preserving the historical archive.
 4. **Low-code maintenance:** If non-technical contributors need to enrich or correct data later, prefer spreadsheet-driven workflows (for example CSV/Google Sheets imports) over a custom admin UI in the first iteration.
 5. **Canonical TNS rule:** Use the base monthly TNS page as canonical by default and keep alternate views as linked source variants.
+6. **Public wording rule:** Terms that exist for internal data modeling (for example “canonical event” or “merged variants”) should only appear publicly if translated into user-facing language.
+7. **Methodology rule:** Public stats should ship with explicit definitions covering scope, population, aggregation, and exclusions.
 
 ## 8. Open Questions
 
