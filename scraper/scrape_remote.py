@@ -84,6 +84,15 @@ def _is_internal_racing_link(href: str, year: int) -> bool:
     if re.match(r"\.\./racing\d{4}/", href):
         return False
 
+    # Absolute server paths — accept same-year racing links
+    abs_match = re.match(r"/racing/racing(\d{4})/", href)
+    if abs_match:
+        return int(abs_match.group(1)) == year
+
+    # Reject other absolute paths (not in racing directory)
+    if href.startswith("/") and not href.startswith(f"/racing/racing{year}/"):
+        return False
+
     return True
 
 
@@ -93,6 +102,14 @@ def _resolve_local_path(href: str, year: int, output_dir: Path) -> Path | None:
     clean = href.split("?")[0].split("#")[0]
     if not clean:
         return None
+
+    # Handle absolute server paths like /racing/racing2008/file.pdf
+    abs_match = re.match(r"/racing/racing(\d{4})/(.*)", clean)
+    if abs_match:
+        link_year = int(abs_match.group(1))
+        if link_year != year:
+            return None  # Don't follow cross-year absolute links
+        clean = abs_match.group(2)
 
     year_dir = output_dir / f"racing{year}"
     return year_dir / clean

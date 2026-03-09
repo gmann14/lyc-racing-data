@@ -549,24 +549,140 @@ class DatabaseLoader:
             except sqlite3.IntegrityError:
                 pass
 
+    def load_legacy_page(self, page: dict) -> int | None:
+        """Load a single parsed legacy (WinRegatta) page into the database."""
+        year = page.get("year", 0)
+        if not year:
+            return None
+
+        self.conn.execute("INSERT OR IGNORE INTO seasons (year) VALUES (?)", (year,))
+
+        meta = page.get("metadata", {})
+        event_name = meta.get("event_name", "") or page.get("title", "")
+        event_name = event_name.strip()
+
+        # Use footer event name if available (more reliable)
+        footer_name = page.get("footer_event_name", "")
+        if footer_name:
+            event_name = footer_name
+
+        event_type = _classify_event_type(event_name, None, event_name,
+                                          page.get("source_path", ""))
+        month = _detect_month(event_name, None, page.get("source_path", ""))
+
+        cursor = self.conn.execute(
+            """INSERT INTO events (year, name, canonical_name, slug, event_type, month,
+               source_format, source_file, publication_status, notes)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (year, event_name, event_name, _slugify(event_name), event_type, month,
+             "legacy", page.get("source_path"), "final",
+             f"Wind: {meta.get('wind_direction', '').strip()} {meta.get('wind_speed', '').strip()}".strip())
+        )
+        event_id = cursor.lastrowid
+
+        cursor = self.conn.execute(
+            """INSERT OR IGNORE INTO source_pages (event_id, year, path, source_kind, page_role, title, parse_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (event_id, year, page.get("source_path"), "local-html", "canonical",
+             page.get("title"), "parsed")
+        )
+        source_page_id = cursor.lastrowid
+
+        # Create a single race record for this page
+        race_date = meta.get("race_date", "")
+        start_time = meta.get("start_time", "")
+        race_number = meta.get("race_number")
+
+        wind_note = ""
+        if meta.get("wind_direction", "").strip():
+            wind_note = f"Wind: {meta['wind_direction'].strip()}"
+        if meta.get("wind_speed", "").strip() and meta["wind_speed"].strip() != "0":
+            wind_note += f" {meta['wind_speed'].strip()} kts"
+        if meta.get("course", "").strip():
+            wind_note += f", Course: {meta['course'].strip()}"
+        if meta.get("distance", "").strip() and meta["distance"].strip() != "0":
+            wind_note += f", Distance: {meta['distance'].strip()}"
+
+        cursor = self.conn.execute(
+            """INSERT INTO races (event_id, source_page_id, race_key, race_number,
+               date, start_time, notes)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (event_id, source_page_id, f"r{race_number or 1}", race_number,
+             race_date, start_time if start_time else None,
+             wind_note if wind_note else None)
+        )
+        race_id = cursor.lastrowid
+
+        # Load results
+        for row in page.get("results", []):
+            boat_name = row.get("boat_name", "")
+            if not boat_name:
+                continue
+
+            pid = self._get_or_create_participant(
+                boat_name,
+                row.get("sail_number"),
+                "LYC",
+                "boat",
+                row.get("boat_class"),
+            )
+
+            rank = _safe_int(str(row.get("position", "")))
+            points = row.get("points")
+            if isinstance(points, str):
+                points = _safe_float(points)
+
+            try:
+                self.conn.execute(
+                    """INSERT OR IGNORE INTO results
+                       (source_page_id, race_id, participant_id, phrf_rating,
+                        rank, start_time, elapsed_time, corrected_time,
+                        finish_time, points, status, source_score_text)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (source_page_id, race_id, pid,
+                     _safe_int(row.get("rating")),
+                     rank,
+                     start_time if start_time else None,
+                     row.get("elapsed_time") if row.get("elapsed_time") else None,
+                     row.get("corrected_time") if row.get("corrected_time") else None,
+                     row.get("finish_time") if row.get("finish_time") else None,
+                     points,
+                     row.get("status"),
+                     str(row.get("points", "")))
+                )
+            except sqlite3.IntegrityError:
+                pass
+
+        return event_id
+
     def load_all_parsed(self, parsed_dir: Path | None = None):
         """Load all parsed JSONL files into the database."""
         if parsed_dir is None:
             parsed_dir = PARSED_DIR
 
-        jsonl_file = parsed_dir / "sailwave_parsed.jsonl"
-        if not jsonl_file.exists():
-            print(f"No parsed data found at {jsonl_file}")
-            return
+        # Load Sailwave data
+        sw_file = parsed_dir / "sailwave_parsed.jsonl"
+        if sw_file.exists():
+            pages = []
+            with open(sw_file) as f:
+                for line in f:
+                    pages.append(json.loads(line))
+            print(f"Loading {len(pages)} Sailwave pages...")
+            for page in pages:
+                self.load_parsed_page(page)
+        else:
+            print(f"No Sailwave data found at {sw_file}")
 
-        pages = []
-        with open(jsonl_file) as f:
-            for line in f:
-                pages.append(json.loads(line))
-
-        print(f"Loading {len(pages)} parsed pages...")
-        for page in pages:
-            self.load_parsed_page(page)
+        # Load legacy data
+        legacy_file = parsed_dir / "legacy_parsed.jsonl"
+        if legacy_file.exists():
+            pages = []
+            with open(legacy_file) as f:
+                for line in f:
+                    pages.append(json.loads(line))
+            print(f"Loading {len(pages)} legacy pages...")
+            for page in pages:
+                self.load_legacy_page(page)
 
         self.conn.commit()
         self._print_load_report()

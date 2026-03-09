@@ -75,6 +75,15 @@ class TestIsInternalRacingLink:
     def test_deep_subdirectory(self):
         assert _is_internal_racing_link("opti05/opti_overall.htm", 2005)
 
+    def test_absolute_same_year(self):
+        assert _is_internal_racing_link("/racing/racing2008/course_card.pdf", 2008)
+
+    def test_absolute_other_year(self):
+        assert not _is_internal_racing_link("/racing/racing2007/course_card.pdf", 2008)
+
+    def test_absolute_non_racing(self):
+        assert not _is_internal_racing_link("/facilities.html", 2008)
+
 
 class TestResolveLocalPath:
     def test_simple_file(self, tmp_path):
@@ -95,4 +104,12 @@ class TestResolveLocalPath:
 
     def test_empty_after_strip(self, tmp_path):
         result = _resolve_local_path("#anchor", 2010, tmp_path)
+        assert result is None
+
+    def test_absolute_same_year(self, tmp_path):
+        result = _resolve_local_path("/racing/racing2008/course_card.pdf", 2008, tmp_path)
+        assert result == tmp_path / "racing2008" / "course_card.pdf"
+
+    def test_absolute_other_year(self, tmp_path):
+        result = _resolve_local_path("/racing/racing2007/course_card.pdf", 2008, tmp_path)
         assert result is None

@@ -228,9 +228,9 @@ class TestDatabaseIntegration:
 
     def test_has_all_years(self, db):
         years = [r[0] for r in db.execute("SELECT year FROM seasons ORDER BY year").fetchall()]
-        assert 2014 in years
+        assert 1999 in years
         assert 2025 in years
-        assert len(years) == 12
+        assert len(years) >= 27
 
     def test_has_events(self, db):
         count = db.execute("SELECT COUNT(*) FROM events").fetchone()[0]

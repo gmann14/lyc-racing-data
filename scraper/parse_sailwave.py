@@ -211,8 +211,13 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
     if caption_text:
         section.metadata = _parse_caption_metadata(caption_text)
 
-    # Parse headers
+    # Parse headers — try class="titlerow" first, fall back to first row with <th>
     header_row = table.find("tr", class_="titlerow")
+    if not header_row:
+        for tr in table.find_all("tr"):
+            if tr.find("th"):
+                header_row = tr
+                break
     if not header_row:
         return section
 
@@ -268,8 +273,11 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
         elif h_lower in ("m/f",):
             header_map["gender"] = i
 
-    # Parse data rows
-    for tr in table.find_all("tr", class_="summaryrow"):
+    # Parse data rows — look for class="summaryrow" or fallback to "odd"/"even"
+    data_rows = table.find_all("tr", class_="summaryrow")
+    if not data_rows:
+        data_rows = table.find_all("tr", class_=["odd", "even"])
+    for tr in data_rows:
         cells = tr.find_all("td")
         if not cells:
             continue
@@ -322,8 +330,13 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
         # Extract start info
         detail.start_info = caption_text
 
-    # Parse headers
+    # Parse headers — try class="titlerow" first, fall back to first row with <th>
     header_row = table.find("tr", class_="titlerow")
+    if not header_row:
+        for tr in table.find_all("tr"):
+            if tr.find("th"):
+                header_row = tr
+                break
     if not header_row:
         return detail
 
@@ -368,8 +381,11 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
         elif h_lower in ("points",):
             header_map["points"] = i
 
-    # Parse data rows
-    for tr in table.find_all("tr", class_="racerow"):
+    # Parse data rows — look for class="racerow" or fallback to "odd"/"even"
+    data_rows = table.find_all("tr", class_="racerow")
+    if not data_rows:
+        data_rows = table.find_all("tr", class_=["odd", "even"])
+    for tr in data_rows:
         cells = tr.find_all("td")
         if not cells:
             continue
@@ -450,18 +466,25 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
     if series_title:
         page.results_date = series_title.get_text(strip=True)
 
+    # Find all Sailwave data tables (with or without CSS classes)
+    summary_tables, race_tables = _find_sailwave_tables(soup)
+
     # Detect participant type from first table
-    first_table = soup.find("table", class_=["summarytable", "racetable"])
+    first_table = summary_tables[0] if summary_tables else (race_tables[0] if race_tables else None)
     if first_table:
         first_header = first_table.find("tr", class_="titlerow")
+        if not first_header:
+            for tr in first_table.find_all("tr"):
+                if tr.find("th"):
+                    first_header = tr
+                    break
         if first_header:
             header_texts = [_clean_text(th) for th in first_header.find_all("th")]
             page.participant_type = _detect_participant_type(header_texts)
 
     # Parse summary tables
-    summary_tables = soup.find_all("table", class_="summarytable")
     for table in summary_tables:
-        # Find the preceding summary title (h3.summarytitle)
+        # Find the preceding summary title (h3.summarytitle or just h3 before the table)
         scope_title = None
         section_id = None
 
@@ -469,7 +492,8 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
         prev = table.previous_sibling
         while prev:
             if isinstance(prev, Tag):
-                if prev.name == "h3" and "summarytitle" in prev.get("class", []):
+                if prev.name == "h3" and ("summarytitle" in prev.get("class", []) or
+                                           prev.get("id", "").startswith("summary")):
                     scope_title = prev.get_text(strip=True)
                     section_id = prev.get("id")
                     break
@@ -480,16 +504,21 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
         # Also check parent's previous siblings (caption divs can be between)
         if scope_title is None:
             for sibling in _preceding_elements(table):
-                if isinstance(sibling, Tag) and sibling.name == "h3" and "summarytitle" in sibling.get("class", []):
-                    scope_title = sibling.get_text(strip=True)
-                    section_id = sibling.get("id")
-                    break
+                if isinstance(sibling, Tag) and sibling.name == "h3":
+                    cls = sibling.get("class", [])
+                    sid = sibling.get("id", "")
+                    if "summarytitle" in cls or sid.startswith("summary"):
+                        scope_title = sibling.get_text(strip=True)
+                        section_id = sid
+                        break
 
         scope = _normalize_scope(scope_title, section_id)
 
-        # Find caption
+        # Find caption — check both class="summarycaption" and class="caption"
         caption_text = None
         caption_div = table.find_previous("div", class_="summarycaption")
+        if not caption_div:
+            caption_div = table.find_previous("div", class_="caption")
         if caption_div:
             caption_text = caption_div.get_text(strip=True)
 
@@ -497,27 +526,41 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
         page.summaries.append(section)
 
     # Parse race detail tables
-    race_tables = soup.find_all("table", class_="racetable")
+    race_counter = 0
     for table in race_tables:
-        # Find the race title (h3.racetitle)
-        race_key = "unknown"
+        race_counter += 1
+        # Find the race title (h3.racetitle or h3 with id starting with "r")
+        race_key = f"r{race_counter}"
         date = None
 
         race_title = table.find_previous("h3", class_="racetitle")
+        if not race_title:
+            # Look for any h3 with an id like "r1", "r2", etc.
+            for h3 in soup.find_all("h3"):
+                h3_id = h3.get("id", "")
+                if re.match(r"r\d+", h3_id) and h3.find_next("table") == table:
+                    race_title = h3
+                    break
+
         if race_title:
             race_id = race_title.get("id")
             if race_id:
                 race_key = race_id
             title_text = race_title.get_text(strip=True)
-            # Extract date from title like "05/06/25 - 28"
-            date_match = re.search(r"(\d{2}/\d{2}/\d{2})", title_text)
+            # Extract date from title like "05/06/25 - 28" or "29/07/2012 - #53"
+            date_match = re.search(r"(\d{2}/\d{2}/\d{2,4})", title_text)
             if date_match:
                 date = date_match.group(1)
 
-        # Find caption
+        # Find caption — check both class="racecaption" and class="caption"
         caption_text = None
         caption_div = table.find_previous("div", class_="racecaption")
-        if caption_div:
+        if not caption_div:
+            # For classless captions, find the nearest caption div before this table
+            for prev_div in table.find_all_previous("div", class_="caption"):
+                caption_text = prev_div.get_text(strip=True)
+                break
+        else:
             caption_text = caption_div.get_text(strip=True)
 
         detail = _parse_race_table(table, race_key, caption_text)
@@ -536,21 +579,80 @@ def _preceding_elements(tag: Tag):
         current = current.previous_element
 
 
-def parse_all_sailwave(base_dir: Path | None = None) -> list[ParsedPage]:
-    """Parse all Sailwave HTML files from 2014-2025."""
-    if base_dir is None:
-        base_dir = PROJECT_ROOT / "racing2014_2025"
+def _is_sailwave_data_table(table: Tag) -> str | None:
+    """Check if a table is a Sailwave data table (summary or race).
+
+    Returns 'summary' or 'race' or None.
+    """
+    # Check CSS class first (newer Sailwave versions)
+    classes = table.get("class", [])
+    if "summarytable" in classes:
+        return "summary"
+    if "racetable" in classes:
+        return "race"
+
+    # For classless tables (early Sailwave), check colgroup for race/summary cols
+    colgroup = table.find("colgroup")
+    if not colgroup:
+        return None
+
+    col_classes = [col.get("class", [None])[0] for col in colgroup.find_all("col") if col.get("class")]
+
+    # Race tables have columns like: racestart, racefinish, raceelapsed, racecorrected
+    race_cols = {"racestart", "racefinish", "raceelapsed", "racecorrected", "racebcr"}
+    if race_cols & set(col_classes):
+        return "race"
+
+    # Summary tables have Nett/Total columns but no race timing columns
+    if "nett" in col_classes and "boat" in col_classes:
+        return "summary"
+
+    return None
+
+
+def _find_sailwave_tables(soup: BeautifulSoup) -> tuple[list[Tag], list[Tag]]:
+    """Find all Sailwave data tables, returning (summary_tables, race_tables)."""
+    summary_tables = []
+    race_tables = []
+
+    for table in soup.find_all("table"):
+        table_type = _is_sailwave_data_table(table)
+        if table_type == "summary":
+            summary_tables.append(table)
+        elif table_type == "race":
+            race_tables.append(table)
+
+    return summary_tables, race_tables
+
+
+def parse_all_sailwave(base_dirs: list[Path] | None = None) -> list[ParsedPage]:
+    """Parse all Sailwave HTML files from all data directories."""
+    if base_dirs is None:
+        base_dirs = [PROJECT_ROOT / "racing2014_2025"]
+        legacy_dir = PROJECT_ROOT / "racing1999_2013"
+        if legacy_dir.exists():
+            base_dirs.append(legacy_dir)
 
     results = []
-    for filepath in sorted(base_dir.rglob("*.htm")):
-        # Skip known non-result files
-        name_lower = filepath.name.lower()
-        if name_lower.startswith("xxxxxxx") or name_lower.startswith("lyc_generic"):
-            continue
+    for base_dir in base_dirs:
+        for filepath in sorted(base_dir.rglob("*.htm")):
+            # Skip known non-result files
+            name_lower = filepath.name.lower()
+            if name_lower.startswith("xxxxxxx") or name_lower.startswith("lyc_generic"):
+                continue
 
-        page = parse_sailwave_file(filepath)
-        if page.summaries or page.races:
-            results.append(page)
+            # For legacy-era files, only parse Sailwave-format ones (skip WinRegatta)
+            if "racing1999_2013" in str(filepath):
+                try:
+                    html = filepath.read_text(errors="replace")
+                    if "sailwave" not in html.lower() and "summarytable" not in html and "racetable" not in html:
+                        continue
+                except Exception:
+                    continue
+
+            page = parse_sailwave_file(filepath)
+            if page.summaries or page.races:
+                results.append(page)
 
     return results
 
