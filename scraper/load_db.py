@@ -20,6 +20,11 @@ DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 PARSED_DIR = PROJECT_ROOT / "scraper" / "parsed"
 
 MANUAL_BOAT_RULES = {
+    "badbluej": {
+        "canonical_name": "Bad Blue J",
+        "canonical_sail_number": "31587",
+        "canonical_class": "J/29 I/B",
+    },
     "awesome": {
         "canonical_name": "Awesome",
         "canonical_sail_number": "203",
@@ -685,7 +690,8 @@ def _classify_event_type(title: str | None, h1: str | None, h2: str | None,
     if any(kw in combined for kw in [
         "championship", "nationals", "north american", "canadians",
         "sailfest", "ipyc", "mbcc", "race week", "one design",
-        "one-design", "rwiad",
+        "one-design", "rwiad", "sail east", "chester iod",
+        "iod fleet", "iod north", "crw",
     ]):
         return "championship"
     # Default to trophy for single races

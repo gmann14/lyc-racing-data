@@ -77,6 +77,20 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         detail:
           "Fleet-size charts currently count distinct boats appearing in handicap-only race results for that season. They do not yet include a separate helm-only interpretation.",
       },
+      {
+        term: "Average Finish %",
+        shortLabel: "avg finish %",
+        summary: "Average finish position as a percentage of race field size.",
+        detail:
+          "For each race a boat entered, we compute (finish rank / fleet size). The average across all races gives a normalized performance metric — lower is better. A value of 30% means the boat typically finishes in the top third. Requires a minimum of 20 races.",
+      },
+      {
+        term: "Consecutive Season Streak",
+        shortLabel: "streak",
+        summary: "The longest run of consecutive years a boat appeared in at least one race.",
+        detail:
+          "Computed from the handicap-only dataset (excluding special events). A gap of one or more years breaks the streak. Only the longest streak per boat is shown.",
+      },
     ],
   },
   {
@@ -115,9 +129,22 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
     },
   },
   {
+    key: "avg_finish_pct",
+    label: "Average Finish Percentage",
+    status: "live",
+    summary: "Average finish position as a percentage of the race field size.",
+    dimensions: {
+      timeBasis: "Finish rank only; normalized by per-race field size.",
+      participantScope: "Boat participants only.",
+      eventScope: "Handicap-only results; special events excluded by default.",
+      aggregation: "Mean of (rank / field size) across all counted races, minimum 20 races.",
+      inclusionNotes: "DNF/DNS entries without a rank are excluded from this calculation.",
+    },
+  },
+  {
     key: "avg_thursday_elapsed",
     label: "Average Thursday Race Length (Elapsed)",
-    status: "planned",
+    status: "live",
     summary: "Mean elapsed race duration for Thursday night handicap racing.",
     dimensions: {
       timeBasis: "Elapsed time.",
@@ -130,7 +157,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
   {
     key: "avg_thursday_corrected",
     label: "Average Thursday Race Length (Corrected)",
-    status: "planned",
+    status: "live",
     summary: "Mean corrected race duration for Thursday night handicap racing.",
     dimensions: {
       timeBasis: "Corrected time.",
@@ -143,7 +170,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
   {
     key: "avg_sunday_elapsed",
     label: "Average Sunday Race Length (Elapsed)",
-    status: "planned",
+    status: "live",
     summary: "Mean elapsed duration for Sunday trophy/handicap races.",
     dimensions: {
       timeBasis: "Elapsed time.",
@@ -155,7 +182,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
   {
     key: "boat_participation_count",
     label: "Boat Participation Count",
-    status: "planned",
+    status: "live",
     summary: "How many counted races or events a boat appears in during a season.",
     dimensions: {
       timeBasis: "Participation, not time-based.",

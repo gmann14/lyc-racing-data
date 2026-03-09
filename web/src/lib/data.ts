@@ -140,6 +140,15 @@ export interface RaceResult {
   boat_id: number | null;
 }
 
+export interface RaceWeather {
+  temp_c: number | null;
+  wind_speed_kmh: number | null;
+  wind_direction_deg: number | null;
+  wind_gust_kmh: number | null;
+  precipitation_mm: number | null;
+  conditions: string | null;
+}
+
 export interface Race {
   id: number;
   race_key: string | null;
@@ -151,6 +160,7 @@ export interface Race {
   course: string | null;
   distance_nm: number | null;
   notes: string | null;
+  weather: RaceWeather | null;
   results: RaceResult[];
 }
 
@@ -199,6 +209,8 @@ export interface LeaderboardEntry {
   wins?: number;
   total_races?: number;
   win_pct?: number;
+  avg_finish_pct?: number;
+  avg_finish?: number;
   seasons?: number;
   first_year?: number;
   last_year?: number;
@@ -212,6 +224,7 @@ export interface Leaderboards {
   most_seasons: LeaderboardEntry[];
   most_trophies: LeaderboardEntry[];
   best_win_pct: LeaderboardEntry[];
+  best_avg_finish_pct: LeaderboardEntry[];
   excluded_event_count: number;
   fleet_by_year: Array<{
     year: number;
@@ -260,4 +273,108 @@ export function getTrophies(): Trophy[] {
 export function getAllYears(): number[] {
   const seasons = getSeasons();
   return seasons.map((s) => s.year);
+}
+
+// --- Analysis types ---
+
+export interface FleetByYear {
+  year: number;
+  unique_boats: number;
+  tns_boats: number;
+  trophy_boats: number;
+}
+
+export interface NewBoatsByYear {
+  year: number;
+  new_boats: number;
+}
+
+export interface ReturnRate {
+  year: number;
+  boats: number;
+  returning: number;
+  rate: number;
+}
+
+export interface ClassCount {
+  class: string;
+  count: number;
+}
+
+export interface AvgFieldSize {
+  year: number;
+  event_type: string;
+  avg_field_size: number;
+}
+
+export interface RaceLength {
+  year: number;
+  event_type: string;
+  avg_elapsed: string;
+  avg_elapsed_seconds: number;
+  avg_corrected: string | null;
+  avg_corrected_seconds: number | null;
+  sample_size: number;
+}
+
+export interface ParticipationLeader {
+  id: number;
+  name: string;
+  class: string | null;
+  sail_number: string | null;
+  races: number;
+  seasons: number;
+  first_year: number;
+  last_year: number;
+  wins: number;
+}
+
+export interface StreakLeader {
+  id: number;
+  name: string;
+  streak: number;
+  start: number;
+  end: number;
+}
+
+export interface TnsMonthData {
+  year: number;
+  month: string;
+  race_nights: number;
+  unique_boats: number;
+  total_results: number;
+}
+
+export interface MonthlyWeather {
+  month: string;
+  avg_temp_c: number;
+  avg_wind_kmh: number;
+  race_days: number;
+}
+
+export interface AnalysisData {
+  fleet_trends: {
+    fleet_by_year: FleetByYear[];
+    new_boats_by_year: NewBoatsByYear[];
+    return_rates: ReturnRate[];
+    class_distribution: Record<string, ClassCount[]>;
+    avg_field_size: AvgFieldSize[];
+  };
+  race_lengths: RaceLength[];
+  participation: {
+    most_races: ParticipationLeader[];
+    longest_streaks: StreakLeader[];
+  };
+  tns: {
+    by_year_month: TnsMonthData[];
+  };
+  weather: {
+    wind_distribution: Record<string, number>;
+    monthly_averages: MonthlyWeather[];
+    total_dates: number;
+  };
+}
+
+export function getAnalysis(): AnalysisData {
+  return readJson<AnalysisData>("analysis.json");
 }

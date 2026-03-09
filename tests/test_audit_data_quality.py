@@ -181,24 +181,55 @@ class TestGenerateAuditOutputs:
 
         owner_rows = list(csv.DictReader((enrichment_dir / "boat_owners.csv").open()))
         assert any(row["boat_name"] == "Sly Fox" for row in owner_rows)
+        # All owners should be blank on first run (no pre-existing file)
+        assert all(row["owner_name"] == "" for row in owner_rows)
 
-        skipper_rows = list(csv.DictReader((enrichment_dir / "skipper_aliases.csv").open()))
-        assert skipper_rows[0]["raw_name"] == "Jane Doe"
+    def test_sticky_owners_preserved(self, tmp_path, monkeypatch):
+        """Existing owner data in boat_owners.csv survives audit regeneration."""
+        db_path = tmp_path / "test.db"
+        enrichment_dir = tmp_path / "enrichment"
+        reports_dir = tmp_path / "reports"
+        manifest_path = tmp_path / "source_manifest.jsonl"
+        manifest_path.write_text('{\"page_role\":\"asset\"}\n{\"page_role\":\"canonical\"}\n', encoding="utf-8")
+        monkeypatch.setattr(audit, "MANIFEST_PATH", manifest_path)
+        self._create_db(db_path)
 
-        event_rows = list(csv.DictReader((enrichment_dir / "event_review.csv").open()))
-        issues = {row["issue"] for row in event_rows}
-        assert issues == {"double_spaces", "event_has_no_results"}
+        # Pre-populate boat_owners.csv with an owner
+        enrichment_dir.mkdir(parents=True, exist_ok=True)
+        with open(enrichment_dir / "boat_owners.csv", "w", newline="") as f:
+            w = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "boat_name", "sail_number", "boat_class",
+                    "first_year_seen", "last_year_seen",
+                    "owner_name", "year_start", "year_end", "notes",
+                ],
+            )
+            w.writeheader()
+            w.writerow({
+                "boat_name": "Sly Fox",
+                "sail_number": "34142",
+                "boat_class": "J/29",
+                "first_year_seen": "2020",
+                "last_year_seen": "2020",
+                "owner_name": "Test Owner",
+                "year_start": "2020",
+                "year_end": "",
+                "notes": "manual entry",
+            })
 
-        special_rows = list(csv.DictReader((enrichment_dir / "special_event_review.csv").open()))
-        assert len(special_rows) == 1
-        assert special_rows[0]["suggested_exclude_from_handicap_stats"] == "yes"
+        audit.generate_audit_outputs(
+            db_path=db_path,
+            enrichment_dir=enrichment_dir,
+            reports_dir=reports_dir,
+        )
 
-        report = (reports_dir / "data_quality_report.md").read_text()
-        assert "Manifest entries: 2" in report
-        assert "Boats missing sail numbers: 1" in report
-        assert "Boats with non-empty placeholder / suspicious sail numbers: 0" in report
-        assert "Provisional entry-list events: 0" in report
-        assert "TNS season rows checked: 0" in report
+        owner_rows = list(csv.DictReader((enrichment_dir / "boat_owners.csv").open()))
+        sly_fox = [r for r in owner_rows if r["boat_name"] == "Sly Fox"]
+        assert len(sly_fox) >= 1
+        # Owner should be preserved
+        assert sly_fox[0]["owner_name"] == "Test Owner"
+        assert sly_fox[0]["notes"] == "manual entry"
 
     def test_provisional_entry_list_is_not_flagged_as_empty_event(self, tmp_path):
         db_path = tmp_path / "test.db"

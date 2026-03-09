@@ -2,8 +2,8 @@
 
 ## Snapshot
 
-- Boats: 276
-- Participants: 922
+- Boats: 275
+- Participants: 921
 - Events: 751
 - Races: 1403
 - Results: 11610
@@ -37,12 +37,12 @@
 - `same_normalized_name` — `Tsunami` / sail `14` → suggested canonical `Tsunami`
 - `same_normalized_name` — `Tsunami` / sail `428` → suggested canonical `Tsunami`
 - `same_normalized_name` — `Tsunami` / sail `98` → suggested canonical `Tsunami`
-- `same_normalized_name` — `Bad Blue J` / sail `31587` → suggested canonical `Bad Blue J`
-- `same_normalized_name` — `Bad Blue J` / sail `31887` → suggested canonical `Bad Blue J`
 - `same_normalized_name` — `Wandrian` / sail `1001` → suggested canonical `Wandrian`
 - `same_normalized_name` — `Wandrian` / sail `109` → suggested canonical `Wandrian`
 - `same_normalized_name` — `Wandrian` / sail `30406` → suggested canonical `Wandrian`
 - `same_normalized_name` — `Wandrian` / sail `50141` → suggested canonical `Wandrian`
+- `same_normalized_name` — `Buccaneer` / sail `1802` → suggested canonical `Buccaneer`
+- `same_normalized_name` — `Buccaneer` / sail `34289` → suggested canonical `Buccaneer`
 
 ## Class Cleanup Highlights
 

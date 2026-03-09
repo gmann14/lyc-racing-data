@@ -47,6 +47,55 @@ def _collapse_whitespace(text: str | None) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _load_weather_lookup(conn: sqlite3.Connection) -> dict[str, dict]:
+    """Load all weather rows keyed by ISO date (YYYY-MM-DD)."""
+    rows = conn.execute(
+        "SELECT date, temp_c, wind_speed_kmh, wind_direction_deg, "
+        "wind_gust_kmh, precipitation_mm, conditions FROM weather"
+    ).fetchall()
+    return {row["date"]: row for row in rows}
+
+
+def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None) -> str | None:
+    """Parse mixed race date formats to ISO YYYY-MM-DD string."""
+    if not raw_date or not raw_date.strip():
+        return None
+    text = raw_date.strip()
+    if text.lower() in ("pos", "position"):
+        return None
+    from datetime import datetime
+    formats = ("%d/%m/%y", "%d/%m/%Y", "%d-%m-%y", "%d-%m-%Y")
+    alt_formats = ("%y-%m-%d", "%m-%d-%y", "%m/%d/%y")
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(text, fmt)
+            if dt.year > 2025:
+                dt = dt.replace(year=dt.year - 100)
+            if event_year is None or dt.year == event_year:
+                return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    if event_year is not None:
+        for fmt in alt_formats:
+            try:
+                dt = datetime.strptime(text, fmt)
+                if dt.year > 2025:
+                    dt = dt.replace(year=dt.year - 100)
+                if dt.year == event_year:
+                    return dt.strftime("%Y-%m-%d")
+            except ValueError:
+                continue
+    for fmt in formats:
+        try:
+            dt = datetime.strptime(text, fmt)
+            if dt.year > 2025:
+                dt = dt.replace(year=dt.year - 100)
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+    return None
+
+
 def _event_name_group_key(name: str) -> str:
     cleaned = _collapse_whitespace(name).lower()
     cleaned = cleaned.replace("&", "and")
@@ -512,7 +561,8 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
     _write_json(OUTPUT_DIR / "seasons" / f"{year}.json", data)
 
 
-def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
+def export_event_detail(conn: sqlite3.Connection, event_id: int,
+                        weather_lookup: dict[str, dict] | None = None) -> None:
     """Export full detail for a single event."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
@@ -618,6 +668,20 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
         race.pop("_participant_ids", None)
         race.pop("event_id", None)
         race["results"] = sorted(race["results"], key=lambda item: (item["rank"] is None, item["rank"] or 9999))
+        # Attach weather data if available
+        race["weather"] = None
+        if weather_lookup and race.get("date"):
+            iso_date = _parse_race_date_to_iso(race["date"], event.get("year"))
+            if iso_date and iso_date in weather_lookup:
+                w = weather_lookup[iso_date]
+                race["weather"] = {
+                    "temp_c": w["temp_c"],
+                    "wind_speed_kmh": w["wind_speed_kmh"],
+                    "wind_direction_deg": w["wind_direction_deg"],
+                    "wind_gust_kmh": w["wind_gust_kmh"],
+                    "precipitation_mm": w["precipitation_mm"],
+                    "conditions": w["conditions"],
+                }
 
     data = {**event, "standings": standings, "races": races}
     _write_json(OUTPUT_DIR / "events" / f"{event_id}.json", data)
@@ -797,6 +861,33 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         LIMIT 25
     """.format(where=where), tuple(excluded.keys())).fetchall()
 
+    # Best average finish position as % of fleet (min 20 races)
+    best_avg_finish_pct = conn.execute("""
+        SELECT b.id, b.name, b.class, b.sail_number,
+               COUNT(*) as total_races,
+               ROUND(AVG(CAST(res.rank AS REAL) / race_sizes.field_size) * 100, 1) as avg_finish_pct,
+               ROUND(AVG(res.rank), 1) as avg_finish,
+               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins
+        FROM boats b
+        JOIN participants p ON p.boat_id = b.id
+        JOIN results res ON res.participant_id = p.id
+        JOIN races rc ON res.race_id = rc.id
+        JOIN events e ON rc.event_id = e.id
+        JOIN (
+            SELECT r2.race_id, COUNT(*) as field_size
+            FROM results r2
+            JOIN participants p2 ON r2.participant_id = p2.id
+            WHERE p2.boat_id IS NOT NULL AND r2.rank IS NOT NULL
+            GROUP BY r2.race_id
+        ) race_sizes ON race_sizes.race_id = res.race_id
+        {where}
+        AND res.rank IS NOT NULL
+        GROUP BY b.id
+        HAVING total_races >= 20
+        ORDER BY avg_finish_pct ASC
+        LIMIT 25
+    """.format(where=where if where else "WHERE 1=1"), tuple(excluded.keys())).fetchall()
+
     # Fleet size by year
     fleet_by_year = conn.execute("""
         SELECT e.year,
@@ -817,6 +908,7 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         "most_seasons": most_seasons,
         "most_trophies": most_trophies,
         "best_win_pct": best_pct,
+        "best_avg_finish_pct": best_avg_finish_pct,
         "fleet_by_year": fleet_by_year,
         "excluded_event_count": len(excluded),
     }
@@ -894,6 +986,333 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
     _write_json(OUTPUT_DIR / "trophies.json", trophy_list)
 
 
+def export_analysis(conn: sqlite3.Connection) -> None:
+    """Export pre-computed analysis data for stats pages."""
+    excluded = _excluded_event_map(conn)
+    excl_placeholders = ",".join("?" for _ in excluded) if excluded else None
+    excl_where = f"AND e.id NOT IN ({excl_placeholders})" if excl_placeholders else ""
+    excl_params = tuple(excluded) if excluded else ()
+
+    # --- Fleet Trends ---
+    # Unique boats per year
+    fleet_by_year = conn.execute(f"""
+        SELECT e.year,
+               COUNT(DISTINCT b.id) as unique_boats,
+               COUNT(DISTINCT CASE WHEN e.event_type = 'tns' THEN b.id END) as tns_boats,
+               COUNT(DISTINCT CASE WHEN e.event_type = 'trophy' THEN b.id END) as trophy_boats
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+        GROUP BY e.year
+        ORDER BY e.year
+    """, excl_params).fetchall()
+
+    # New boats per year (first appearance)
+    first_years = conn.execute(f"""
+        SELECT MIN(e.year) as first_year, b.id
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+        GROUP BY b.id
+    """, excl_params).fetchall()
+    new_by_year: dict[int, int] = defaultdict(int)
+    for row in first_years:
+        new_by_year[row["first_year"]] += 1
+
+    # Return rate (% of year N boats that race in year N+1)
+    boats_by_year: dict[int, set[int]] = defaultdict(set)
+    boat_year_rows = conn.execute(f"""
+        SELECT DISTINCT e.year, b.id as boat_id
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+    """, excl_params).fetchall()
+    for row in boat_year_rows:
+        boats_by_year[row["year"]].add(row["boat_id"])
+    years_sorted = sorted(boats_by_year.keys())
+    return_rates = []
+    for i in range(len(years_sorted) - 1):
+        y = years_sorted[i]
+        y_next = years_sorted[i + 1]
+        current = boats_by_year[y]
+        next_set = boats_by_year[y_next]
+        returning = len(current & next_set)
+        rate = round(100 * returning / len(current), 1) if current else 0
+        return_rates.append({"year": y, "boats": len(current), "returning": returning, "rate": rate})
+
+    # Class distribution (top classes per year)
+    class_by_year = conn.execute(f"""
+        SELECT e.year, b.class, COUNT(DISTINCT b.id) as boat_count
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL AND b.class IS NOT NULL {excl_where}
+        GROUP BY e.year, b.class
+        ORDER BY e.year, boat_count DESC
+    """, excl_params).fetchall()
+    class_dist: dict[int, list] = defaultdict(list)
+    for row in class_by_year:
+        class_dist[row["year"]].append({"class": row["class"], "count": row["boat_count"]})
+
+    # Average field size per race
+    field_sizes = conn.execute(f"""
+        SELECT sub.year, sub.event_type,
+               ROUND(AVG(sub.race_count), 1) as avg_field_size
+        FROM (
+            SELECT r.id, e.year, e.event_type, COUNT(DISTINCT res.id) as race_count
+            FROM races r
+            JOIN events e ON r.event_id = e.id
+            JOIN results res ON res.race_id = r.id
+            JOIN participants p ON res.participant_id = p.id
+            WHERE p.boat_id IS NOT NULL {excl_where}
+            GROUP BY r.id, e.year, e.event_type
+        ) sub
+        GROUP BY sub.year, sub.event_type
+        ORDER BY sub.year
+    """, excl_params).fetchall()
+
+    # --- Race Length ---
+    race_lengths = conn.execute(f"""
+        SELECT e.year, e.event_type,
+               res.elapsed_time, res.corrected_time
+        FROM results res
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE e.event_type IN ('tns', 'trophy')
+              AND res.elapsed_time IS NOT NULL
+              AND res.elapsed_time != ''
+              AND res.elapsed_time NOT LIKE '%DNF%'
+              AND res.elapsed_time NOT LIKE '%DNS%'
+              AND res.elapsed_time NOT LIKE '%OCS%'
+              AND res.elapsed_time NOT LIKE '%DSQ%'
+              AND res.elapsed_time NOT LIKE '%RAF%'
+              AND res.elapsed_time NOT LIKE '%DNC%'
+              AND res.elapsed_time NOT LIKE '00 00%'
+              AND LENGTH(res.elapsed_time) > 4
+              {excl_where}
+        ORDER BY e.year
+    """, excl_params).fetchall()
+
+    # Parse elapsed times to seconds and compute averages
+    def _time_to_seconds(t: str) -> int | None:
+        parts = t.strip().split(":")
+        try:
+            if len(parts) == 3:
+                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+            if len(parts) == 2:
+                return int(parts[0]) * 60 + int(parts[1])
+        except ValueError:
+            return None
+        return None
+
+    elapsed_by_year_type: dict[tuple[int, str], list[int]] = defaultdict(list)
+    corrected_by_year_type: dict[tuple[int, str], list[int]] = defaultdict(list)
+    for row in race_lengths:
+        secs = _time_to_seconds(row["elapsed_time"])
+        if secs and 600 < secs < 18000:  # 10min to 5hr reasonable range
+            elapsed_by_year_type[(row["year"], row["event_type"])].append(secs)
+        if row["corrected_time"]:
+            csecs = _time_to_seconds(row["corrected_time"])
+            if csecs and 600 < csecs < 18000:
+                corrected_by_year_type[(row["year"], row["event_type"])].append(csecs)
+
+    def _fmt_time(secs: float) -> str:
+        h, m = divmod(int(secs), 3600)
+        m, s = divmod(m, 60)
+        return f"{h}:{m:02d}:{s:02d}"
+
+    avg_race_lengths = []
+    for (year, etype), times in sorted(elapsed_by_year_type.items()):
+        if len(times) < 5:
+            continue
+        avg_e = sum(times) / len(times)
+        ctimes = corrected_by_year_type.get((year, etype), [])
+        avg_c = sum(ctimes) / len(ctimes) if len(ctimes) >= 5 else None
+        avg_race_lengths.append({
+            "year": year,
+            "event_type": etype,
+            "avg_elapsed": _fmt_time(avg_e),
+            "avg_elapsed_seconds": round(avg_e),
+            "avg_corrected": _fmt_time(avg_c) if avg_c else None,
+            "avg_corrected_seconds": round(avg_c) if avg_c else None,
+            "sample_size": len(times),
+        })
+
+    # --- Participation & Consistency ---
+    # Most races sailed (all-time)
+    most_races = conn.execute(f"""
+        SELECT b.id, b.name, b.class, b.sail_number,
+               COUNT(DISTINCT res.id) as races,
+               COUNT(DISTINCT e.year) as seasons,
+               MIN(e.year) as first_year, MAX(e.year) as last_year,
+               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+        GROUP BY b.id
+        ORDER BY races DESC
+        LIMIT 30
+    """, excl_params).fetchall()
+
+    # Longest active streaks
+    all_boat_years = conn.execute(f"""
+        SELECT b.id, b.name, e.year
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+        GROUP BY b.id, e.year
+        ORDER BY b.id, e.year
+    """, excl_params).fetchall()
+
+    current_boat = None
+    current_name = ""
+    current_streak = 0
+    streak_start = 0
+    prev_year = 0
+    best_by_boat: dict[int, dict] = {}
+    for row in all_boat_years:
+        if row["id"] != current_boat:
+            # Save previous boat's streak
+            if current_boat is not None and current_streak >= 3:
+                if current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]:
+                    best_by_boat[current_boat] = {
+                        "id": current_boat, "name": current_name,
+                        "streak": current_streak, "start": streak_start, "end": prev_year,
+                    }
+            current_boat = row["id"]
+            current_name = row["name"]
+            current_streak = 1
+            streak_start = row["year"]
+            prev_year = row["year"]
+            continue
+        if row["year"] == prev_year + 1:
+            current_streak += 1
+        else:
+            if current_streak >= 3 and (current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]):
+                best_by_boat[current_boat] = {
+                    "id": current_boat, "name": current_name,
+                    "streak": current_streak, "start": streak_start, "end": prev_year,
+                }
+            current_streak = 1
+            streak_start = row["year"]
+        prev_year = row["year"]
+    # Final boat
+    if current_boat is not None and current_streak >= 3:
+        if current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]:
+            best_by_boat[current_boat] = {
+                "id": current_boat, "name": current_name,
+                "streak": current_streak, "start": streak_start, "end": prev_year,
+            }
+    longest_streaks = sorted(best_by_boat.values(), key=lambda x: -x["streak"])[:25]
+
+    # --- TNS Deep Dive ---
+    tns_by_year = conn.execute("""
+        SELECT e.year, e.month,
+               COUNT(DISTINCT r.date) as race_nights,
+               COUNT(DISTINCT b.id) as unique_boats,
+               COUNT(DISTINCT res.id) as total_results
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        LEFT JOIN boats b ON p.boat_id = b.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE e.event_type = 'tns'
+        GROUP BY e.year, e.month
+        ORDER BY e.year, e.month
+    """).fetchall()
+
+    # --- Weather Summary ---
+    weather_summary = conn.execute("""
+        SELECT w.date,
+               strftime('%Y', w.date) as year,
+               strftime('%m', w.date) as month,
+               w.temp_c, w.wind_speed_kmh, w.wind_direction_deg,
+               w.wind_gust_kmh, w.conditions
+        FROM weather w
+        ORDER BY w.date
+    """).fetchall()
+
+    # Wind speed distribution
+    wind_brackets = {"calm": 0, "light": 0, "moderate": 0, "fresh": 0, "strong": 0}
+    for row in weather_summary:
+        ws = row["wind_speed_kmh"]
+        if ws is None:
+            continue
+        knots = ws / 1.852
+        if knots < 4:
+            wind_brackets["calm"] += 1
+        elif knots < 10:
+            wind_brackets["light"] += 1
+        elif knots < 16:
+            wind_brackets["moderate"] += 1
+        elif knots < 22:
+            wind_brackets["fresh"] += 1
+        else:
+            wind_brackets["strong"] += 1
+
+    # Avg temp and wind by month
+    weather_by_month: dict[str, list] = defaultdict(list)
+    for row in weather_summary:
+        if row["temp_c"] is not None:
+            month_name = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][int(row["month"])]
+            weather_by_month[month_name].append({
+                "temp": row["temp_c"],
+                "wind": row["wind_speed_kmh"],
+            })
+    monthly_weather = []
+    for month in ["May", "Jun", "Jul", "Aug", "Sep", "Oct"]:
+        data = weather_by_month.get(month, [])
+        if data:
+            monthly_weather.append({
+                "month": month,
+                "avg_temp_c": round(sum(d["temp"] for d in data) / len(data), 1),
+                "avg_wind_kmh": round(sum(d["wind"] for d in data if d["wind"]) / max(1, sum(1 for d in data if d["wind"])), 1),
+                "race_days": len(data),
+            })
+
+    analysis = {
+        "fleet_trends": {
+            "fleet_by_year": fleet_by_year,
+            "new_boats_by_year": [{"year": y, "new_boats": new_by_year.get(y, 0)} for y in sorted({r["year"] for r in fleet_by_year})],
+            "return_rates": return_rates,
+            "class_distribution": {str(k): v for k, v in class_dist.items()},
+            "avg_field_size": field_sizes,
+        },
+        "race_lengths": avg_race_lengths,
+        "participation": {
+            "most_races": most_races,
+            "longest_streaks": longest_streaks,
+        },
+        "tns": {
+            "by_year_month": tns_by_year,
+        },
+        "weather": {
+            "wind_distribution": wind_brackets,
+            "monthly_averages": monthly_weather,
+            "total_dates": len(weather_summary),
+        },
+    }
+    _write_json(OUTPUT_DIR / "analysis.json", analysis)
+
+
 def export_all() -> None:
     """Run the full export pipeline."""
     conn = _connect()
@@ -915,10 +1334,11 @@ def export_all() -> None:
 
     print("Exporting event details...")
     _reset_output_dir(OUTPUT_DIR / "events")
+    weather_lookup = _load_weather_lookup(conn)
     event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
     for eid in event_ids:
-        export_event_detail(conn, eid)
-    print(f"  {len(event_ids)} events exported")
+        export_event_detail(conn, eid, weather_lookup=weather_lookup)
+    print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)")
 
     print("Exporting boats list...")
     export_boats(conn)
@@ -935,6 +1355,9 @@ def export_all() -> None:
 
     print("Exporting trophy history...")
     export_trophy_history(conn)
+
+    print("Exporting analysis data...")
+    export_analysis(conn)
 
     conn.close()
     print(f"\nDone! JSON files written to {OUTPUT_DIR}")

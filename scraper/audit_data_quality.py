@@ -305,21 +305,37 @@ def _build_class_rows(boats: list[dict]) -> list[dict]:
     return rows
 
 
-def _build_owner_template_rows(boats: list[dict]) -> list[dict]:
-    return [
-        {
-            "boat_name": _collapse_whitespace(boat["name"]),
-            "sail_number": boat["sail_number"] or "",
-            "boat_class": _collapse_whitespace(boat["class"]),
-            "first_year_seen": boat["first_year"] or "",
-            "last_year_seen": boat["last_year"] or "",
-            "owner_name": "",
-            "year_start": boat["first_year"] or "",
-            "year_end": "",
-            "notes": "",
-        }
-        for boat in boats
-    ]
+def _build_owner_template_rows(boats: list[dict], enrichment_dir: Path) -> list[dict]:
+    # Preserve existing owner data from boat_owners.csv
+    existing_owners: dict[tuple[str, str], dict] = {}
+    owners_path = enrichment_dir / "boat_owners.csv"
+    if owners_path.exists():
+        with open(owners_path, newline="") as f:
+            for row in csv.DictReader(f):
+                key = (row["boat_name"], row["sail_number"])
+                if row.get("owner_name", "").strip():
+                    existing_owners[key] = row
+
+    result = []
+    for boat in boats:
+        name = _collapse_whitespace(boat["name"])
+        sail = boat["sail_number"] or ""
+        key = (name, sail)
+        existing = existing_owners.get(key, {})
+        result.append(
+            {
+                "boat_name": name,
+                "sail_number": sail,
+                "boat_class": _collapse_whitespace(boat["class"]),
+                "first_year_seen": boat["first_year"] or "",
+                "last_year_seen": boat["last_year"] or "",
+                "owner_name": existing.get("owner_name", ""),
+                "year_start": existing.get("year_start", "") or boat["first_year"] or "",
+                "year_end": existing.get("year_end", ""),
+                "notes": existing.get("notes", ""),
+            }
+        )
+    return result
 
 
 def _build_skipper_alias_rows(conn: sqlite3.Connection) -> list[dict]:
@@ -1025,7 +1041,7 @@ def generate_audit_outputs(
     boats = _fetch_boat_stats(conn)
     alias_rows, duplicate_rows = _build_boat_alias_rows(boats)
     class_rows = _build_class_rows(boats)
-    owner_rows = _build_owner_template_rows(boats)
+    owner_rows = _build_owner_template_rows(boats, enrichment_dir)
     skipper_rows = _build_skipper_alias_rows(conn)
     event_rows = _build_event_review_rows(conn)
     race_rows = _build_races_without_results_rows(conn)

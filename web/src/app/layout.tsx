@@ -39,6 +39,7 @@ function Nav() {
     { href: "/boats/", label: "Boats" },
     { href: "/leaderboards/", label: "Leaderboards" },
     { href: "/trophies/", label: "Trophies" },
+    { href: "/analysis/", label: "Analysis" },
     { href: "/methodology/", label: "Methodology" },
   ];
   return (

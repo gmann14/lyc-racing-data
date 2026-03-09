@@ -613,6 +613,17 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
         detail.date = date
         page.races.append(detail)
 
+    # Fill missing race dates from summary race_columns
+    if page.summaries:
+        rc_dates: dict[str, str] = {}
+        for section in page.summaries:
+            for rc in section.race_columns:
+                if rc.date and rc.race_key not in rc_dates:
+                    rc_dates[rc.race_key] = rc.date
+        for race in page.races:
+            if race.date is None and race.race_key in rc_dates:
+                race.date = rc_dates[race.race_key]
+
     return page
 
 

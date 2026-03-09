@@ -23,6 +23,27 @@ function formatReason(reason: string): string {
   return reason.replaceAll("_", " ");
 }
 
+function windDirectionLabel(deg: number): string {
+  const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function formatWeather(race: EventDetail["races"][number]): string | null {
+  const w = race.weather;
+  if (!w) return null;
+  const parts: string[] = [];
+  if (w.wind_speed_kmh != null && w.wind_direction_deg != null) {
+    const knots = Math.round(w.wind_speed_kmh / 1.852);
+    const dir = windDirectionLabel(w.wind_direction_deg);
+    const gust = w.wind_gust_kmh != null ? Math.round(w.wind_gust_kmh / 1.852) : null;
+    parts.push(gust ? `${dir} ${knots}-${gust}kt` : `${dir} ${knots}kt`);
+  }
+  if (w.temp_c != null) parts.push(`${Math.round(w.temp_c)}°C`);
+  if (w.conditions) parts.push(w.conditions.toLowerCase());
+  return parts.length > 0 ? parts.join(", ") : null;
+}
+
 function formatRaceMeta(event: EventDetail, race: EventDetail["races"][number]): string[] {
   const bits: string[] = [];
   if (race.date) bits.push(race.date);
@@ -127,6 +148,11 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
                 {formatRaceMeta(event, race).length > 0 && (
                   <div className="mt-0.5 text-[11px] text-gray-400">
                     {formatRaceMeta(event, race).join(" · ")}
+                  </div>
+                )}
+                {formatWeather(race) && (
+                  <div className="mt-0.5 text-[11px] text-blue-400/70">
+                    {formatWeather(race)}
                   </div>
                 )}
               </div>

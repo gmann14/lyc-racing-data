@@ -152,12 +152,30 @@ export default function HomePage() {
           </div>
           <div className="px-5 py-3 border-t border-border bg-cream/50">
             <Link
-              href="/seasons/"
+              href="/analysis/"
               className="text-sm text-navy-light hover:text-gold font-medium transition-colors"
             >
-              Browse all seasons &rarr;
+              Explore fleet trends &rarr;
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Analysis callout */}
+      <div className="mt-8 bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+        <div className="px-5 py-5 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-navy">27 Years of Racing Data</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Fleet trends, race performance, participation patterns, Thursday Night deep dives, and weather conditions.
+            </p>
+          </div>
+          <Link
+            href="/analysis/"
+            className="shrink-0 px-5 py-2.5 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy-light transition-colors"
+          >
+            View Analysis
+          </Link>
         </div>
       </div>
     </div>

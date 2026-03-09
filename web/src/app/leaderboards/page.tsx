@@ -9,8 +9,9 @@ export default function LeaderboardsPage() {
     <div>
       <h1 className="text-3xl font-bold text-navy mb-2">Leaderboards</h1>
       <p className="text-gray-500 mb-6">
-        All-time rankings across {lb.fleet_by_year.length} seasons of racing.
-        These tables use the handicap dataset and currently exclude{" "}
+        All-time rankings across {lb.fleet_by_year.length} seasons of digitized racing
+        data (1999&ndash;2025). Earlier results are not yet available. These tables use
+        the handicap dataset and exclude{" "}
         {lb.excluded_event_count} flagged special events.{" "}
         <Link
           href="/methodology/"
@@ -30,7 +31,7 @@ export default function LeaderboardsPage() {
             { key: "class", label: "Class" },
             { key: "wins", label: "Wins", align: "right" },
             { key: "total_races", label: "Races", align: "right" },
-            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %" },
+            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %", decimals: 1 },
           ]}
         />
 
@@ -62,8 +63,20 @@ export default function LeaderboardsPage() {
           columns={[
             { key: "name", label: "Boat", link: true },
             { key: "class", label: "Class" },
-            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %" },
+            { key: "win_pct", label: "Win %", align: "right", suffix: "%", infoTerm: "win %", decimals: 1 },
             { key: "wins", label: "Wins", align: "right" },
+            { key: "total_races", label: "Races", align: "right" },
+          ]}
+        />
+
+        <LeaderboardTable
+          title="Best Avg Finish (min 20 races)"
+          rows={lb.best_avg_finish_pct}
+          columns={[
+            { key: "name", label: "Boat", link: true },
+            { key: "class", label: "Class" },
+            { key: "avg_finish_pct", label: "Finish %", align: "right", suffix: "%", infoTerm: "avg finish %", decimals: 1 },
+            { key: "avg_finish", label: "Avg Place", align: "right", decimals: 1 },
             { key: "total_races", label: "Races", align: "right" },
           ]}
         />
@@ -79,6 +92,7 @@ interface Column {
   link?: boolean;
   suffix?: string;
   infoTerm?: string;
+  decimals?: number;
 }
 
 function LeaderboardTable({
@@ -116,8 +130,13 @@ function LeaderboardTable({
         </thead>
         <tbody>
           {rows.map((row, i) => {
-            const val = (key: string) =>
-              (row as unknown as Record<string, unknown>)[key];
+            const val = (key: string, col: Column) => {
+              const v = (row as unknown as Record<string, unknown>)[key];
+              if (v != null && col.decimals != null && typeof v === "number") {
+                return v.toFixed(col.decimals);
+              }
+              return v;
+            };
             return (
               <tr
                 key={row.id}
@@ -138,12 +157,12 @@ function LeaderboardTable({
                         href={`/boats/#${row.id}`}
                         className="text-navy-light hover:text-gold font-medium transition-colors"
                       >
-                        {String(val(c.key) ?? "\u2014")}
+                        {String(val(c.key, c) ?? "\u2014")}
                       </Link>
                     ) : (
                       <span className={c.align === "right" ? "" : "text-gray-500"}>
-                        {String(val(c.key) ?? "\u2014")}
-                        {c.suffix && val(c.key) != null ? c.suffix : ""}
+                        {String(val(c.key, c) ?? "\u2014")}
+                        {c.suffix && val(c.key, c) != null ? c.suffix : ""}
                       </span>
                     )}
                   </td>
