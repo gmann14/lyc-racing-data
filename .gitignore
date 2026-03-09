@@ -38,3 +38,12 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# Local archive/scratch artifacts
+racing1999_2013_original/
+.playwright-mcp/
+boat-detail.png
+boats-page.png
+homepage-full.png
+leaderboards.png
+seasons-detail.png

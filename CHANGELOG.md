@@ -24,11 +24,24 @@ This file tracks changes to archive logic that materially affect published stats
 ### Parser and loader fixes
 
 - Broadened Sailwave header parsing to handle older/classless exports using headers such as `YachtName`, `Model`, and bow-number style tables.
+- Added support for early/classless Sailwave `table.main` race tables from legacy years, including `Pos`, `Boat Name`, and `Pts` style headers.
 - Added fallback participant names for summary/race rows that only expose sail number or bow number.
 - Fixed summary-only standings loading for pages that omit explicit rank values but still include sailed-series totals.
+- Fixed source-page loading to resolve the existing `source_pages.id` by path after `INSERT OR IGNORE` instead of trusting `lastrowid`.
+- Fixed boat loading to reuse an existing `(name, sail_number)` row when a uniqueness collision occurs during import.
 - Rebuilt the database and exports after those parser/loader fixes, recovering hundreds of missing standings/results from previously under-loaded pages.
 - Reclassified provisional entry-list pages separately from true parser misses, leaving only one event-review row instead of a long list of variant-title noise.
 - Added TNS validation reporting around the June–September monthly-series baseline and switched season-detail TNS counts to race-night counts instead of raw A/B race-table sections.
+
+### Legacy source coverage
+
+- Added `scraper/audit_original_coverage.py` to compare `racing1999_2013_original` against the working legacy mirror and prioritize missing result pages.
+- Synced all high/medium-priority missing original 1999–2013 result pages into `racing1999_2013`, reducing missing result-like pages from `16` to `5`.
+- Added coverage outputs in `reports/original_coverage_report.md`, `reports/original_missing_result_like.csv`, `reports/original_missing_ancillary.csv`, `reports/original_checksum_differences.csv`, and `reports/mirror_only_files.csv`.
+
+### Export pipeline
+
+- Added output-directory cleanup logic for `web/public/data/seasons`, `web/public/data/events`, and `web/public/data/boats` so stale JSON files do not survive after ids disappear.
 
 ### Public site
 

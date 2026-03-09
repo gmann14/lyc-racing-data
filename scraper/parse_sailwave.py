@@ -164,6 +164,15 @@ def _fallback_participant_name(
     return None
 
 
+def _header_texts(table: Tag) -> list[str]:
+    """Extract normalized header text from the first header row in a table."""
+    for tr in table.find_all("tr"):
+        headers = tr.find_all("th")
+        if headers:
+            return [_clean_text(th).lower() for th in headers]
+    return []
+
+
 def _detect_participant_type(headers: list[str]) -> str:
     """Detect whether this table uses boat names or helm names."""
     for h in headers:
@@ -263,13 +272,13 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
     header_map = {}
     for i, h in enumerate(headers):
         h_lower = h.lower()
-        if "rank" in h_lower:
+        if "rank" in h_lower or h_lower == "pos":
             header_map["rank"] = i
         elif h_lower in ("fleet",):
             header_map["fleet"] = i
         elif h_lower in ("division", "div"):
             header_map["division"] = i
-        elif h_lower in ("boat", "yacht", "yachtname", "name"):
+        elif h_lower in ("boat", "boat name", "yacht", "yachtname", "name"):
             header_map["boat"] = i
         elif "helm" in h_lower:
             header_map["boat"] = i  # treat helm as boat column
@@ -370,13 +379,13 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
     header_map = {}
     for i, h in enumerate(headers):
         h_lower = h.lower()
-        if "rank" in h_lower:
+        if "rank" in h_lower or h_lower == "pos":
             header_map["rank"] = i
         elif h_lower in ("fleet",):
             header_map["fleet"] = i
         elif h_lower in ("division", "div"):
             header_map["division"] = i
-        elif h_lower in ("boat", "yacht", "yachtname", "name"):
+        elif h_lower in ("boat", "boat name", "yacht", "yachtname", "name"):
             header_map["boat"] = i
         elif "helm" in h_lower:
             header_map["boat"] = i
@@ -400,13 +409,15 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
             header_map["corrected"] = i
         elif h_lower in ("bcr",):
             header_map["bcr"] = i
-        elif h_lower in ("points",):
+        elif h_lower in ("points", "pts"):
             header_map["points"] = i
 
     # Parse data rows — look for class="racerow" or fallback to "odd"/"even"
     data_rows = table.find_all("tr", class_="racerow")
     if not data_rows:
         data_rows = table.find_all("tr", class_=["odd", "even"])
+    if not data_rows:
+        data_rows = [tr for tr in table.find_all("tr") if tr is not header_row and tr.find("td")]
     for tr in data_rows:
         cells = tr.find_all("td")
         if not cells:
@@ -576,6 +587,16 @@ def parse_sailwave_file(filepath: Path) -> ParsedPage:
             date_match = re.search(r"(\d{2}/\d{2}/\d{2,4})", title_text)
             if date_match:
                 date = date_match.group(1)
+        else:
+            legacy_race_title = table.find_previous("p", class_="race")
+            if legacy_race_title:
+                title_text = legacy_race_title.get_text(strip=True)
+                race_key = re.sub(r"[^a-z0-9]+", "_", title_text.lower()).strip("_") or race_key
+            legacy_race_anno = table.find_previous("p", class_="raceanno")
+            if legacy_race_anno:
+                date_match = re.search(r"(\d{1,2}/[A-Za-z]+/\d{4}|\d{2}/\d{2}/\d{2,4})", legacy_race_anno.get_text(strip=True))
+                if date_match:
+                    date = date_match.group(1)
 
         # Find caption — check both class="racecaption" and class="caption"
         caption_text = None
@@ -618,19 +639,30 @@ def _is_sailwave_data_table(table: Tag) -> str | None:
 
     # For classless tables (early Sailwave), check colgroup for race/summary cols
     colgroup = table.find("colgroup")
-    if not colgroup:
-        return None
+    if colgroup:
+        col_classes = [col.get("class", [None])[0] for col in colgroup.find_all("col") if col.get("class")]
 
-    col_classes = [col.get("class", [None])[0] for col in colgroup.find_all("col") if col.get("class")]
+        # Race tables have columns like: racestart, racefinish, raceelapsed, racecorrected
+        race_cols = {"racestart", "racefinish", "raceelapsed", "racecorrected", "racebcr"}
+        if race_cols & set(col_classes):
+            return "race"
 
-    # Race tables have columns like: racestart, racefinish, raceelapsed, racecorrected
-    race_cols = {"racestart", "racefinish", "raceelapsed", "racecorrected", "racebcr"}
-    if race_cols & set(col_classes):
-        return "race"
+        # Summary tables have Nett/Total columns but no race timing columns
+        if "nett" in col_classes and "boat" in col_classes:
+            return "summary"
 
-    # Summary tables have Nett/Total columns but no race timing columns
-    if "nett" in col_classes and "boat" in col_classes:
-        return "summary"
+    # Older Sailwave templates can use table.main with custom th classes.
+    headers = _header_texts(table)
+    if headers:
+        header_text = " ".join(headers)
+        if any(token in header_text for token in ("elapsed", "corrected", "start", "finish")):
+            return "race"
+        if "boat name" in header_text:
+            return "race"
+        if ("nett" in header_text or "total" in header_text) and any(
+            token in header_text for token in ("boat", "helm", "sail no", "sailno")
+        ):
+            return "summary"
 
     return None
 

@@ -2,31 +2,31 @@
 
 ## Snapshot
 
-- Boats: 309
-- Participants: 831
-- Events: 735
-- Races: 1376
-- Results: 11469
-- Boat results: 7762
-- Helm results: 3707
+- Boats: 324
+- Participants: 967
+- Events: 1486
+- Races: 2779
+- Results: 23079
+- Boat results: 15665
+- Helm results: 7414
 
 ## Biggest Cleanup Gaps
 
-- Boats missing sail numbers: 30
-- Boats with non-empty placeholder / suspicious sail numbers: 19
-- Boats missing class: 20
-- Result rows tied to participants without `boat_id`: 3707
-- Empty events (no races and no standings): 0
-- Provisional entry-list events: 1
-- Races without results: 27
-- Skippers loaded: 385
+- Boats missing sail numbers: 35
+- Boats with non-empty placeholder / suspicious sail numbers: 21
+- Boats missing class: 22
+- Result rows tied to participants without `boat_id`: 7414
+- Empty events (no races and no standings): 2
+- Provisional entry-list events: 2
+- Races without results: 54
+- Skippers loaded: 482
 - Ownership rows loaded: 0
 
 ## Provenance / Coverage Notes
 
 - Manifest entries: 301
 - Manifest assets: 42
-- `source_pages` rows in DB: 735
+- `source_pages` rows in DB: 751
 - `source_pages` currently reflects loaded event pages more than the full mirrored archive, so broken/missing-source QA is not complete yet.
 
 ## Alias Review Highlights
@@ -47,11 +47,12 @@
 ## Class Cleanup Highlights
 
 - Rating-band style raw classes: 5
-- Design-style raw classes: 90
+- Design-style raw classes: 91
 
 ## Event Review Highlights
 
-- provisional_entry_list: 1
+- no_races_or_standings: 2
+- provisional_entry_list: 2
 
 ## TNS Validation
 
@@ -61,8 +62,8 @@
 
 ## Special Event Suggestions
 
-- Suggested `special_external`: 41
-- Suggested `special_local`: 15
+- Suggested `special_external`: 91
+- Suggested `special_local`: 34
 - These are good candidates to exclude from LYC handicap-only leaderboards and trend stats.
 
 ## Recommended Next Actions

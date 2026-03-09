@@ -10,6 +10,7 @@ from scraper.parse_sailwave import (
     _clean_text,
     _detect_participant_type,
     _fallback_participant_name,
+    _is_sailwave_data_table,
     _normalize_scope,
     _parse_caption_metadata,
     _parse_summary_table,
@@ -259,6 +260,34 @@ RACE_HTML = """
 </table>
 """
 
+OLD_SAILWAVE_RACE_HTML = """
+<html>
+<head><title>Sailwave results for LYC Handicap Racing 2003</title></head>
+<body class="main">
+<p class="race">Crown Diamond Paint</p>
+<p class="raceanno">Date: 06/June/2003</p>
+<table class="main">
+<thead><tr>
+<th class="mainthpos">Pos</th>
+<th class="mainthcomp">Boat Name</th>
+<th class="mainthcomp">Sail No</th>
+<th class="mainthcomp">ASPN</th>
+<th class="mainthrace">Start</th>
+<th class="mainthrace">Finish</th>
+<th class="mainthrace">Elapsed</th>
+<th class="mainthrace">-Ewin</th>
+<th class="mainthrace">Corrected</th>
+<th class="mainthrace">Rwin</th>
+<th class="mainthcomp">Pts</th>
+</tr></thead>
+<tr>
+<td>1</td><td>Awesome</td><td>202</td><td>113.5</td><td>13:30:00</td><td>15:07:47</td><td>01:37:47</td><td>00:00:00</td><td>01:50:59</td><td>113.499</td><td>1.0</td>
+</tr>
+</table>
+</body>
+</html>
+"""
+
 
 class TestParseSummaryTable:
     def test_parse_summary(self):
@@ -386,6 +415,14 @@ class TestParseRaceTable:
         assert detail.rows[0].boat_class == "J29"
 
 
+class TestOldSailwaveDetection:
+    def test_detects_old_style_race_table(self):
+        soup = BeautifulSoup(OLD_SAILWAVE_RACE_HTML, "lxml")
+        table = soup.find("table")
+        assert table is not None
+        assert _is_sailwave_data_table(table) == "race"
+
+
 class TestParseSailwaveFileIntegration:
     """Integration tests using real local files."""
 
@@ -467,6 +504,20 @@ class TestParseSailwaveFileIntegration:
 
         assert len(page.summaries) > 0
         assert all(row.boat for row in page.summaries[0].rows)
+
+    def test_parses_old_style_sailwave_race(self, tmp_path):
+        path = tmp_path / "racing1999_2013" / "racing2003" / "crown_diamond_sw.htm"
+        path.parent.mkdir(parents=True)
+        path.write_text(OLD_SAILWAVE_RACE_HTML, encoding="utf-8")
+        page = parse_sailwave_file(path)
+
+        assert len(page.races) == 1
+        race = page.races[0]
+        assert race.race_key == "crown_diamond_paint"
+        assert race.date == "06/June/2003"
+        assert len(race.rows) == 1
+        assert race.rows[0].boat == "Awesome"
+        assert race.rows[0].corrected_time == "01:50:59"
 
     def test_scores_have_race_keys(self):
         """All scores should have race_key set."""

@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
+import shutil
 from collections import defaultdict
 from pathlib import Path
 
@@ -32,6 +33,12 @@ def _connect() -> sqlite3.Connection:
 def _write_json(path: Path, data: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
+
+
+def _reset_output_dir(path: Path) -> None:
+    if path.exists():
+        shutil.rmtree(path)
+    path.mkdir(parents=True, exist_ok=True)
 
 
 def _collapse_whitespace(text: str | None) -> str:
@@ -875,12 +882,14 @@ def export_all() -> None:
     export_seasons(conn)
 
     print("Exporting season details...")
+    _reset_output_dir(OUTPUT_DIR / "seasons")
     years = [r["year"] for r in conn.execute("SELECT year FROM seasons ORDER BY year").fetchall()]
     for year in years:
         export_season_detail(conn, year)
     print(f"  {len(years)} seasons exported")
 
     print("Exporting event details...")
+    _reset_output_dir(OUTPUT_DIR / "events")
     event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
     for eid in event_ids:
         export_event_detail(conn, eid)
@@ -890,6 +899,7 @@ def export_all() -> None:
     export_boats(conn)
 
     print("Exporting boat details...")
+    _reset_output_dir(OUTPUT_DIR / "boats")
     boat_ids = [r["id"] for r in conn.execute("SELECT id FROM boats ORDER BY id").fetchall()]
     for bid in boat_ids:
         export_boat_detail(conn, bid)

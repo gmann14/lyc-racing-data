@@ -258,6 +258,61 @@ class TestDatabaseLoaderUnit:
 
         loader.close()
 
+    def test_load_page_reuses_existing_source_page_id_for_duplicate_path(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        loader.conn.execute("INSERT INTO seasons (year) VALUES (2025)")
+        existing_event_id = loader.conn.execute(
+            "INSERT INTO events (year, name, canonical_name, slug, event_type, source_format) VALUES (2025, 'Existing', 'Existing', 'existing', 'trophy', 'sailwave')"
+        ).lastrowid
+        existing_source_page_id = loader.conn.execute(
+            "INSERT INTO source_pages (event_id, year, path, source_kind, page_role, title, parse_status) VALUES (?, 2025, 'racing2014_2025/racing2025/existing.htm', 'local-html', 'canonical', 'Existing', 'parsed')",
+            (existing_event_id,),
+        ).lastrowid
+
+        page = {
+            "source_path": "racing2014_2025/racing2025/existing.htm",
+            "year": 2025,
+            "title": "Sailwave results for Existing 2025",
+            "h1": "LYC Handicap",
+            "h2": "Existing",
+            "results_date": "Results are final",
+            "participant_type": "boat",
+            "summaries": [],
+            "races": [{
+                "race_key": "r1",
+                "date": "05/06/25",
+                "caption": "Start: Start 1, Time: 18:32:00",
+                "rows": [{
+                    "rank": "1",
+                    "boat": "Poohsticks",
+                    "boat_class": "J92",
+                    "sail_number": "8",
+                    "club": "LYC",
+                    "phrf_rating": "96",
+                    "start_time": "18:32:00",
+                    "finish_time": "19:27:24",
+                    "elapsed_time": "0:55:24",
+                    "corrected_time": "1:02:00",
+                    "points": "1.0",
+                    "participant_type": "boat",
+                }],
+            }],
+            "errors": [],
+        }
+
+        event_id = loader.load_parsed_page(page)
+        loader.conn.commit()
+
+        race_source_page_id = loader.conn.execute(
+            "SELECT source_page_id FROM races WHERE event_id = ?",
+            (event_id,),
+        ).fetchone()[0]
+        assert race_source_page_id == existing_source_page_id
+        loader.close()
+
     def test_reconcile_same_name_same_sail_merges_boats(self, tmp_path):
         db_path = tmp_path / "test.db"
         loader = DatabaseLoader(db_path)
@@ -272,6 +327,18 @@ class TestDatabaseLoaderUnit:
         assert boats[0][0] == "Sly Fox"
         assert boats[0][1] == "34142"
         assert stats["merged_boats"] >= 0
+        loader.close()
+
+    def test_get_or_create_boat_handles_existing_unique_row(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        first_id = loader._get_or_create_boat("Poohsticks", "J92", "8", "LYC")
+        loader._boat_cache.clear()
+        second_id = loader._get_or_create_boat("Poohsticks", "J/92", "8", "LYC")
+
+        assert second_id == first_id
         loader.close()
 
     def test_load_summary_assigns_rank_from_row_order_when_sailed(self, tmp_path):

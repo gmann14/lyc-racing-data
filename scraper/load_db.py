@@ -540,6 +540,31 @@ class DatabaseLoader:
         self.conn.executescript(SCHEMA_SQL)
         self.conn.commit()
 
+    def _get_or_create_source_page(
+        self,
+        event_id: int,
+        year: int,
+        path: str | None,
+        source_kind: str,
+        page_role: str,
+        title: str | None,
+        parse_status: str = "parsed",
+    ) -> int:
+        """Insert a source page row or return the existing row id for the path."""
+        normalized_path = path or ""
+        cursor = self.conn.execute(
+            """INSERT OR IGNORE INTO source_pages (event_id, year, path, source_kind, page_role, title, parse_status)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (event_id, year, normalized_path, source_kind, page_role, title, parse_status)
+        )
+        existing = self.conn.execute(
+            "SELECT id FROM source_pages WHERE path = ?",
+            (normalized_path,),
+        ).fetchone()
+        if existing:
+            return existing[0]
+        raise sqlite3.IntegrityError(f"Could not resolve source page id for {normalized_path}")
+
     def _get_or_create_participant(self, display_name: str, sail_number: str | None,
                                     club: str | None, participant_type: str,
                                     boat_class: str | None) -> int:
@@ -681,11 +706,20 @@ class DatabaseLoader:
             self._boat_cache[key] = boat_id
             return boat_id
 
-        cursor = self.conn.execute(
-            "INSERT INTO boats (name, class, sail_number, club) VALUES (?, ?, ?, ?)",
-            (normalized_name, normalized_class, normalized_sail, normalized_club)
-        )
-        bid = cursor.lastrowid
+        try:
+            cursor = self.conn.execute(
+                "INSERT INTO boats (name, class, sail_number, club) VALUES (?, ?, ?, ?)",
+                (normalized_name, normalized_class, normalized_sail, normalized_club)
+            )
+            bid = cursor.lastrowid
+        except sqlite3.IntegrityError:
+            existing = self.conn.execute(
+                "SELECT id FROM boats WHERE name = ? AND COALESCE(sail_number, '') = COALESCE(?, '')",
+                (normalized_name, normalized_sail),
+            ).fetchone()
+            if not existing:
+                raise
+            bid = existing[0]
         self._boat_cache[key] = bid
         return bid
 
@@ -1073,13 +1107,15 @@ class DatabaseLoader:
         event_id = cursor.lastrowid
 
         # Create source page record
-        cursor = self.conn.execute(
-            """INSERT OR IGNORE INTO source_pages (event_id, year, path, source_kind, page_role, title, parse_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (event_id, year, page.get("source_path"), "local-html", "canonical",
-             page.get("title"), "parsed")
+        source_page_id = self._get_or_create_source_page(
+            event_id,
+            year,
+            page.get("source_path"),
+            "local-html",
+            "canonical",
+            page.get("title"),
+            "parsed",
         )
-        source_page_id = cursor.lastrowid
 
         participant_type = page.get("participant_type", "boat")
 
@@ -1239,13 +1275,15 @@ class DatabaseLoader:
         )
         event_id = cursor.lastrowid
 
-        cursor = self.conn.execute(
-            """INSERT OR IGNORE INTO source_pages (event_id, year, path, source_kind, page_role, title, parse_status)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (event_id, year, page.get("source_path"), "local-html", "canonical",
-             page.get("title"), "parsed")
+        source_page_id = self._get_or_create_source_page(
+            event_id,
+            year,
+            page.get("source_path"),
+            "local-html",
+            "canonical",
+            page.get("title"),
+            "parsed",
         )
-        source_page_id = cursor.lastrowid
 
         # Create a single race record for this page
         race_date = meta.get("race_date", "")
