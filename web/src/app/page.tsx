@@ -10,8 +10,8 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <div className="text-center mb-12 animate-fade-in">
-        <h1 className="text-5xl font-bold text-navy mb-4">
+      <div className="text-center mb-8 md:mb-12 animate-fade-in">
+        <h1 className="text-3xl md:text-5xl font-bold text-navy mb-3 md:mb-4">
           LYC Racing Archive
         </h1>
         <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
@@ -33,7 +33,7 @@ export default function HomePage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12">
         {[
           { label: "Seasons", value: overview.total_seasons },
           {
@@ -48,10 +48,10 @@ export default function HomePage() {
         ].map((stat, i) => (
           <div
             key={stat.label}
-            className="stat-card rounded-lg p-6 text-center animate-fade-in"
+            className="stat-card rounded-lg p-4 md:p-6 text-center animate-fade-in"
             style={{ animationDelay: `${i * 0.1}s` }}
           >
-            <div className="text-3xl font-bold text-white">{stat.value}</div>
+            <div className="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
             <div className="text-xs text-white/60 mt-1 uppercase tracking-wider">
               {stat.label}
             </div>
@@ -162,17 +162,17 @@ export default function HomePage() {
       </div>
 
       {/* Analysis callout */}
-      <div className="mt-8 bg-card rounded-lg shadow-sm border border-border overflow-hidden">
-        <div className="px-5 py-5 flex items-center justify-between">
+      <div className="mt-6 md:mt-8 bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+        <div className="px-5 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold text-navy">27 Years of Racing Data</h2>
+            <h2 className="text-lg md:text-xl font-bold text-navy">27 Years of Racing Data</h2>
             <p className="mt-1 text-sm text-gray-500">
               Fleet trends, race performance, participation patterns, Thursday Night deep dives, and weather conditions.
             </p>
           </div>
           <Link
             href="/analysis/"
-            className="shrink-0 px-5 py-2.5 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy-light transition-colors"
+            className="shrink-0 px-5 py-2.5 bg-navy text-white text-sm font-medium rounded-lg hover:bg-navy-light transition-colors text-center"
           >
             View Analysis
           </Link>

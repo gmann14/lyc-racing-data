@@ -99,7 +99,7 @@ export default function BoatsTable({ boats }: { boats: BoatListItem[] }) {
           placeholder="Search boats..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold w-64"
+          className="px-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold w-full sm:w-64"
         />
         <select
           value={classFilter}
@@ -130,7 +130,8 @@ export default function BoatsTable({ boats }: { boats: BoatListItem[] }) {
       </div>
 
       <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[540px]">
           <thead>
             <tr className="bg-navy text-white text-left">
               {columns.map((col) => (
@@ -187,6 +188,7 @@ export default function BoatsTable({ boats }: { boats: BoatListItem[] }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </>
   );

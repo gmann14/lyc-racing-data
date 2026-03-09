@@ -6,7 +6,7 @@ export default function SeasonsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-navy mb-2">Seasons</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">Seasons</h1>
       <p className="text-gray-500 mb-6">
         {seasons.length} seasons of racing, from {seasons[seasons.length - 1]?.year ?? "?"} to {seasons[0]?.year ?? "?"}.
       </p>

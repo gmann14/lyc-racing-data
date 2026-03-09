@@ -11,7 +11,7 @@ export default function MethodologyPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-navy mb-2">Methodology</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">Methodology</h1>
       <p className="text-gray-500 max-w-3xl mb-8">
         This page defines how public archive metrics are currently calculated.
         It exists for two reasons: to make the numbers interpretable, and to
@@ -132,7 +132,7 @@ function MetricCard({
   return (
     <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
       <div className="text-xs uppercase tracking-wider text-gray-400">{label}</div>
-      <div className="mt-2 text-3xl font-bold text-navy">{value}</div>
+      <div className="mt-2 text-2xl md:text-3xl font-bold text-navy">{value}</div>
       <div className="mt-2 text-sm text-gray-500">{note}</div>
     </div>
   );

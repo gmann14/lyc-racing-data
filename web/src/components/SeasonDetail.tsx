@@ -156,7 +156,8 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
                   </div>
                 )}
               </div>
-              <table className="w-full text-xs">
+              <div className="overflow-x-auto -mx-4 px-4">
+              <table className="w-full text-xs min-w-[420px]">
                 <thead>
                   <tr className="text-left text-gray-400">
                     <th className="pb-0.5 w-8">#</th>
@@ -204,6 +205,7 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           ))}
         </div>
@@ -302,7 +304,7 @@ function EventTable({
   return (
     <div className="mb-4">
       <h3 className="font-bold text-navy mb-2 text-sm">{title}</h3>
-      <table className="w-full table-fixed text-sm">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border text-left">
             <th className="pb-1 pr-4">Event</th>
@@ -372,11 +374,11 @@ export default function SeasonDetailPanel() {
   return (
     <div
       ref={panelRef}
-      className="my-6 p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-8 animate-fade-in"
+      className="my-6 p-4 md:p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-6 md:pl-8 animate-fade-in"
     >
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-navy">{year} Season</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-navy">{year} Season</h2>
           <p className="text-gray-400 text-sm">
             {season.events.length} events &middot; {season.boats.length} boats
             &middot; Click an event to view details

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
+import MobileNav from "@/components/MobileNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,33 +33,35 @@ export const metadata: Metadata = {
   },
 };
 
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/seasons/", label: "Seasons" },
+  { href: "/boats/", label: "Boats" },
+  { href: "/leaderboards/", label: "Leaderboards" },
+  { href: "/trophies/", label: "Trophies" },
+  { href: "/analysis/", label: "Analysis" },
+  { href: "/methodology/", label: "Methodology" },
+];
+
 function Nav() {
-  const links = [
-    { href: "/", label: "Home" },
-    { href: "/seasons/", label: "Seasons" },
-    { href: "/boats/", label: "Boats" },
-    { href: "/leaderboards/", label: "Leaderboards" },
-    { href: "/trophies/", label: "Trophies" },
-    { href: "/analysis/", label: "Analysis" },
-    { href: "/methodology/", label: "Methodology" },
-  ];
   return (
     <nav className="bg-navy">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
+      <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 md:gap-3 group">
           <Image
             src="/lyc-racing-data/lyc-crest.png"
             alt="LYC Burgee"
             width={36}
             height={36}
-            className="rounded-full"
+            className="rounded-full w-8 h-8 md:w-9 md:h-9"
           />
-          <span className="text-white text-lg font-semibold tracking-wide">
+          <span className="text-white text-base md:text-lg font-semibold tracking-wide">
             LYC Racing
           </span>
         </Link>
-        <div className="flex gap-6 text-sm">
-          {links.map((l) => (
+        {/* Desktop nav */}
+        <div className="hidden md:flex gap-6 text-sm">
+          {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -68,6 +71,8 @@ function Nav() {
             </Link>
           ))}
         </div>
+        {/* Mobile hamburger */}
+        <MobileNav links={NAV_LINKS} />
       </div>
     </nav>
   );
@@ -84,9 +89,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${crimsonPro.variable} antialiased`}
       >
         <Nav />
-        <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
+        <main className="max-w-6xl mx-auto px-4 py-6 md:py-8">{children}</main>
         <footer className="border-t border-border">
-          <div className="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between text-sm text-gray-400">
+          <div className="max-w-6xl mx-auto px-4 py-4 md:py-6 flex items-center justify-between text-xs md:text-sm text-gray-400">
             <span>Lunenburg Yacht Club Racing Archive</span>
             <span>1999 &ndash; 2025</span>
           </div>

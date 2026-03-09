@@ -10,7 +10,7 @@ export default function TrophiesPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-navy mb-2">Trophy History</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">Trophy History</h1>
       <p className="text-gray-500 mb-8">
         Winners of LYC perpetual trophies and championships, ordered by
         longest-running. Winners shown most recent first.
@@ -40,13 +40,14 @@ export default function TrophiesPage() {
                   {firstYear}&ndash;{lastYear}
                 </p>
               </div>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[400px]">
                 <thead>
                   <tr className="bg-cream text-left">
-                    <th className="px-4 py-2">Year</th>
-                    <th className="px-4 py-2">Winner</th>
-                    <th className="px-4 py-2">Class</th>
-                    <th className="px-4 py-2 text-right">Points</th>
+                    <th className="px-3 md:px-4 py-2">Year</th>
+                    <th className="px-3 md:px-4 py-2">Winner</th>
+                    <th className="px-3 md:px-4 py-2">Class</th>
+                    <th className="px-3 md:px-4 py-2 text-right">Points</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -55,7 +56,7 @@ export default function TrophiesPage() {
                       key={`${w.year}-${w.event_id}`}
                       className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
                     >
-                      <td className="px-4 py-2 font-mono">
+                      <td className="px-3 md:px-4 py-2 font-mono">
                         <Link
                           href={`/seasons/#${w.year}`}
                           className="text-navy-light hover:text-gold transition-colors"
@@ -63,7 +64,7 @@ export default function TrophiesPage() {
                           {w.year}
                         </Link>
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-3 md:px-4 py-2">
                         {w.boat_id ? (
                           <Link
                             href={`/boats/#${w.boat_id}`}
@@ -75,16 +76,17 @@ export default function TrophiesPage() {
                           w.display_name
                         )}
                       </td>
-                      <td className="px-4 py-2 text-gray-400">
+                      <td className="px-3 md:px-4 py-2 text-gray-400">
                         {w.boat_class ?? "\u2014"}
                       </td>
-                      <td className="px-4 py-2 text-right font-mono">
+                      <td className="px-3 md:px-4 py-2 text-right font-mono">
                         {w.nett_points ?? "\u2014"}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           );
         })}

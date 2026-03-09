@@ -35,10 +35,10 @@ export default function BoatDetailPanel() {
     );
 
   return (
-    <div ref={panelRef} className="my-6 p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-8 animate-fade-in">
+    <div ref={panelRef} className="my-6 p-4 md:p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-6 md:pl-8 animate-fade-in">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-navy">{boat.name}</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-navy">{boat.name}</h2>
           <p className="text-gray-400 text-sm">
             {boat.class ?? "Unknown class"} &middot; Sail #
             {boat.sail_number ?? "\u2014"} &middot; {boat.club ?? "LYC"}

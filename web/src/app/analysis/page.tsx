@@ -6,8 +6,8 @@ export default function AnalysisPage() {
 
   return (
     <div className="animate-fade-in">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold text-navy mb-3">
+      <div className="text-center mb-8 md:mb-10">
+        <h1 className="text-3xl md:text-4xl font-bold text-navy mb-3">
           27 Years of Racing
         </h1>
         <p className="text-gray-500 max-w-2xl mx-auto">

@@ -7,7 +7,7 @@ export default function LeaderboardsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-navy mb-2">Leaderboards</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">Leaderboards</h1>
       <p className="text-gray-500 mb-6">
         All-time rankings across {lb.fleet_by_year.length} seasons of digitized racing
         data (1999&ndash;2025). Earlier results are not yet available. These tables use
@@ -109,7 +109,8 @@ function LeaderboardTable({
       <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border">
         {title}
       </h2>
-      <table className="w-full text-sm">
+      <div className="overflow-x-auto">
+      <table className="w-full text-sm min-w-[480px]">
         <thead>
           <tr className="bg-cream text-left">
             <th className="px-3 py-2 text-center w-8">#</th>
@@ -172,6 +173,7 @@ function LeaderboardTable({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

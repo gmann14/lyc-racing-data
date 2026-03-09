@@ -58,12 +58,12 @@ function SectionNav({ active, onChange }: { active: Section; onChange: (s: Secti
     { key: "weather", label: "Weather" },
   ];
   return (
-    <div className="flex flex-wrap gap-2 justify-center mb-8">
+    <div className="flex flex-wrap gap-1.5 md:gap-2 justify-center mb-6 md:mb-8">
       {sections.map((s) => (
         <button
           key={s.key}
           onClick={() => onChange(s.key)}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all ${
             active === s.key
               ? "bg-navy text-white shadow-md"
               : "bg-white text-navy-light border border-border hover:border-navy-light hover:bg-blue-light"
@@ -668,7 +668,7 @@ function WeatherSection({ data }: { data: AnalysisData }) {
               );
             })}
           </div>
-          <div className="flex justify-center gap-4 mt-4 text-xs text-gray-400">
+          <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-4 text-xs text-gray-400">
             <span>Calm: &lt;4kt</span>
             <span>Light: 4-10kt</span>
             <span>Moderate: 10-16kt</span>
