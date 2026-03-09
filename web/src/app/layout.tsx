@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
@@ -38,9 +39,13 @@ function Nav() {
     <nav className="bg-navy">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 rounded-full border-2 border-gold flex items-center justify-center text-gold text-sm font-bold group-hover:bg-gold group-hover:text-navy transition-colors">
-            L
-          </div>
+          <Image
+            src="/lyc-crest.png"
+            alt="LYC Burgee"
+            width={36}
+            height={36}
+            className="rounded-full"
+          />
           <span className="text-white text-lg font-semibold tracking-wide">
             LYC Racing
           </span>
