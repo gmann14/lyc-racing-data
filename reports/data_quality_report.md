@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- Boats: 318
+- Boats: 309
 - Participants: 831
 - Events: 735
 - Races: 1376
@@ -13,10 +13,11 @@
 ## Biggest Cleanup Gaps
 
 - Boats missing sail numbers: 30
-- Boats with non-empty placeholder / suspicious sail numbers: 21
+- Boats with non-empty placeholder / suspicious sail numbers: 19
 - Boats missing class: 20
 - Result rows tied to participants without `boat_id`: 3707
-- Empty events (no races and no standings): 1
+- Empty events (no races and no standings): 0
+- Provisional entry-list events: 1
 - Races without results: 27
 - Skippers loaded: 385
 - Ownership rows loaded: 0
@@ -30,8 +31,6 @@
 
 ## Alias Review Highlights
 
-- `same_normalized_name` — `Rumble Fish` / sail `31991` → suggested canonical `Rumble Fish`
-- `same_normalized_name` — `Rumble Fish` / sail `999` → suggested canonical `Rumble Fish`
 - `same_normalized_name` — `Shenanagans` / sail `136` → suggested canonical `Shenanagans`
 - `same_normalized_name` — `Shenanagans` / sail `425` → suggested canonical `Shenanagans`
 - `same_normalized_name` — `Sea Fever` / sail `366` → suggested canonical `Sea Fever`
@@ -42,6 +41,8 @@
 - `same_normalized_name` — `Ping` / sail `XXX` → suggested canonical `Ping`
 - `same_normalized_name` — `Tsunami` / sail `14` → suggested canonical `Tsunami`
 - `same_normalized_name` — `Tsunami` / sail `428` → suggested canonical `Tsunami`
+- `same_normalized_name` — `Tsunami` / sail `98` → suggested canonical `Tsunami`
+- `same_normalized_name` — `Status Symbol` / sail `126` → suggested canonical `Status Symbol`
 
 ## Class Cleanup Highlights
 
@@ -50,8 +51,7 @@
 
 ## Event Review Highlights
 
-- variant_noise_in_title: 24
-- no_races_or_standings: 1
+- provisional_entry_list: 1
 
 ## Special Event Suggestions
 

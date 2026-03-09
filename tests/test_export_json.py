@@ -123,7 +123,7 @@ class TestExportIntegration:
         if not path.exists():
             pytest.skip("JSON not yet exported")
         data = json.loads(path.read_text())
-        assert len(data) >= 200
+        assert len(data) >= 180
         # First boat should have most results
         assert data[0]["total_results"] > 0
         assert "wins" in data[0]

@@ -60,7 +60,10 @@ class TestGenerateAuditOutputs:
                 year INTEGER,
                 name TEXT,
                 event_type TEXT,
-                source_file TEXT
+                source_file TEXT,
+                entries INTEGER,
+                races_sailed INTEGER,
+                publication_status TEXT
             );
             CREATE TABLE races (
                 id INTEGER PRIMARY KEY,
@@ -114,10 +117,14 @@ class TestGenerateAuditOutputs:
             ],
         )
         conn.executemany(
-            "INSERT INTO events (id, year, name, event_type, source_file) VALUES (?, ?, ?, ?, ?)",
+            """
+            INSERT INTO events
+            (id, year, name, event_type, source_file, entries, races_sailed, publication_status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
             [
-                (1, 2024, "Women's Keelboat Championship", "championship", "racing2024/womens.htm"),
-                (2, 2024, "Empty  Event", "trophy", "racing2024/empty.htm"),
+                (1, 2024, "Women's Keelboat Championship", "championship", "racing2024/womens.htm", 5, 1, "final"),
+                (2, 2024, "Empty  Event", "trophy", "racing2024/empty.htm", 0, 0, "final"),
             ],
         )
         conn.executemany(
@@ -189,6 +196,50 @@ class TestGenerateAuditOutputs:
         assert "Manifest entries: 2" in report
         assert "Boats missing sail numbers: 1" in report
         assert "Boats with non-empty placeholder / suspicious sail numbers: 0" in report
+        assert "Provisional entry-list events: 0" in report
+
+    def test_provisional_entry_list_is_not_flagged_as_empty_event(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = audit._dict_factory
+        conn.executescript(
+            """
+            CREATE TABLE events (
+                id INTEGER PRIMARY KEY,
+                year INTEGER,
+                name TEXT,
+                event_type TEXT,
+                source_file TEXT,
+                entries INTEGER,
+                races_sailed INTEGER,
+                publication_status TEXT
+            );
+            CREATE TABLE races (id INTEGER PRIMARY KEY, event_id INTEGER, race_key TEXT, race_number INTEGER, date TEXT, notes TEXT);
+            CREATE TABLE results (id INTEGER PRIMARY KEY, race_id INTEGER, participant_id INTEGER);
+            CREATE TABLE series_standings (id INTEGER PRIMARY KEY, event_id INTEGER);
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO events
+            (id, year, name, event_type, source_file, entries, races_sailed, publication_status)
+            VALUES (1, 2018, 'August TNS', 'tns', 'racing2018/Aug_TNS.htm', 42, 0, 'as-of')
+            """
+        )
+        rows = audit._build_event_review_rows(conn)
+        assert rows == [
+            {
+                "event_id": 1,
+                "year": 2018,
+                "source_file": "racing2018/Aug_TNS.htm",
+                "event_name": "August TNS",
+                "issue": "provisional_entry_list",
+                "races": 0,
+                "standings_or_results": 0,
+                "decision": "",
+                "notes": "",
+            }
+        ]
 
     def test_preserves_existing_human_questions_file(self, tmp_path, monkeypatch):
         db_path = tmp_path / "test.db"

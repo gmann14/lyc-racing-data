@@ -140,6 +140,7 @@ class AuditSummary:
     boats_missing_sail: int
     participant_rows_without_boat: int
     empty_events: int
+    provisional_entry_list_events: int
     races_without_results: int
     manifest_entries: int
     manifest_assets: int
@@ -360,7 +361,6 @@ def _build_event_review_rows(conn: sqlite3.Connection) -> list[dict]:
                CASE
                    WHEN e.name LIKE '%??%' OR e.name LIKE '%##%' THEN 'suspicious_punctuation'
                    WHEN e.name LIKE '%  %' THEN 'double_spaces'
-                   WHEN e.name LIKE '%OVERALL%' OR e.name LIKE '%Summary%' THEN 'variant_noise_in_title'
                    ELSE 'review'
                END AS issue
         FROM events e
@@ -381,7 +381,31 @@ def _build_event_review_rows(conn: sqlite3.Connection) -> list[dict]:
         LEFT JOIN races r ON r.event_id = e.id
         LEFT JOIN series_standings ss ON ss.event_id = e.id
         GROUP BY e.id
-        HAVING COUNT(DISTINCT r.id) = 0 AND COUNT(DISTINCT ss.id) = 0
+        HAVING COUNT(DISTINCT r.id) = 0
+           AND COUNT(DISTINCT ss.id) = 0
+           AND NOT (
+               COALESCE(e.entries, 0) > 0
+               AND COALESCE(e.races_sailed, 0) = 0
+               AND COALESCE(e.publication_status, '') = 'as-of'
+           )
+    """
+    provisional_entry_list_sql = """
+        SELECT e.id,
+               e.year,
+               e.name,
+               e.source_file,
+               COUNT(DISTINCT r.id) AS races,
+               COUNT(DISTINCT ss.id) AS standings,
+               'provisional_entry_list' AS issue
+        FROM events e
+        LEFT JOIN races r ON r.event_id = e.id
+        LEFT JOIN series_standings ss ON ss.event_id = e.id
+        GROUP BY e.id
+        HAVING COUNT(DISTINCT r.id) = 0
+           AND COUNT(DISTINCT ss.id) = 0
+           AND COALESCE(e.entries, 0) > 0
+           AND COALESCE(e.races_sailed, 0) = 0
+           AND COALESCE(e.publication_status, '') = 'as-of'
     """
     no_results_sql = """
         SELECT e.id,
@@ -403,7 +427,7 @@ def _build_event_review_rows(conn: sqlite3.Connection) -> list[dict]:
     """
 
     rows = []
-    for sql in (suspicious_name_sql, empty_event_sql, no_results_sql):
+    for sql in (suspicious_name_sql, empty_event_sql, provisional_entry_list_sql, no_results_sql):
         rows.extend(conn.execute(sql).fetchall())
 
     deduped = {}
@@ -596,7 +620,30 @@ def _build_summary(conn: sqlite3.Connection, boats: list[dict]) -> AuditSummary:
             LEFT JOIN races r ON r.event_id = e.id
             LEFT JOIN series_standings ss ON ss.event_id = e.id
             GROUP BY e.id
-            HAVING COUNT(DISTINCT r.id) = 0 AND COUNT(DISTINCT ss.id) = 0
+            HAVING COUNT(DISTINCT r.id) = 0
+               AND COUNT(DISTINCT ss.id) = 0
+               AND NOT (
+                   COALESCE(e.entries, 0) > 0
+                   AND COALESCE(e.races_sailed, 0) = 0
+                   AND COALESCE(e.publication_status, '') = 'as-of'
+               )
+        )
+        """
+    ).fetchone()["n"]
+    provisional_entry_list_events = conn.execute(
+        """
+        SELECT COUNT(*) AS n
+        FROM (
+            SELECT e.id
+            FROM events e
+            LEFT JOIN races r ON r.event_id = e.id
+            LEFT JOIN series_standings ss ON ss.event_id = e.id
+            GROUP BY e.id
+            HAVING COUNT(DISTINCT r.id) = 0
+               AND COUNT(DISTINCT ss.id) = 0
+               AND COALESCE(e.entries, 0) > 0
+               AND COALESCE(e.races_sailed, 0) = 0
+               AND COALESCE(e.publication_status, '') = 'as-of'
         )
         """
     ).fetchone()["n"]
@@ -631,6 +678,7 @@ def _build_summary(conn: sqlite3.Connection, boats: list[dict]) -> AuditSummary:
         boats_missing_sail=sum(1 for boat in boats if not boat["sail_number"]),
         participant_rows_without_boat=participant_rows_without_boat,
         empty_events=empty_events,
+        provisional_entry_list_events=provisional_entry_list_events,
         races_without_results=races_without_results,
         manifest_entries=manifest_entries,
         manifest_assets=manifest_assets,
@@ -670,6 +718,7 @@ def _write_report(summary: AuditSummary, alias_rows: list[dict], class_rows: lis
         f"- Boats missing class: {summary.boats_missing_class}",
         f"- Result rows tied to participants without `boat_id`: {summary.participant_rows_without_boat}",
         f"- Empty events (no races and no standings): {summary.empty_events}",
+        f"- Provisional entry-list events: {summary.provisional_entry_list_events}",
         f"- Races without results: {summary.races_without_results}",
         f"- Skippers loaded: {summary.skippers_rows}",
         f"- Ownership rows loaded: {summary.ownership_rows}",

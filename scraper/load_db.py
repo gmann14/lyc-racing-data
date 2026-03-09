@@ -336,6 +336,13 @@ def _normalize_boat_class(raw_class: str | None) -> str | None:
     return text
 
 
+def _boat_class_family(raw_class: str | None) -> str | None:
+    normalized = _normalize_boat_class(raw_class)
+    if not normalized:
+        return None
+    return re.sub(r"\s+[IO]/B$", "", normalized)
+
+
 def _canonicalize_boat_name(name: str | None) -> str:
     cleaned = _collapse_whitespace(name)
     alias = MANUAL_BOAT_NAME_ALIASES.get(_normalize_boat_name_key(cleaned))
@@ -345,6 +352,41 @@ def _canonicalize_boat_name(name: str | None) -> str:
 def _is_synthetic_boat_name(name: str | None) -> bool:
     cleaned = _collapse_whitespace(name)
     return bool(re.fullmatch(r"(Sail|Bow)\s+\S+", cleaned, flags=re.IGNORECASE))
+
+
+def _is_high_quality_sail_number(sail_number: str | None) -> bool:
+    cleaned = _normalize_sail_number(sail_number)
+    if not cleaned or _is_placeholder_sail_number(cleaned):
+        return False
+    return bool(re.search(r"\d", cleaned)) and len(cleaned) >= 4
+
+
+def _is_low_quality_sail_number(sail_number: str | None) -> bool:
+    cleaned = _normalize_sail_number(sail_number)
+    if not cleaned or _is_placeholder_sail_number(cleaned):
+        return True
+    if len(cleaned) < 4:
+        return True
+    if not re.search(r"\d", cleaned):
+        return True
+    return False
+
+
+def _sail_numbers_look_related(left: str | None, right: str | None) -> bool:
+    left_clean = _normalize_sail_number(left)
+    right_clean = _normalize_sail_number(right)
+    if not left_clean or not right_clean:
+        return False
+    if left_clean == right_clean:
+        return True
+    short, long = sorted((left_clean, right_clean), key=len)
+    if len(short) >= 3 and short in long and len(long) - len(short) <= 2:
+        return True
+    if len(left_clean) == len(right_clean) and len(left_clean) >= 4:
+        mismatches = sum(1 for a, b in zip(left_clean, right_clean) if a != b)
+        if mismatches <= 1:
+            return True
+    return False
 
 
 def _manual_boat_rule(name: str | None) -> dict | None:
@@ -724,6 +766,116 @@ class DatabaseLoader:
                 )
                 normalized_boats += 1
                 continue
+
+            class_families = {
+                _boat_class_family(row[2])
+                for row in group
+                if _boat_class_family(row[2])
+            }
+            high_quality_sails = {
+                _normalize_sail_number(row[3])
+                for row in group
+                if _is_high_quality_sail_number(row[3])
+            }
+            if len(class_families) <= 1 and len(high_quality_sails) == 1:
+                sole_sail = next(iter(high_quality_sails))
+                merge_group = []
+                for row in group:
+                    clean_sail = _normalize_sail_number(row[3])
+                    if clean_sail == sole_sail:
+                        merge_group.append(row)
+                        continue
+                    if _is_low_quality_sail_number(clean_sail) or _sail_numbers_look_related(clean_sail, sole_sail):
+                        merge_group.append(row)
+
+                if len(merge_group) >= 2:
+                    canonical = max(
+                        merge_group,
+                        key=lambda row: (
+                            int(_normalize_sail_number(row[3]) == sole_sail),
+                            row[5] or 0,
+                            *_name_quality_score(row[1]),
+                            -row[0],
+                        ),
+                    )
+                    canonical_id = canonical[0]
+                    duplicate_ids = [row[0] for row in merge_group if row[0] != canonical_id]
+                    if duplicate_ids:
+                        placeholders = ",".join("?" for _ in duplicate_ids)
+                        self.conn.execute(
+                            f"UPDATE participants SET boat_id = ? WHERE boat_id IN ({placeholders})",
+                            (canonical_id, *duplicate_ids),
+                        )
+                        self.conn.execute(
+                            f"DELETE FROM boats WHERE id IN ({placeholders})",
+                            duplicate_ids,
+                        )
+                        merged_boats += len(duplicate_ids)
+                    best_name = max(
+                        (_collapse_whitespace(row[1]) for row in merge_group if _collapse_whitespace(row[1])),
+                        key=lambda value: _name_quality_score(value),
+                    )
+                    best_class = max(
+                        (_normalize_boat_class(row[2]) for row in merge_group if _normalize_boat_class(row[2])),
+                        key=lambda value: _class_quality_score(value),
+                    )
+                    self.conn.execute(
+                        "UPDATE boats SET name = ?, class = ?, sail_number = ?, club = ? WHERE id = ?",
+                        (best_name, best_class, sole_sail, _collapse_whitespace(canonical[4]) or "LYC", canonical_id),
+                    )
+                    normalized_boats += 1
+                    continue
+
+            dominant = max(
+                group,
+                key=lambda row: (
+                    row[5] or 0,
+                    int(_is_high_quality_sail_number(row[3])),
+                    *_name_quality_score(row[1]),
+                    -row[0],
+                ),
+            )
+            dominant_class_family = _boat_class_family(dominant[2])
+            dominant_sail = _normalize_sail_number(dominant[3])
+            if dominant_sail and len(class_families) <= 1:
+                typo_variants = [dominant]
+                for row in group:
+                    if row[0] == dominant[0] or (row[5] or 0) != 0:
+                        continue
+                    candidate_class_family = _boat_class_family(row[2])
+                    if (
+                        dominant_class_family
+                        and candidate_class_family
+                        and candidate_class_family != dominant_class_family
+                    ):
+                        continue
+                    if _sail_numbers_look_related(row[3], dominant_sail):
+                        typo_variants.append(row)
+
+                if len(typo_variants) >= 2:
+                    duplicate_ids = [row[0] for row in typo_variants if row[0] != dominant[0]]
+                    placeholders = ",".join("?" for _ in duplicate_ids)
+                    self.conn.execute(
+                        f"UPDATE participants SET boat_id = ? WHERE boat_id IN ({placeholders})",
+                        (dominant[0], *duplicate_ids),
+                    )
+                    self.conn.execute(
+                        f"DELETE FROM boats WHERE id IN ({placeholders})",
+                        duplicate_ids,
+                    )
+                    self.conn.execute(
+                        "UPDATE boats SET name = ?, class = ?, sail_number = ?, club = ? WHERE id = ?",
+                        (
+                            _collapse_whitespace(dominant[1]),
+                            _normalize_boat_class(dominant[2]),
+                            dominant_sail,
+                            _collapse_whitespace(dominant[4]) or "LYC",
+                            dominant[0],
+                        ),
+                    )
+                    merged_boats += len(duplicate_ids)
+                    normalized_boats += 1
+                    continue
 
             unique_good_sails = {
                 _normalize_sail_number(row[3])

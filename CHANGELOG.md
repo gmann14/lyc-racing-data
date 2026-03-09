@@ -16,6 +16,7 @@ This file tracks changes to archive logic that materially affect published stats
 - Added additional high-confidence canonical boat mappings for stable club boats and one-design sail-prefix variants such as `Sly Fox`, `Awesome`, `Squall`, `Elida`, `Mighty Mo`, `Zephyr`, `Satisfaction`, `Paradigm Shift`, and `KC-15`.
 - Added typo/name-alias cleanup for cases such as `Awsome`, `Paridigm Shift`, `Isleville`, `Jaegar`, and `Shenaigans`.
 - Added reconciliation for synthetic sail-only boat names like `Sail 571` when there is a single clear same-sail canonical boat.
+- Added same-name merge heuristics for low-quality sail variants and zero-result sail typos, reducing the published boat list from `318` to `309`.
 - Stopped treating sail number `999` as automatically invalid.
 - Added automatic cleanup for obvious event-title artifacts such as repeated whitespace and stray `??` / `##`.
 - Reduced boat review noise by aligning loader and audit treatment of placeholder sail numbers.
@@ -26,6 +27,7 @@ This file tracks changes to archive logic that materially affect published stats
 - Added fallback participant names for summary/race rows that only expose sail number or bow number.
 - Fixed summary-only standings loading for pages that omit explicit rank values but still include sailed-series totals.
 - Rebuilt the database and exports after those parser/loader fixes, recovering hundreds of missing standings/results from previously under-loaded pages.
+- Reclassified provisional entry-list pages separately from true parser misses, leaving only one event-review row instead of a long list of variant-title noise.
 
 ### Public site
 

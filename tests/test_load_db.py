@@ -8,6 +8,7 @@ import pytest
 from pathlib import Path
 from scraper.load_db import (
     DatabaseLoader,
+    _boat_class_family,
     _collapse_whitespace,
     _canonicalize_boat_name,
     _clean_event_name,
@@ -19,9 +20,12 @@ from scraper.load_db import (
     _safe_float,
     _safe_int,
     _extract_start_time,
+    _is_high_quality_sail_number,
+    _is_low_quality_sail_number,
     _normalize_sail_number,
     _is_placeholder_sail_number,
     _normalize_boat_class,
+    _sail_numbers_look_related,
     DB_PATH,
 )
 
@@ -111,9 +115,21 @@ class TestHelpers:
         assert _normalize_boat_class("J29") == "J/29"
         assert _normalize_boat_class("A3/15") == "A3/15"
 
+    def test_boat_class_family(self):
+        assert _boat_class_family("J29 ob") == "J/29"
+        assert _boat_class_family("Sonar") == "Sonar"
+
     def test_canonicalize_boat_name_alias(self):
         assert _canonicalize_boat_name("Awsome") == "Awesome"
         assert _canonicalize_boat_name("Paridigm Shift") == "Paradigm Shift"
+
+    def test_sail_quality_helpers(self):
+        assert _is_high_quality_sail_number("34142")
+        assert not _is_high_quality_sail_number("634")
+        assert _is_low_quality_sail_number("BLACKSPIN")
+        assert _sail_numbers_look_related("634", "42634")
+        assert _sail_numbers_look_related("31587", "31887")
+        assert not _sail_numbers_look_related("126", "4514")
 
     def test_extract_event_name_h1_h2(self):
         page = {"h1": "LYC Handicap", "h2": "June Thursday Night Series", "title": ""}
@@ -367,6 +383,54 @@ class TestDatabaseLoaderUnit:
         assert len(boats) == 1
         assert boats[0][1] == "8"
         assert boats[0][2] == "J/92"
+        loader.close()
+
+    def test_reconcile_merges_same_name_low_quality_sail_variant(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        loader._get_or_create_participant("Gosling", "42634", "LYC", "boat", "J29 ob")
+        loader._get_or_create_participant("Gosling", "634", "LYC", "boat", "J29")
+        stats = loader.reconcile_entities()
+
+        boats = loader.conn.execute(
+            "SELECT name, sail_number, class FROM boats WHERE name = 'Gosling'"
+        ).fetchall()
+        assert boats == [("Gosling", "42634", "J/29 O/B")]
+        assert stats["merged_boats"] >= 1
+        loader.close()
+
+    def test_reconcile_merges_zero_result_same_name_sail_typo_variant(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        canonical_boat_id = loader._get_or_create_boat("CHAOS", "J29 ob", "34675", "LYC")
+        loader._get_or_create_boat("Chaos", "J29", "84675", "LYC")
+        participant_id = loader.conn.execute(
+            "INSERT INTO participants (display_name, participant_type, boat_id, sail_number, raw_class) VALUES (?, 'boat', ?, ?, ?)",
+            ("CHAOS", canonical_boat_id, "34675", "J/29 O/B"),
+        ).lastrowid
+        loader.conn.execute("INSERT INTO seasons (year) VALUES (2024)")
+        event_id = loader.conn.execute(
+            "INSERT INTO events (year, name, canonical_name, slug, event_type, source_format) VALUES (2024, 'Chaos', 'Chaos', 'chaos', 'trophy', 'sailwave')"
+        ).lastrowid
+        race_id = loader.conn.execute(
+            "INSERT INTO races (event_id, race_key, race_number) VALUES (?, 'r1', 1)",
+            (event_id,),
+        ).lastrowid
+        loader.conn.execute(
+            "INSERT INTO results (race_id, participant_id) VALUES (?, ?)",
+            (race_id, participant_id),
+        )
+        stats = loader.reconcile_entities()
+
+        boats = loader.conn.execute(
+            "SELECT name, sail_number, class FROM boats WHERE lower(name) = 'chaos'"
+        ).fetchall()
+        assert boats == [("CHAOS", "34675", "J/29 O/B")]
+        assert stats["merged_boats"] >= 1
         loader.close()
 
 

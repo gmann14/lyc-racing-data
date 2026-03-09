@@ -11,7 +11,7 @@
 | Seasons | 27 |
 | Events | 735 |
 | Race results | 11,469 |
-| Boats | 318 |
+| Boats | 309 |
 | Participants | 831 |
 
 ## Architecture
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 ### Run tests
 
 ```sh
-# Python (203 tests)
+# Python (208 tests)
 .venv/bin/python -m pytest tests/ -q
 
 # TypeScript type check
@@ -118,10 +118,10 @@ npm run build  # outputs to web/out/
 | `test_classify_sources.py` | 33 | Format detection, edge cases |
 | `test_parse_sailwave.py` | 38 | Sailwave HTML parsing (2007-2025) |
 | `test_parse_legacy.py` | 30 | WinRegatta HTML parsing (1999-2008) |
-| `test_load_db.py` | 49 | DB loading, reconciliation, stats |
+| `test_load_db.py` | 53 | DB loading, reconciliation, stats |
 | `test_export_json.py` | 15 | JSON export integrity |
-| `test_audit_data_quality.py` | 7 | Review export and audit integrity |
-| **Total** | **203** | |
+| `test_audit_data_quality.py` | 8 | Review export and audit integrity |
+| **Total** | **208** | |
 
 ## Milestones
 
@@ -130,5 +130,5 @@ npm run build  # outputs to web/out/
 - [x] M3: Load into SQLite database
 - [x] M4: Ship public MVP (static site on GitHub Pages)
 - [x] M5: Parse legacy WinRegatta results (1999-2013)
-- [ ] M6: Entity reconciliation (merge duplicate boats/participants)
+- [ ] M6: Entity reconciliation (merge duplicate boats/participants, owner history, special-case review)
 - [ ] M7: Analytics and search features
