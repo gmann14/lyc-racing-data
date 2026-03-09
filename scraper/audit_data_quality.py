@@ -13,6 +13,7 @@ import re
 import sqlite3
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from datetime import datetime
 from itertools import combinations
 from pathlib import Path
 
@@ -618,6 +619,25 @@ def _logical_race_token(race_number: int | None, race_key: str | None, date: str
     return ("key", cleaned_key or "unknown")
 
 
+def _month_from_race_dates(conn: sqlite3.Connection, event_id: int) -> str:
+    rows = conn.execute(
+        "SELECT DISTINCT date FROM races WHERE event_id = ? AND date IS NOT NULL AND date != ''",
+        (event_id,),
+    ).fetchall()
+    months = set()
+    for row in rows:
+        value = row["date"]
+        if not value:
+            continue
+        try:
+            months.add(datetime.strptime(value, "%Y-%m-%d").strftime("%B").lower())
+        except ValueError:
+            continue
+    if len(months) == 1:
+        return next(iter(months))
+    return ""
+
+
 def _build_tns_validation_rows(conn: sqlite3.Connection) -> list[dict]:
     event_columns = {
         row["name"]
@@ -639,61 +659,57 @@ def _build_tns_validation_rows(conn: sqlite3.Connection) -> list[dict]:
         """
     ).fetchall()
 
-    grouped: dict[tuple[int, str], list[dict]] = defaultdict(list)
-    for row in event_rows:
-        month = _collapse_whitespace(row["month"]).lower()
-        source_key = _canonical_source_stem(row["source_file"])
-        name_key = _normalize_event_name_for_grouping(row["name"])
-        grouped[(row["year"], f"{month}:{source_key or name_key}")].append(row)
-
     by_year: dict[int, list[dict]] = defaultdict(list)
-    for (_, _), members in grouped.items():
-        primary = max(members, key=lambda row: ((row["entries"] or 0), -(row["id"] or 0)))
-        by_year[primary["year"]].append(primary)
+    for row in event_rows:
+        month = _collapse_whitespace(row["month"]).lower() or _month_from_race_dates(conn, row["id"])
+        if not month:
+            source_name = _canonical_source_stem(row["source_file"]) or _normalize_event_name_for_grouping(row["name"])
+            match = re.search(r"(june|july|august|september)", source_name)
+            month = match.group(1) if match else ""
+        by_year[row["year"]].append({**row, "resolved_month": month})
 
     expected_months = ["june", "july", "august", "september"]
     rows: list[dict] = []
     for year, members in sorted(by_year.items()):
-        month_counts = Counter(_collapse_whitespace(row["month"]).lower() for row in members if row["month"])
+        month_counts = Counter(row.get("resolved_month", "") for row in members if row.get("resolved_month"))
         present_months = [month for month in expected_months if month_counts.get(month)]
         missing_months = [month for month in expected_months if month not in present_months]
         extra_months = sorted(month for month in month_counts if month not in expected_months)
 
-        logical_race_total = 0
+        logical_dates: set[str] = set()
+        logical_tokens: set[tuple] = set()
+        fallback_races = 0
         for row in members:
             race_rows = conn.execute(
                 "SELECT race_number, race_key, date FROM races WHERE event_id = ?",
                 (row["id"],),
             ).fetchall()
-            dated_rows = {
+            logical_dates.update(
                 race["date"]
                 for race in race_rows
                 if race["date"]
-            }
-            if dated_rows:
-                logical_race_total += len(dated_rows)
-            else:
-                logical_race_total += len(
-                    {
-                        _logical_race_token(race["race_number"], race["race_key"], race["date"])
-                        for race in race_rows
-                    }
-                ) or (row["races_sailed"] or 0)
+            )
+            logical_tokens.update(
+                _logical_race_token(race["race_number"], race["race_key"], race["date"])
+                for race in race_rows
+            )
+            fallback_races = max(fallback_races, row["races_sailed"] or 0)
+        logical_race_total = len(logical_dates) or len(logical_tokens) or fallback_races
 
         notes: list[str] = []
         if missing_months:
             notes.append(f"missing months: {', '.join(missing_months)}")
         if extra_months:
             notes.append(f"unexpected months: {', '.join(extra_months)}")
-        if len(members) != 4:
-            notes.append(f"expected 4 monthly series, found {len(members)}")
+        if len(present_months) != 4:
+            notes.append(f"expected 4 monthly series, found {len(present_months)}")
         if logical_race_total != 16:
             notes.append(f"TNS race nights = {logical_race_total} (expected about 16)")
 
         rows.append(
             {
                 "year": year,
-                "monthly_series_count": len(members),
+                "monthly_series_count": len(present_months),
                 "months_present": ", ".join(present_months),
                 "missing_months": ", ".join(missing_months),
                 "logical_race_total": logical_race_total,

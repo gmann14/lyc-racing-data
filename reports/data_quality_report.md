@@ -57,7 +57,7 @@
 ## TNS Validation
 
 - TNS season rows checked: 27
-- TNS rows needing review: 23
+- TNS rows needing review: 20
 - Expected baseline: June, July, August, September monthly series, about 16 logical Thursday-night races total.
 
 ## Special Event Suggestions
