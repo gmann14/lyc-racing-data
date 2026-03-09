@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef, useEffect } from "react";
 import { useHashParam, useJsonData } from "@/lib/use-data";
 import type { BoatDetail } from "@/lib/data";
 
@@ -11,6 +12,13 @@ export default function BoatDetailPanel() {
     loading,
     error,
   } = useJsonData<BoatDetail>(id ? `boats/${id}.json` : null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (boat && panelRef.current) {
+      panelRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [boat]);
 
   if (!id) return null;
   if (loading)
@@ -27,7 +35,7 @@ export default function BoatDetailPanel() {
     );
 
   return (
-    <div className="my-6 p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-8 animate-fade-in">
+    <div ref={panelRef} className="my-6 p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-8 animate-fade-in">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-2xl font-bold text-navy">{boat.name}</h2>
