@@ -1,27 +1,127 @@
 @import "tailwindcss";
 
 :root {
-  --navy: #1a2744;
-  --navy-light: #2a3f66;
+  --navy: #0f1d35;
+  --navy-light: #1e3a5f;
+  --navy-mid: #162b4d;
   --gold: #c9a94e;
+  --gold-light: #e8d49a;
   --blue-light: #e8eef6;
-  --background: #f8f9fb;
+  --cream: #faf8f5;
+  --background: #f5f3ef;
   --foreground: #1a1a2e;
+  --card: #ffffff;
+  --border: #e2ddd5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
   --color-navy-light: var(--navy-light);
   --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
   --color-blue-light: var(--blue-light);
+  --color-cream: var(--cream);
+  --color-card: var(--card);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-crimson-pro);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle warm paper texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Typography */
+h1, h2, h3 {
+  font-family: var(--font-crimson-pro), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(15, 29, 53, 0.1), 0 4px 10px -5px rgba(15, 29, 53, 0.05);
+}
+
+/* Table styling */
+table {
+  border-collapse: collapse;
+}
+
+thead th {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+/* Gold accent bar for detail panels */
+.accent-bar {
+  position: relative;
+}
+.accent-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, var(--gold), var(--gold-light));
+  border-radius: 2px;
+}
+
+/* Stat card gradient */
+.stat-card {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Bar chart animation */
+@keyframes bar-grow {
+  from { width: 0; }
+}
+.bar-animated {
+  animation: bar-grow 0.8s ease-out;
+}
+
+/* Fade in animation */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in {
+  animation: fade-in-up 0.5s ease-out both;
 }

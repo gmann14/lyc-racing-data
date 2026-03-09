@@ -19,7 +19,7 @@ export function useJsonData<T>(path: string | null): {
     }
     setLoading(true);
     setError(null);
-    fetch(`/data/${path}`)
+    fetch(`/lyc-racing-data/data/${path}`)
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to load ${path}`);
         return res.json();

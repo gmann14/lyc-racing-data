@@ -6,7 +6,10 @@ export default function LeaderboardsPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-navy mb-6">Leaderboards</h1>
+      <h1 className="text-3xl font-bold text-navy mb-2">Leaderboards</h1>
+      <p className="text-gray-500 mb-6">
+        All-time rankings across {lb.fleet_by_year.length} seasons of racing.
+      </p>
 
       <div className="grid md:grid-cols-2 gap-8">
         <LeaderboardTable
@@ -77,13 +80,13 @@ function LeaderboardTable({
   columns: Column[];
 }) {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <h2 className="text-lg font-bold text-navy px-4 py-3 border-b">
+    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+      <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border">
         {title}
       </h2>
       <table className="w-full text-sm">
         <thead>
-          <tr className="bg-gray-50 text-left">
+          <tr className="bg-cream text-left">
             <th className="px-3 py-2 text-center w-8">#</th>
             {columns.map((c) => (
               <th
@@ -102,8 +105,11 @@ function LeaderboardTable({
             const val = (key: string) =>
               (row as unknown as Record<string, unknown>)[key];
             return (
-              <tr key={row.id} className="border-b last:border-0">
-                <td className="px-3 py-2 text-center text-gray-400 font-mono">
+              <tr
+                key={row.id}
+                className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
+              >
+                <td className="px-3 py-2 text-center text-gray-400 font-mono text-xs">
                   {i + 1}
                 </td>
                 {columns.map((c) => (
@@ -116,12 +122,15 @@ function LeaderboardTable({
                     {c.link ? (
                       <Link
                         href={`/boats/#${row.id}`}
-                        className="text-navy-light hover:underline font-medium"
+                        className="text-navy-light hover:text-gold font-medium transition-colors"
                       >
-                        {String(val(c.key) ?? "—")}
+                        {String(val(c.key) ?? "\u2014")}
                       </Link>
                     ) : (
-                      String(val(c.key) ?? "—")
+                      <span className={c.align === "right" ? "" : "text-gray-500"}>
+                        {String(val(c.key) ?? "\u2014")}
+                        {c.suffix && val(c.key) != null ? c.suffix : ""}
+                      </span>
                     )}
                   </td>
                 ))}

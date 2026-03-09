@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
@@ -11,6 +12,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const crimsonPro = Crimson_Pro({
+  variable: "--font-crimson-pro",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -28,17 +35,22 @@ function Nav() {
     { href: "/trophies/", label: "Trophies" },
   ];
   return (
-    <nav className="bg-navy text-white">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link href="/" className="text-lg font-bold tracking-wide">
-          LYC Racing Archive
+    <nav className="bg-navy">
+      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 rounded-full border-2 border-gold flex items-center justify-center text-gold text-sm font-bold group-hover:bg-gold group-hover:text-navy transition-colors">
+            L
+          </div>
+          <span className="text-white text-lg font-semibold tracking-wide">
+            LYC Racing
+          </span>
         </Link>
-        <div className="flex gap-4 text-sm">
+        <div className="flex gap-6 text-sm">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="hover:text-gold transition-colors"
+              className="text-white/70 hover:text-gold transition-colors font-medium"
             >
               {l.label}
             </Link>
@@ -57,12 +69,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${crimsonPro.variable} antialiased`}
       >
         <Nav />
         <main className="max-w-6xl mx-auto px-4 py-8">{children}</main>
-        <footer className="text-center text-sm text-gray-500 py-8 border-t">
-          Lunenburg Yacht Club Racing Archive — 1999 to 2025
+        <footer className="border-t border-border">
+          <div className="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between text-sm text-gray-400">
+            <span>Lunenburg Yacht Club Racing Archive</span>
+            <span>1999 &ndash; 2025</span>
+          </div>
         </footer>
       </body>
     </html>

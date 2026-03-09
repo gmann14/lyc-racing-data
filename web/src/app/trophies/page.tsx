@@ -15,16 +15,20 @@ export default function TrophiesPage() {
 
       <div className="space-y-8">
         {withWinners.map((trophy) => (
-          <div key={trophy.slug} className="bg-white rounded-lg shadow overflow-hidden">
-            <h2 className="text-lg font-bold text-navy px-4 py-3 border-b">
+          <div
+            key={trophy.slug}
+            className="bg-card rounded-lg shadow-sm border border-border overflow-hidden"
+          >
+            <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border flex items-center gap-2">
               {trophy.name}
-              <span className="text-sm font-normal text-gray-400 ml-2">
-                {trophy.winners.length} year{trophy.winners.length !== 1 ? "s" : ""}
+              <span className="text-sm font-normal text-gray-400">
+                {trophy.winners.length} year
+                {trophy.winners.length !== 1 ? "s" : ""}
               </span>
             </h2>
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left">
+                <tr className="bg-cream text-left">
                   <th className="px-4 py-2">Year</th>
                   <th className="px-4 py-2">Winner</th>
                   <th className="px-4 py-2">Class</th>
@@ -33,11 +37,14 @@ export default function TrophiesPage() {
               </thead>
               <tbody>
                 {trophy.winners.map((w) => (
-                  <tr key={w.year} className="border-b last:border-0">
+                  <tr
+                    key={w.year}
+                    className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
+                  >
                     <td className="px-4 py-2 font-mono">
                       <Link
                         href={`/seasons/#${w.year}`}
-                        className="text-navy-light hover:underline"
+                        className="text-navy-light hover:text-gold transition-colors"
                       >
                         {w.year}
                       </Link>
@@ -46,7 +53,7 @@ export default function TrophiesPage() {
                       {w.boat_id ? (
                         <Link
                           href={`/boats/#${w.boat_id}`}
-                          className="text-navy-light hover:underline font-medium"
+                          className="text-navy-light hover:text-gold font-medium transition-colors"
                         >
                           {w.boat_name ?? w.display_name}
                         </Link>
@@ -54,11 +61,11 @@ export default function TrophiesPage() {
                         w.display_name
                       )}
                     </td>
-                    <td className="px-4 py-2 text-gray-500">
-                      {w.boat_class ?? "—"}
+                    <td className="px-4 py-2 text-gray-400">
+                      {w.boat_class ?? "\u2014"}
                     </td>
                     <td className="px-4 py-2 text-right font-mono">
-                      {w.nett_points ?? "—"}
+                      {w.nett_points ?? "\u2014"}
                     </td>
                   </tr>
                 ))}
@@ -73,7 +80,7 @@ export default function TrophiesPage() {
           <h2 className="text-lg font-bold text-navy mb-3">
             Other Events ({withoutWinners.length})
           </h2>
-          <div className="text-sm text-gray-500 space-y-1">
+          <div className="text-sm text-gray-400 space-y-1">
             {withoutWinners.map((t) => (
               <div key={t.slug}>{t.name}</div>
             ))}

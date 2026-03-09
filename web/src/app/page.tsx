@@ -8,103 +8,136 @@ export default function HomePage() {
 
   return (
     <div>
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-navy mb-3">
+      {/* Hero */}
+      <div className="text-center mb-12 animate-fade-in">
+        <h1 className="text-5xl font-bold text-navy mb-4">
           LYC Racing Archive
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          {overview.year_range.first}–{overview.year_range.last}: {overview.total_seasons} seasons of
-          Lunenburg Yacht Club racing history, fully searchable and browsable.
+        <p className="text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
+          {overview.year_range.first}&ndash;{overview.year_range.last} &middot;{" "}
+          {overview.total_seasons} seasons of Lunenburg Yacht Club racing
+          history, fully searchable and browsable.
         </p>
       </div>
 
+      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         {[
           { label: "Seasons", value: overview.total_seasons },
           { label: "Events", value: overview.total_events.toLocaleString() },
-          { label: "Race Results", value: overview.total_results.toLocaleString() },
+          {
+            label: "Race Results",
+            value: overview.total_results.toLocaleString(),
+          },
           { label: "Boats", value: overview.total_boats },
-        ].map((stat) => (
+        ].map((stat, i) => (
           <div
             key={stat.label}
-            className="bg-white rounded-lg shadow p-6 text-center"
+            className="stat-card rounded-lg p-6 text-center animate-fade-in"
+            style={{ animationDelay: `${i * 0.1}s` }}
           >
-            <div className="text-3xl font-bold text-navy">{stat.value}</div>
-            <div className="text-sm text-gray-500 mt-1">{stat.label}</div>
+            <div className="text-3xl font-bold text-white">{stat.value}</div>
+            <div className="text-xs text-white/60 mt-1 uppercase tracking-wider">
+              {stat.label}
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Main content */}
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-navy mb-4">Top Boats by Race Wins</h2>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="pb-2">Boat</th>
-                <th className="pb-2">Class</th>
-                <th className="pb-2 text-right">Wins</th>
-                <th className="pb-2 text-right">Races</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topBoats.map((b) => (
-                <tr key={b.id} className="border-b last:border-0">
-                  <td className="py-2">
-                    <Link
-                      href={`/boats/#${b.id}`}
-                      className="text-navy-light hover:underline font-medium"
-                    >
-                      {b.name}
-                    </Link>
-                  </td>
-                  <td className="py-2 text-gray-500">{b.class}</td>
-                  <td className="py-2 text-right font-mono">{b.wins}</td>
-                  <td className="py-2 text-right font-mono">{b.total_races}</td>
+        {/* Top boats */}
+        <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="text-xl font-bold text-navy">
+              Top Boats by Race Wins
+            </h2>
+          </div>
+          <div className="p-5">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="pb-2">Boat</th>
+                  <th className="pb-2">Class</th>
+                  <th className="pb-2 text-right">Wins</th>
+                  <th className="pb-2 text-right">Races</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-4 text-right">
+              </thead>
+              <tbody>
+                {topBoats.map((b) => (
+                  <tr key={b.id} className="border-b border-border/50 last:border-0">
+                    <td className="py-2.5">
+                      <Link
+                        href={`/boats/#${b.id}`}
+                        className="text-navy-light hover:text-gold font-medium transition-colors"
+                      >
+                        {b.name}
+                      </Link>
+                    </td>
+                    <td className="py-2.5 text-gray-400">{b.class}</td>
+                    <td className="py-2.5 text-right font-mono font-semibold text-navy">
+                      {b.wins}
+                    </td>
+                    <td className="py-2.5 text-right font-mono text-gray-400">
+                      {b.total_races}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="px-5 py-3 border-t border-border bg-cream/50">
             <Link
               href="/leaderboards/"
-              className="text-sm text-navy-light hover:underline"
+              className="text-sm text-navy-light hover:text-gold font-medium transition-colors"
             >
-              View all leaderboards →
+              View all leaderboards &rarr;
             </Link>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-navy mb-4">Fleet Size Over Time</h2>
-          <div className="space-y-1">
-            {leaderboards.fleet_by_year.map((fy) => {
-              const maxBoats = Math.max(
-                ...leaderboards.fleet_by_year.map((f) => f.unique_boats)
-              );
-              const pct = (fy.unique_boats / maxBoats) * 100;
-              return (
-                <div key={fy.year} className="flex items-center gap-2 text-xs">
-                  <span className="w-10 text-right font-mono">{fy.year}</span>
-                  <div className="flex-1 bg-blue-light rounded-full h-4 overflow-hidden">
-                    <div
-                      className="bg-navy h-full rounded-full"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                  <span className="w-6 text-right font-mono">
-                    {fy.unique_boats}
-                  </span>
-                </div>
-              );
-            })}
+        {/* Fleet size chart */}
+        <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="text-xl font-bold text-navy">
+              Fleet Size Over Time
+            </h2>
           </div>
-          <div className="mt-4 text-right">
+          <div className="p-5">
+            <div className="space-y-1">
+              {leaderboards.fleet_by_year.map((fy) => {
+                const maxBoats = Math.max(
+                  ...leaderboards.fleet_by_year.map((f) => f.unique_boats)
+                );
+                const pct = (fy.unique_boats / maxBoats) * 100;
+                return (
+                  <div
+                    key={fy.year}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <span className="w-10 text-right font-mono text-gray-400">
+                      {fy.year}
+                    </span>
+                    <div className="flex-1 bg-blue-light rounded-full h-4 overflow-hidden">
+                      <div
+                        className="bg-navy h-full rounded-full bar-animated"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="w-6 text-right font-mono font-semibold text-navy">
+                      {fy.unique_boats}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="px-5 py-3 border-t border-border bg-cream/50">
             <Link
               href="/seasons/"
-              className="text-sm text-navy-light hover:underline"
+              className="text-sm text-navy-light hover:text-gold font-medium transition-colors"
             >
-              Browse all seasons →
+              Browse all seasons &rarr;
             </Link>
           </div>
         </div>
