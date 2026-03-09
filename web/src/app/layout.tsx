@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   title: "LYC Racing Archive",
   description:
     "27 years of Lunenburg Yacht Club racing history — results, leaderboards, and boat profiles from 1999 to 2025.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+    shortcut: "/icon.png",
+  },
 };
 
 function Nav() {
