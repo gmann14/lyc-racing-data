@@ -9,16 +9,23 @@
 | Metric | Count |
 |--------|-------|
 | Seasons | 27 |
-| Events | 735 |
-| Race results | 11,469 |
-| Boats | 309 |
-| Participants | 831 |
+| Events | 751 |
+| Race results | 11,610 |
+| Boats | 317 |
+| Participants | 964 |
+
+## Current status
+
+- Current implementation / next-work handoff: `reports/current_status_2026-03-09.md:1`
+- Current manual-review inventory: `reports/manual_review_inventory_2026-03-09.md:1`
+- Current data-quality summary: `reports/data_quality_report.md:1`
+- Thursday Night Series validation snapshot: `reports/tns_validation.csv:1`
 
 ## Architecture
 
 ```
 HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js static site
-(1999-2025)        (BeautifulSoup)      (DB)        (1,138 files)     (GitHub Pages)
+(1999-2025)        (BeautifulSoup)      (DB)        (1,070 files)     (GitHub Pages)
 ```
 
 ### Pipeline
@@ -68,7 +75,7 @@ pip install -r requirements.txt
 ### Run tests
 
 ```sh
-# Python (208 tests)
+# Python (222 tests)
 .venv/bin/python -m pytest tests/ -q
 
 # TypeScript type check
@@ -118,10 +125,10 @@ npm run build  # outputs to web/out/
 | `test_classify_sources.py` | 33 | Format detection, edge cases |
 | `test_parse_sailwave.py` | 38 | Sailwave HTML parsing (2007-2025) |
 | `test_parse_legacy.py` | 30 | WinRegatta HTML parsing (1999-2008) |
-| `test_load_db.py` | 53 | DB loading, reconciliation, stats |
-| `test_export_json.py` | 15 | JSON export integrity |
+| `test_load_db.py` | 57 | DB loading, reconciliation, stats |
+| `test_export_json.py` | 20 | JSON export integrity |
 | `test_audit_data_quality.py` | 8 | Review export and audit integrity |
-| **Total** | **208** | |
+| **Total** | **222** | |
 
 ## Milestones
 
