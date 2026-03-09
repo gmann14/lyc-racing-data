@@ -11,7 +11,7 @@
 | Seasons | 27 |
 | Events | 735 |
 | Race results | 10,977 |
-| Boats | 371 |
+| Boats | 317 |
 | Participants | 908 |
 
 ## Architecture
@@ -29,8 +29,9 @@ HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js s
    - `scraper/parse_sailwave.py` - Sailwave format (2007-2025, 382 pages)
    - `scraper/parse_legacy.py` - WinRegatta format (1999-2008, 353 pages)
 4. **Load** (`scraper/load_db.py`) - Normalize and load into SQLite
-5. **Export** (`scraper/export_json.py`) - Generate 1,138 static JSON files
-6. **Frontend** (`web/`) - Next.js 16 static export, deployed to GitHub Pages
+5. **Reconcile** (`scraper/reconcile_entities.py`) - Apply high-confidence boat / skipper cleanup
+6. **Export** (`scraper/export_json.py`) - Generate static JSON files
+7. **Frontend** (`web/`) - Next.js 16 static export, deployed to GitHub Pages
 
 ### Source data directories
 
@@ -39,7 +40,7 @@ HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js s
 
 ### Database
 
-SQLite database (`lyc_racing.db`) with tables: `seasons`, `events`, `races`, `results`, `boats`, `participants`, `event_standings`.
+SQLite database (`lyc_racing.db`) with tables including `seasons`, `events`, `source_pages`, `races`, `results`, `boats`, `participants`, `skippers`, `series_standings`, and `series_scores`.
 
 ### Web frontend
 
@@ -83,6 +84,9 @@ cd web && npx tsc --noEmit
 
 # Load into SQLite
 .venv/bin/python -m scraper.load_db
+
+# Apply high-confidence reconciliation
+.venv/bin/python -m scraper.reconcile_entities
 
 # Export JSON for frontend
 .venv/bin/python -m scraper.export_json

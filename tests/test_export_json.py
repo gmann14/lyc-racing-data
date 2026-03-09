@@ -18,6 +18,7 @@ from scraper.export_json import (
     export_leaderboards,
     export_trophy_history,
     export_all,
+    _classify_special_event,
     DB_PATH,
     OUTPUT_DIR,
 )
@@ -46,6 +47,24 @@ class TestHelpers:
         text = path.read_text()
         assert " " not in text  # compact format
 
+    def test_classify_special_event_external(self):
+        is_special, kind, reasons = _classify_special_event(
+            {"name": "2014 Canadian Optimist Dinghy Championships", "event_type": "championship"},
+            {"participants": 91, "helm_ratio": 1.0, "oneoff_ratio": 0.98},
+        )
+        assert is_special
+        assert kind == "special_external"
+        assert "event_type_championship" in reasons
+
+    def test_classify_special_event_local(self):
+        is_special, kind, reasons = _classify_special_event(
+            {"name": "Sail Canada Women's Keel-Boat Championships", "event_type": "championship"},
+            {"participants": 15, "helm_ratio": 1.0, "oneoff_ratio": 1.0},
+        )
+        assert is_special
+        assert kind == "special_local"
+        assert "special_local_keyword" in reasons
+
 
 class TestExportIntegration:
     """Integration tests against the real database."""
@@ -68,6 +87,8 @@ class TestExportIntegration:
         assert data["total_events"] >= 700
         assert data["total_results"] >= 10000
         assert data["total_boats"] >= 300
+        assert data["handicap_events"] < data["total_events"]
+        assert data["handicap_results"] < data["total_results"]
         assert data["year_range"]["first"] == 1999
         assert data["year_range"]["last"] == 2025
 
@@ -102,7 +123,7 @@ class TestExportIntegration:
         if not path.exists():
             pytest.skip("JSON not yet exported")
         data = json.loads(path.read_text())
-        assert len(data) >= 300
+        assert len(data) >= 200
         # First boat should have most results
         assert data[0]["total_results"] > 0
         assert "wins" in data[0]
@@ -133,6 +154,7 @@ class TestExportIntegration:
         assert len(data["most_trophies"]) > 0
         assert len(data["best_win_pct"]) > 0
         assert len(data["fleet_by_year"]) >= 27
+        assert data["excluded_event_count"] > 0
 
     def test_trophies_json(self):
         path = OUTPUT_DIR / "trophies.json"

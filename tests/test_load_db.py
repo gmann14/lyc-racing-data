@@ -8,6 +8,7 @@ import pytest
 from pathlib import Path
 from scraper.load_db import (
     DatabaseLoader,
+    _collapse_whitespace,
     _slugify,
     _classify_event_type,
     _detect_month,
@@ -16,11 +17,17 @@ from scraper.load_db import (
     _safe_float,
     _safe_int,
     _extract_start_time,
+    _normalize_sail_number,
+    _is_placeholder_sail_number,
+    _normalize_boat_class,
     DB_PATH,
 )
 
 
 class TestHelpers:
+    def test_collapse_whitespace(self):
+        assert _collapse_whitespace(" Sly\n   Fox\t") == "Sly Fox"
+
     def test_slugify(self):
         assert _slugify("June Thursday Night Series") == "june-thursday-night-series"
 
@@ -86,6 +93,17 @@ class TestHelpers:
 
     def test_extract_start_time_no_match(self):
         assert _extract_start_time("No time here") is None
+
+    def test_normalize_sail_number(self):
+        assert _normalize_sail_number(" # 34142 ") == "34142"
+
+    def test_placeholder_sail_number(self):
+        assert _is_placeholder_sail_number("????")
+        assert not _is_placeholder_sail_number("34142")
+
+    def test_normalize_boat_class(self):
+        assert _normalize_boat_class("J29") == "J/29"
+        assert _normalize_boat_class("A3/15") == "A3/15"
 
     def test_extract_event_name_h1_h2(self):
         page = {"h1": "LYC Handicap", "h2": "June Thursday Night Series", "title": ""}
@@ -212,6 +230,64 @@ class TestDatabaseLoaderUnit:
         races = loader.conn.execute("SELECT * FROM races").fetchall()
         assert len(races) == 1
 
+        loader.close()
+
+    def test_reconcile_same_name_same_sail_merges_boats(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        loader._get_or_create_participant("Sly\n Fox", "34142", "LYC", "boat", "Chaser\n29")
+        loader._get_or_create_participant("Sly Fox", "34142", "LYC", "boat", "Chaser 29")
+        stats = loader.reconcile_entities()
+
+        boats = loader.conn.execute("SELECT name, sail_number, class FROM boats").fetchall()
+        assert len(boats) == 1
+        assert boats[0][0] == "Sly Fox"
+        assert boats[0][1] == "34142"
+        assert stats["merged_boats"] >= 0
+        loader.close()
+
+    def test_reconcile_missing_sail_only_merges_with_single_clear_match(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        loader._get_or_create_participant("Poohsticks", "8", "LYC", "boat", "J92")
+        loader._get_or_create_participant("Poohsticks", None, "LYC", "boat", "A3/15")
+        loader._get_or_create_participant("Aileen", "1", "LYC", "boat", "IOD")
+        loader._get_or_create_participant("Aileen", "4", "LYC", "boat", "IOD")
+        loader._get_or_create_participant("Aileen", None, "LYC", "boat", "IOD")
+        stats = loader.reconcile_entities()
+
+        poohsticks = loader.conn.execute(
+            "SELECT COUNT(*) FROM boats WHERE name = 'Poohsticks'"
+        ).fetchone()[0]
+        aileen = loader.conn.execute(
+            "SELECT COUNT(*) FROM boats WHERE name = 'Aileen'"
+        ).fetchone()[0]
+
+        assert poohsticks == 1
+        assert aileen == 3
+        assert stats["merged_boats"] >= 0
+        loader.close()
+
+    def test_manual_boat_rule_merges_poohsticks_to_sail_8(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        loader._get_or_create_participant("Poohsticks", "8", "LYC", "boat", "J92")
+        loader._get_or_create_participant("Poohsticks", "108", "LYC", "boat", "J92")
+        loader._get_or_create_participant("Poohsticks", None, "LYC", "boat", "A3/15")
+        loader.reconcile_entities()
+
+        boats = loader.conn.execute(
+            "SELECT name, sail_number, class FROM boats WHERE name = 'Poohsticks'"
+        ).fetchall()
+        assert len(boats) == 1
+        assert boats[0][1] == "8"
+        assert boats[0][2] == "J/92"
         loader.close()
 
 

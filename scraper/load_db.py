@@ -12,10 +12,34 @@ import re
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
+from collections import defaultdict
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 PARSED_DIR = PROJECT_ROOT / "scraper" / "parsed"
+
+MANUAL_BOAT_RULES = {
+    "poohsticks": {
+        "canonical_name": "Poohsticks",
+        "canonical_sail_number": "8",
+        "canonical_class": "J/92",
+    },
+    "mojo": {
+        "canonical_name": "Mojo",
+        "canonical_sail_number": "606",
+        "canonical_class": "J/105",
+    },
+    "topaz": {
+        "canonical_name": "Topaz",
+        "canonical_sail_number": "M55",
+        "canonical_class": "Mega 30",
+    },
+    "echo": {
+        "canonical_name": "Echo",
+        "canonical_sail_number": "571",
+        "canonical_class": "Sonar",
+    },
+}
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS seasons (
@@ -200,9 +224,90 @@ CREATE INDEX IF NOT EXISTS idx_weather_date ON weather(date);
 """
 
 
+def _collapse_whitespace(text: str | None) -> str:
+    if text is None:
+        return ""
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _normalize_sail_number(sail_number: str | None) -> str | None:
+    cleaned = _collapse_whitespace(sail_number).upper()
+    if not cleaned:
+        return None
+    cleaned = cleaned.replace(" ", "")
+    if cleaned.startswith("#"):
+        cleaned = cleaned[1:]
+    return cleaned or None
+
+
+def _is_placeholder_sail_number(sail_number: str | None) -> bool:
+    cleaned = _normalize_sail_number(sail_number)
+    if not cleaned:
+        return True
+    if re.fullmatch(r"[?X]+", cleaned):
+        return True
+    if cleaned in {"0", "000", "999", "9999", "1111111"}:
+        return True
+    if "?" in cleaned or "X" in cleaned:
+        return True
+    return False
+
+
+def _normalize_boat_name_key(name: str | None) -> str:
+    text = _collapse_whitespace(name).lower()
+    text = text.replace("&", "and")
+    text = re.sub(r"['\"`]", "", text)
+    text = re.sub(r"[^a-z0-9]+", "", text)
+    return text
+
+
+def _normalize_boat_class(raw_class: str | None) -> str | None:
+    text = _collapse_whitespace(raw_class)
+    if not text:
+        return None
+
+    compact = text.upper()
+    if re.fullmatch(r"[A-D]\d+/\d+[A-Z]?", compact):
+        return compact
+
+    match = re.fullmatch(r"J/?(\d+)(?:\s+([IO])/B|(?:\s+([IO])B))?", compact)
+    if match:
+        hull = f"J/{match.group(1)}"
+        suffix = match.group(2) or match.group(3)
+        return f"{hull} {suffix}/B" if suffix else hull
+
+    if compact.startswith("J/"):
+        return compact
+
+    return text
+
+
+def _manual_boat_rule(name: str | None) -> dict | None:
+    key = _normalize_boat_name_key(name)
+    return MANUAL_BOAT_RULES.get(key)
+
+
+def _class_quality_score(raw_class: str | None) -> tuple[int, int]:
+    normalized = _normalize_boat_class(raw_class)
+    if not normalized:
+        return (0, 0)
+    is_rating_band = bool(re.fullmatch(r"[A-D]\d+/\d+[A-Z]?", normalized))
+    return (0 if is_rating_band else 1, len(normalized))
+
+
+def _name_quality_score(name: str | None) -> tuple[int, int]:
+    text = _collapse_whitespace(name)
+    if not text:
+        return (0, 0)
+    has_lower = int(any(ch.islower() for ch in text))
+    has_space = int(" " in text)
+    no_placeholder = int("?" not in text and "*" not in text)
+    return (has_lower + has_space + no_placeholder, len(text))
+
+
 def _slugify(text: str) -> str:
     """Create a URL-safe slug from text."""
-    slug = text.lower().strip()
+    slug = _collapse_whitespace(text).lower().strip()
     slug = re.sub(r"[^a-z0-9]+", "-", slug)
     return slug.strip("-")
 
@@ -243,14 +348,14 @@ def _detect_month(title: str | None, h2: str | None, source_path: str) -> str | 
 
 def _extract_event_name(page: dict) -> str:
     """Extract a clean event name from parsed page data."""
-    h2 = page.get("h2")
-    h1 = page.get("h1")
-    title = page.get("title", "")
+    h2 = _collapse_whitespace(page.get("h2"))
+    h1 = _collapse_whitespace(page.get("h1"))
+    title = _collapse_whitespace(page.get("title", ""))
 
     # Prefer h2 (usually the series/event name), combined with h1
     if h2 and h1:
         if h1.lower() not in h2.lower():
-            return f"{h1} - {h2}"
+            return _collapse_whitespace(f"{h1} - {h2}")
         return h2
     if h2:
         return h2
@@ -260,7 +365,7 @@ def _extract_event_name(page: dict) -> str:
     # Fall back to title, stripping "Sailwave results for"
     if title:
         cleaned = re.sub(r"^Sailwave results for\s+", "", title, flags=re.IGNORECASE)
-        return cleaned
+        return _collapse_whitespace(cleaned)
 
     # Last resort: filename
     return Path(page.get("source_path", "unknown")).stem
@@ -313,6 +418,7 @@ class DatabaseLoader:
         self.conn.execute("PRAGMA foreign_keys = ON")
         self._participant_cache: dict[tuple, int] = {}
         self._boat_cache: dict[tuple, int] = {}
+        self._skipper_cache: dict[str, int] = {}
 
     def create_schema(self):
         """Create all tables and indexes."""
@@ -323,40 +429,60 @@ class DatabaseLoader:
                                     club: str | None, participant_type: str,
                                     boat_class: str | None) -> int:
         """Get or create a participant record, returning the ID."""
-        key = (display_name, sail_number or "", club or "")
+        normalized_name = _collapse_whitespace(display_name)
+        normalized_sail = _normalize_sail_number(sail_number)
+        normalized_club = _collapse_whitespace(club) or None
+        normalized_class = _normalize_boat_class(boat_class)
+
+        key = (normalized_name, normalized_sail or "", normalized_club or "", participant_type)
         if key in self._participant_cache:
             return self._participant_cache[key]
 
+        boat_id = None
+        if participant_type == "boat" and normalized_name:
+            boat_id = self._get_or_create_boat(normalized_name, normalized_class, normalized_sail, normalized_club)
+            boat_row = self.conn.execute(
+                "SELECT name, sail_number, class, club FROM boats WHERE id = ?",
+                (boat_id,),
+            ).fetchone()
+            if boat_row:
+                normalized_name = boat_row[0]
+                normalized_sail = boat_row[1]
+                normalized_class = boat_row[2]
+                normalized_club = boat_row[3]
+
         # Try to find existing
         cursor = self.conn.execute(
-            "SELECT id FROM participants WHERE display_name = ? AND sail_number IS ? AND club IS ?",
-            (display_name, sail_number, club)
+            """SELECT id, display_name, sail_number, club, participant_type
+               FROM participants
+               WHERE participant_type = ?
+                 AND COALESCE(sail_number, '') = ?
+                 AND COALESCE(club, '') = ?""",
+            (participant_type, normalized_sail or "", normalized_club or "")
         )
-        row = cursor.fetchone()
-        if row:
-            self._participant_cache[key] = row[0]
-            return row[0]
+        for row in cursor.fetchall():
+            if _collapse_whitespace(row[1]) == normalized_name:
+                self._participant_cache[key] = row[0]
+                return row[0]
 
-        # Also try with coalesced empty strings
-        cursor = self.conn.execute(
-            "SELECT id FROM participants WHERE display_name = ? AND COALESCE(sail_number, '') = ? AND COALESCE(club, '') = ?",
-            (display_name, sail_number or "", club or "")
-        )
-        row = cursor.fetchone()
-        if row:
-            self._participant_cache[key] = row[0]
-            return row[0]
-
-        # Create boat record if this is a boat-type participant
-        boat_id = None
-        if participant_type == "boat" and display_name:
-            boat_id = self._get_or_create_boat(display_name, boat_class, sail_number, club)
+        skipper_id = None
+        if participant_type == "helm" and normalized_name:
+            skipper_id = self._get_or_create_skipper(normalized_name)
 
         # Create participant
         cursor = self.conn.execute(
-            """INSERT INTO participants (display_name, participant_type, boat_id, sail_number, club, raw_class)
-               VALUES (?, ?, ?, ?, ?, ?)""",
-            (display_name, participant_type, boat_id, sail_number, club, boat_class)
+            """INSERT INTO participants
+               (display_name, participant_type, boat_id, skipper_id, sail_number, club, raw_class)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                normalized_name,
+                participant_type,
+                boat_id,
+                skipper_id,
+                normalized_sail,
+                normalized_club,
+                normalized_class,
+            )
         )
         pid = cursor.lastrowid
         self._participant_cache[key] = pid
@@ -365,26 +491,291 @@ class DatabaseLoader:
     def _get_or_create_boat(self, name: str, boat_class: str | None,
                              sail_number: str | None, club: str | None) -> int:
         """Get or create a boat record."""
-        key = (name, sail_number or "")
+        normalized_name = _collapse_whitespace(name)
+        normalized_name_key = _normalize_boat_name_key(normalized_name)
+        normalized_sail = _normalize_sail_number(sail_number)
+        normalized_class = _normalize_boat_class(boat_class)
+        normalized_club = _collapse_whitespace(club) or "LYC"
+        manual_rule = _manual_boat_rule(normalized_name)
+        if manual_rule:
+            normalized_name = manual_rule["canonical_name"]
+            normalized_name_key = _normalize_boat_name_key(normalized_name)
+            normalized_sail = manual_rule["canonical_sail_number"]
+            normalized_class = manual_rule["canonical_class"]
+
+        key = (normalized_name_key, normalized_sail or "")
         if key in self._boat_cache:
             return self._boat_cache[key]
 
-        cursor = self.conn.execute(
-            "SELECT id FROM boats WHERE name = ? AND COALESCE(sail_number, '') = ?",
-            (name, sail_number or "")
-        )
-        row = cursor.fetchone()
-        if row:
-            self._boat_cache[key] = row[0]
-            return row[0]
+        candidates = self.conn.execute(
+            "SELECT id, name, class, sail_number, club FROM boats"
+        ).fetchall()
+
+        same_name_candidates = []
+        for row in candidates:
+            row_id, row_name, row_class, row_sail, row_club = row
+            if _normalize_boat_name_key(row_name) != normalized_name_key:
+                continue
+            same_name_candidates.append(row)
+
+        matching_candidates = []
+        if normalized_sail and not _is_placeholder_sail_number(normalized_sail):
+            exact_matches = [
+                row for row in same_name_candidates
+                if _normalize_sail_number(row[3]) == normalized_sail
+            ]
+            if exact_matches:
+                matching_candidates = exact_matches
+            else:
+                placeholder_matches = [
+                    row for row in same_name_candidates
+                    if _is_placeholder_sail_number(row[3])
+                ]
+                if placeholder_matches:
+                    matching_candidates = placeholder_matches
+        else:
+            good_sails = {
+                _normalize_sail_number(row[3])
+                for row in same_name_candidates
+                if not _is_placeholder_sail_number(row[3])
+            }
+            if len(good_sails) == 1:
+                sole_sail = next(iter(good_sails))
+                matching_candidates = [
+                    row for row in same_name_candidates
+                    if _normalize_sail_number(row[3]) == sole_sail
+                    or _is_placeholder_sail_number(row[3])
+                ]
+            elif not good_sails:
+                matching_candidates = [
+                    row for row in same_name_candidates
+                    if _is_placeholder_sail_number(row[3])
+                ]
+
+        if matching_candidates:
+            canonical = max(
+                matching_candidates,
+                key=lambda row: (
+                    int(not _is_placeholder_sail_number(row[3])),
+                    *_class_quality_score(row[2]),
+                    *_name_quality_score(row[1]),
+                    -row[0],
+                ),
+            )
+            boat_id = canonical[0]
+            self._boat_cache[key] = boat_id
+            return boat_id
 
         cursor = self.conn.execute(
             "INSERT INTO boats (name, class, sail_number, club) VALUES (?, ?, ?, ?)",
-            (name, boat_class, sail_number, club or "LYC")
+            (normalized_name, normalized_class, normalized_sail, normalized_club)
         )
         bid = cursor.lastrowid
         self._boat_cache[key] = bid
         return bid
+
+    def _get_or_create_skipper(self, name: str) -> int:
+        normalized_name = _collapse_whitespace(name)
+        if normalized_name in self._skipper_cache:
+            return self._skipper_cache[normalized_name]
+
+        row = self.conn.execute(
+            "SELECT id FROM skippers WHERE name = ?",
+            (normalized_name,),
+        ).fetchone()
+        if row:
+            self._skipper_cache[normalized_name] = row[0]
+            return row[0]
+
+        cursor = self.conn.execute(
+            "INSERT INTO skippers (name) VALUES (?)",
+            (normalized_name,),
+        )
+        skipper_id = cursor.lastrowid
+        self._skipper_cache[normalized_name] = skipper_id
+        return skipper_id
+
+    def reconcile_entities(self) -> dict[str, int]:
+        boat_rows = self.conn.execute(
+            """
+            SELECT b.id, b.name, b.class, b.sail_number, b.club,
+                   COUNT(DISTINCT res.id) AS total_results
+            FROM boats b
+            LEFT JOIN participants p ON p.boat_id = b.id
+            LEFT JOIN results res ON res.participant_id = p.id
+            GROUP BY b.id
+            """
+        ).fetchall()
+
+        grouped: dict[str, list[tuple]] = defaultdict(list)
+        for row in boat_rows:
+            grouped[_normalize_boat_name_key(row[1])].append(row)
+
+        merged_boats = 0
+        normalized_boats = 0
+
+        for _, group in grouped.items():
+            if not group:
+                continue
+
+            manual_rule = _manual_boat_rule(group[0][1])
+            if manual_rule:
+                canonical_name = manual_rule["canonical_name"]
+                canonical_sail = manual_rule["canonical_sail_number"]
+                canonical_class = manual_rule["canonical_class"]
+                canonical = max(
+                    group,
+                    key=lambda row: (
+                        int(_normalize_sail_number(row[3]) == canonical_sail),
+                        row[5] or 0,
+                        *_name_quality_score(row[1]),
+                        -row[0],
+                    ),
+                )
+                canonical_id = canonical[0]
+                duplicate_ids = [row[0] for row in group if row[0] != canonical_id]
+                if duplicate_ids:
+                    placeholders = ",".join("?" for _ in duplicate_ids)
+                    self.conn.execute(
+                        f"UPDATE participants SET boat_id = ? WHERE boat_id IN ({placeholders})",
+                        (canonical_id, *duplicate_ids),
+                    )
+                    self.conn.execute(
+                        f"DELETE FROM boats WHERE id IN ({placeholders})",
+                        duplicate_ids,
+                    )
+                    merged_boats += len(duplicate_ids)
+                self.conn.execute(
+                    "UPDATE boats SET name = ?, class = ?, sail_number = ?, club = ? WHERE id = ?",
+                    (canonical_name, canonical_class, canonical_sail, _collapse_whitespace(canonical[4]) or "LYC", canonical_id),
+                )
+                normalized_boats += 1
+                continue
+
+            unique_good_sails = {
+                _normalize_sail_number(row[3])
+                for row in group
+                if not _is_placeholder_sail_number(row[3])
+            }
+
+            merge_sets: list[list[tuple]] = []
+            by_sail: dict[str, list[tuple]] = defaultdict(list)
+            unknown_rows: list[tuple] = []
+
+            for row in group:
+                clean_sail = _normalize_sail_number(row[3])
+                if clean_sail and not _is_placeholder_sail_number(clean_sail):
+                    by_sail[clean_sail].append(row)
+                else:
+                    unknown_rows.append(row)
+
+            for rows in by_sail.values():
+                if len(rows) > 1:
+                    merge_sets.append(rows)
+
+            if len(unique_good_sails) == 1 and unknown_rows:
+                sole_sail = next(iter(unique_good_sails))
+                merge_sets.append(by_sail[sole_sail] + unknown_rows)
+
+            seen_ids: set[int] = set()
+            for merge_group in merge_sets:
+                merge_group = [row for row in merge_group if row[0] not in seen_ids]
+                if len(merge_group) < 2:
+                    continue
+
+                canonical = max(
+                    merge_group,
+                    key=lambda row: (
+                        int(not _is_placeholder_sail_number(row[3])),
+                        *_class_quality_score(row[2]),
+                        row[5] or 0,
+                        *_name_quality_score(row[1]),
+                        -row[0],
+                    ),
+                )
+                canonical_id = canonical[0]
+                candidate_names = [_collapse_whitespace(row[1]) for row in merge_group if _collapse_whitespace(row[1])]
+                candidate_classes = [_normalize_boat_class(row[2]) for row in merge_group if _normalize_boat_class(row[2])]
+                candidate_sails = [_normalize_sail_number(row[3]) for row in merge_group if _normalize_sail_number(row[3])]
+
+                best_name = max(candidate_names, key=lambda value: _name_quality_score(value))
+                non_placeholder_sails = [value for value in candidate_sails if not _is_placeholder_sail_number(value)]
+                best_sail = non_placeholder_sails[0] if len(set(non_placeholder_sails)) == 1 and non_placeholder_sails else _normalize_sail_number(canonical[3])
+                best_class = max(candidate_classes, key=lambda value: _class_quality_score(value)) if candidate_classes else None
+
+                duplicate_ids = [row[0] for row in merge_group if row[0] != canonical_id]
+                if duplicate_ids:
+                    placeholders = ",".join("?" for _ in duplicate_ids)
+                    self.conn.execute(
+                        f"UPDATE participants SET boat_id = ? WHERE boat_id IN ({placeholders})",
+                        (canonical_id, *duplicate_ids),
+                    )
+                    self.conn.execute(
+                        f"DELETE FROM boats WHERE id IN ({placeholders})",
+                        duplicate_ids,
+                    )
+                    merged_boats += len(duplicate_ids)
+                try:
+                    self.conn.execute(
+                        "UPDATE boats SET name = ?, class = ?, sail_number = ?, club = ? WHERE id = ?",
+                        (best_name, best_class, best_sail, _collapse_whitespace(canonical[4]) or "LYC", canonical_id),
+                    )
+                except sqlite3.IntegrityError:
+                    self.conn.execute(
+                        "UPDATE boats SET class = ?, club = ? WHERE id = ?",
+                        (best_class, _collapse_whitespace(canonical[4]) or "LYC", canonical_id),
+                    )
+                normalized_boats += 1
+                seen_ids.update(row[0] for row in merge_group)
+
+        remaining_boats = self.conn.execute(
+            "SELECT id, name, class, sail_number, club FROM boats"
+        ).fetchall()
+        for boat_id, name, raw_class, sail_number, club in remaining_boats:
+            clean_name = _collapse_whitespace(name)
+            clean_class = _normalize_boat_class(raw_class)
+            clean_sail = _normalize_sail_number(sail_number)
+            clean_club = _collapse_whitespace(club) or "LYC"
+            try:
+                self.conn.execute(
+                    "UPDATE boats SET name = ?, class = ?, sail_number = ?, club = ? WHERE id = ?",
+                    (clean_name, clean_class, clean_sail, clean_club, boat_id),
+                )
+            except sqlite3.IntegrityError:
+                self.conn.execute(
+                    "UPDATE boats SET class = ?, club = ? WHERE id = ?",
+                    (clean_class, clean_club, boat_id),
+                )
+
+        participant_rows = self.conn.execute(
+            "SELECT id, display_name, participant_type FROM participants WHERE participant_type = 'helm'"
+        ).fetchall()
+        linked_skippers = 0
+        for participant_id, display_name, participant_type in participant_rows:
+            skipper_id = self._get_or_create_skipper(display_name)
+            self.conn.execute(
+                "UPDATE participants SET display_name = ?, skipper_id = ? WHERE id = ?",
+                (_collapse_whitespace(display_name), skipper_id, participant_id),
+            )
+            linked_skippers += 1
+
+        event_rows = self.conn.execute(
+            "SELECT id, name, canonical_name FROM events"
+        ).fetchall()
+        for event_id, name, canonical_name in event_rows:
+            clean_name = _collapse_whitespace(name)
+            clean_canonical = _collapse_whitespace(canonical_name) or clean_name
+            self.conn.execute(
+                "UPDATE events SET name = ?, canonical_name = ?, slug = ? WHERE id = ?",
+                (clean_name, clean_canonical, _slugify(clean_canonical), event_id),
+            )
+
+        self.conn.commit()
+        return {
+            "merged_boats": merged_boats,
+            "normalized_boats": normalized_boats,
+            "linked_skippers": linked_skippers,
+        }
 
     def load_parsed_page(self, page: dict) -> int | None:
         """Load a single parsed page into the database. Returns event_id."""
@@ -684,8 +1075,12 @@ class DatabaseLoader:
             for page in pages:
                 self.load_legacy_page(page)
 
+        stats = self.reconcile_entities()
         self.conn.commit()
         self._print_load_report()
+        print("\nReconciliation:")
+        for key, value in stats.items():
+            print(f"  {key}: {value}")
 
     def _print_load_report(self):
         """Print a summary of what was loaded."""

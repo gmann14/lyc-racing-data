@@ -1,1 +1,1 @@
-{"id":310,"name":"Plane Jane","class":"J27","sail_number":"14","club":"LYC","stats":{"total_races":3,"seasons":1,"first_year":2001,"last_year":2001,"wins":0,"podiums":0,"avg_finish":8.0},"seasons":[{"year":2001,"races":3,"wins":0,"avg_finish":8.0}],"trophies":[]}
+{"id":310,"name":"Plane Jane","class":"J/27","sail_number":"14","club":"LYC","stats":{"total_races":7,"seasons":2,"first_year":2001,"last_year":2002,"wins":0,"podiums":0,"avg_finish":6.5},"seasons":[{"year":2001,"races":6,"wins":0,"avg_finish":6.5},{"year":2002,"races":1,"wins":0,"avg_finish":null}],"trophies":[]}
