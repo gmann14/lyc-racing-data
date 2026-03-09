@@ -2,23 +2,23 @@
 
 ## Snapshot
 
-- Boats: 309
-- Participants: 908
+- Boats: 318
+- Participants: 831
 - Events: 735
 - Races: 1376
-- Results: 10977
-- Boat results: 7270
+- Results: 11469
+- Boat results: 7762
 - Helm results: 3707
 
 ## Biggest Cleanup Gaps
 
-- Boats missing sail numbers: 24
-- Boats with non-empty placeholder / suspicious sail numbers: 32
-- Boats missing class: 10
+- Boats missing sail numbers: 30
+- Boats with non-empty placeholder / suspicious sail numbers: 21
+- Boats missing class: 20
 - Result rows tied to participants without `boat_id`: 3707
-- Empty events (no races and no standings): 7
-- Races without results: 75
-- Skippers loaded: 384
+- Empty events (no races and no standings): 1
+- Races without results: 27
+- Skippers loaded: 385
 - Ownership rows loaded: 0
 
 ## Provenance / Coverage Notes
@@ -30,29 +30,28 @@
 
 ## Alias Review Highlights
 
-- `same_normalized_name` — `Sly Fox` / sail `34142` → suggested canonical `Sly Fox`
-- `same_normalized_name` — `Sly Fox` / sail `99` → suggested canonical `Sly Fox`
-- `same_normalized_name` — `Awesome` / sail `203` → suggested canonical `Awesome`
-- `same_normalized_name` — `Awesome` / sail `293` → suggested canonical `Awesome`
+- `same_normalized_name` — `Rumble Fish` / sail `31991` → suggested canonical `Rumble Fish`
+- `same_normalized_name` — `Rumble Fish` / sail `999` → suggested canonical `Rumble Fish`
+- `same_normalized_name` — `Shenanagans` / sail `136` → suggested canonical `Shenanagans`
+- `same_normalized_name` — `Shenanagans` / sail `425` → suggested canonical `Shenanagans`
 - `same_normalized_name` — `Sea Fever` / sail `366` → suggested canonical `Sea Fever`
 - `same_normalized_name` — `Sea Fever` / sail `4514` → suggested canonical `Sea Fever`
 - `same_normalized_name` — `Sea Fever` / sail `?????` → suggested canonical `Sea Fever`
 - `same_normalized_name` — `Ping` / sail `415` → suggested canonical `Ping`
 - `same_normalized_name` — `Ping` / sail `754` → suggested canonical `Ping`
 - `same_normalized_name` — `Ping` / sail `XXX` → suggested canonical `Ping`
-- `same_normalized_name` — `Shenanagans` / sail `136` → suggested canonical `Shenanagans`
-- `same_normalized_name` — `Shenanagans` / sail `425` → suggested canonical `Shenanagans`
+- `same_normalized_name` — `Tsunami` / sail `14` → suggested canonical `Tsunami`
+- `same_normalized_name` — `Tsunami` / sail `428` → suggested canonical `Tsunami`
 
 ## Class Cleanup Highlights
 
 - Rating-band style raw classes: 5
-- Design-style raw classes: 89
+- Design-style raw classes: 90
 
 ## Event Review Highlights
 
 - variant_noise_in_title: 24
-- no_races_or_standings: 7
-- event_has_no_results: 6
+- no_races_or_standings: 1
 
 ## Special Event Suggestions
 

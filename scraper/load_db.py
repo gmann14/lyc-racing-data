@@ -19,10 +19,50 @@ DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 PARSED_DIR = PROJECT_ROOT / "scraper" / "parsed"
 
 MANUAL_BOAT_RULES = {
+    "awesome": {
+        "canonical_name": "Awesome",
+        "canonical_sail_number": "203",
+        "canonical_class": "Kirby 25",
+    },
+    "elida": {
+        "canonical_name": "Elida",
+        "canonical_sail_number": "7",
+        "canonical_class": "IOD",
+    },
+    "kc15": {
+        "canonical_name": "KC-15",
+        "canonical_sail_number": "KC-15",
+        "canonical_class": "Etchells",
+    },
+    "mightymo": {
+        "canonical_name": "Mighty Mo",
+        "canonical_sail_number": "1",
+        "canonical_class": "IOD",
+    },
     "poohsticks": {
         "canonical_name": "Poohsticks",
         "canonical_sail_number": "8",
         "canonical_class": "J/92",
+    },
+    "satisfaction": {
+        "canonical_name": "Satisfaction",
+        "canonical_sail_number": "63",
+        "canonical_class": "J/29",
+    },
+    "slyfox": {
+        "canonical_name": "Sly Fox",
+        "canonical_sail_number": "34142",
+        "canonical_class": "Chaser 29 Mod.",
+    },
+    "squall": {
+        "canonical_name": "Squall",
+        "canonical_sail_number": "3",
+        "canonical_class": "IOD",
+    },
+    "paradigmshift": {
+        "canonical_name": "Paradigm Shift",
+        "canonical_sail_number": "117",
+        "canonical_class": "J/29 O/B",
     },
     "mojo": {
         "canonical_name": "Mojo",
@@ -39,6 +79,20 @@ MANUAL_BOAT_RULES = {
         "canonical_sail_number": "571",
         "canonical_class": "Sonar",
     },
+    "zephyr": {
+        "canonical_name": "Zephyr",
+        "canonical_sail_number": "2",
+        "canonical_class": "IOD",
+    },
+}
+
+MANUAL_BOAT_NAME_ALIASES = {
+    "awsome": "Awesome",
+    "isleville": "Isleview",
+    "jaegar": "Jaeger",
+    "paridigmshift": "Paradigm Shift",
+    "shenaigans": "Shenanagans",
+    "shenanigans": "Shenanagans",
 }
 
 SCHEMA_SQL = """
@@ -282,6 +336,17 @@ def _normalize_boat_class(raw_class: str | None) -> str | None:
     return text
 
 
+def _canonicalize_boat_name(name: str | None) -> str:
+    cleaned = _collapse_whitespace(name)
+    alias = MANUAL_BOAT_NAME_ALIASES.get(_normalize_boat_name_key(cleaned))
+    return alias or cleaned
+
+
+def _is_synthetic_boat_name(name: str | None) -> bool:
+    cleaned = _collapse_whitespace(name)
+    return bool(re.fullmatch(r"(Sail|Bow)\s+\S+", cleaned, flags=re.IGNORECASE))
+
+
 def _manual_boat_rule(name: str | None) -> dict | None:
     key = _normalize_boat_name_key(name)
     return MANUAL_BOAT_RULES.get(key)
@@ -499,7 +564,7 @@ class DatabaseLoader:
     def _get_or_create_boat(self, name: str, boat_class: str | None,
                              sail_number: str | None, club: str | None) -> int:
         """Get or create a boat record."""
-        normalized_name = _collapse_whitespace(name)
+        normalized_name = _canonicalize_boat_name(name)
         normalized_name_key = _normalize_boat_name_key(normalized_name)
         normalized_sail = _normalize_sail_number(sail_number)
         normalized_class = _normalize_boat_class(boat_class)
@@ -617,7 +682,7 @@ class DatabaseLoader:
 
         grouped: dict[str, list[tuple]] = defaultdict(list)
         for row in boat_rows:
-            grouped[_normalize_boat_name_key(row[1])].append(row)
+            grouped[_normalize_boat_name_key(_canonicalize_boat_name(row[1]))].append(row)
 
         merged_boats = 0
         normalized_boats = 0
@@ -740,7 +805,7 @@ class DatabaseLoader:
             "SELECT id, name, class, sail_number, club FROM boats"
         ).fetchall()
         for boat_id, name, raw_class, sail_number, club in remaining_boats:
-            clean_name = _collapse_whitespace(name)
+            clean_name = _canonicalize_boat_name(name)
             clean_class = _normalize_boat_class(raw_class)
             clean_sail = _normalize_sail_number(sail_number)
             clean_club = _collapse_whitespace(club) or "LYC"
@@ -754,6 +819,42 @@ class DatabaseLoader:
                     "UPDATE boats SET class = ?, club = ? WHERE id = ?",
                     (clean_class, clean_club, boat_id),
                 )
+
+        synthetic_rows = self.conn.execute(
+            "SELECT id, name, class, sail_number FROM boats WHERE name LIKE 'Sail %' OR name LIKE 'Bow %'"
+        ).fetchall()
+        for synthetic_id, synthetic_name, synthetic_class, synthetic_sail in synthetic_rows:
+            clean_sail = _normalize_sail_number(synthetic_sail)
+            if not clean_sail or _is_placeholder_sail_number(clean_sail):
+                continue
+            candidates = self.conn.execute(
+                """
+                SELECT id, name, class
+                FROM boats
+                WHERE id != ?
+                  AND sail_number = ?
+                  AND name NOT LIKE 'Sail %'
+                  AND name NOT LIKE 'Bow %'
+                """,
+                (synthetic_id, clean_sail),
+            ).fetchall()
+            if len(candidates) != 1:
+                continue
+            canonical_id, _, canonical_class = candidates[0]
+            normalized_synthetic_class = _normalize_boat_class(synthetic_class)
+            normalized_canonical_class = _normalize_boat_class(canonical_class)
+            if (
+                normalized_synthetic_class
+                and normalized_canonical_class
+                and normalized_synthetic_class != normalized_canonical_class
+            ):
+                continue
+            self.conn.execute(
+                "UPDATE participants SET boat_id = ? WHERE boat_id = ?",
+                (canonical_id, synthetic_id),
+            )
+            self.conn.execute("DELETE FROM boats WHERE id = ?", (synthetic_id,))
+            merged_boats += 1
 
         participant_rows = self.conn.execute(
             "SELECT id, display_name, participant_type FROM participants WHERE participant_type = 'helm'"
@@ -844,8 +945,11 @@ class DatabaseLoader:
                        summary: dict, participant_type: str):
         """Load a summary section into the database."""
         scope = summary.get("scope", "overall")
+        meta = summary.get("metadata", {})
+        sailed_value = meta.get("sailed")
+        sailed_count = _safe_int(str(sailed_value)) if sailed_value is not None else None
 
-        for row in summary.get("rows", []):
+        for row_index, row in enumerate(summary.get("rows", []), start=1):
             display_name = row.get("boat", "")
             if not display_name:
                 continue
@@ -859,10 +963,15 @@ class DatabaseLoader:
                 row.get("boat_class"),
             )
 
-            rank = _parse_rank(row.get("rank"))
             total = _safe_float(row.get("total"))
             nett = _safe_float(row.get("nett"))
+            rank = _parse_rank(row.get("rank"))
+            if rank is None and ((sailed_count or 0) > 0 or total is not None or nett is not None):
+                rank = row_index
             phrf = _safe_int(row.get("phrf_rating"))
+
+            if rank is None:
+                continue
 
             try:
                 self.conn.execute(

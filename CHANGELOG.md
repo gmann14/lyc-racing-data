@@ -13,8 +13,19 @@ This file tracks changes to archive logic that materially affect published stats
 ### Entity cleanup
 
 - Added explicit reviewed boat mappings for `Poohsticks` → sail `8`, `Mojo` → sail `606`, `Topaz` → sail `M55`, and `Echo` → sail `571`.
+- Added additional high-confidence canonical boat mappings for stable club boats and one-design sail-prefix variants such as `Sly Fox`, `Awesome`, `Squall`, `Elida`, `Mighty Mo`, `Zephyr`, `Satisfaction`, `Paradigm Shift`, and `KC-15`.
+- Added typo/name-alias cleanup for cases such as `Awsome`, `Paridigm Shift`, `Isleville`, `Jaegar`, and `Shenaigans`.
+- Added reconciliation for synthetic sail-only boat names like `Sail 571` when there is a single clear same-sail canonical boat.
 - Stopped treating sail number `999` as automatically invalid.
 - Added automatic cleanup for obvious event-title artifacts such as repeated whitespace and stray `??` / `##`.
+- Reduced boat review noise by aligning loader and audit treatment of placeholder sail numbers.
+
+### Parser and loader fixes
+
+- Broadened Sailwave header parsing to handle older/classless exports using headers such as `YachtName`, `Model`, and bow-number style tables.
+- Added fallback participant names for summary/race rows that only expose sail number or bow number.
+- Fixed summary-only standings loading for pages that omit explicit rank values but still include sailed-series totals.
+- Rebuilt the database and exports after those parser/loader fixes, recovering hundreds of missing standings/results from previously under-loaded pages.
 
 ### Public site
 

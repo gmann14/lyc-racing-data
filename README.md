@@ -10,9 +10,9 @@
 |--------|-------|
 | Seasons | 27 |
 | Events | 735 |
-| Race results | 10,977 |
-| Boats | 317 |
-| Participants | 908 |
+| Race results | 11,469 |
+| Boats | 318 |
+| Participants | 831 |
 
 ## Architecture
 
@@ -46,7 +46,7 @@ SQLite database (`lyc_racing.db`) with tables including `seasons`, `events`, `so
 
 - **Next.js 16** with static export (`output: "export"`)
 - **Tailwind CSS v4** with custom nautical theme
-- **6 pages**: Home, Seasons, Boats, Leaderboards, Trophies, 404
+- **7 pages**: Home, Seasons, Boats, Leaderboards, Trophies, Methodology, 404
 - **Client-side detail panels** via hash-based URLs (e.g. `/boats/#2`, `/seasons/#2025`)
 - **basePath**: `/lyc-racing-data` for GitHub Pages hosting
 
@@ -68,7 +68,7 @@ pip install -r requirements.txt
 ### Run tests
 
 ```sh
-# Python (176 tests)
+# Python (203 tests)
 .venv/bin/python -m pytest tests/ -q
 
 # TypeScript type check
@@ -116,11 +116,12 @@ npm run build  # outputs to web/out/
 |-----------|-------|----------|
 | `test_scrape_remote.py` | 31 | HTML mirroring, URL resolution |
 | `test_classify_sources.py` | 33 | Format detection, edge cases |
-| `test_parse_sailwave.py` | 26 | Sailwave HTML parsing (2007-2025) |
+| `test_parse_sailwave.py` | 38 | Sailwave HTML parsing (2007-2025) |
 | `test_parse_legacy.py` | 30 | WinRegatta HTML parsing (1999-2008) |
-| `test_load_db.py` | 29 | DB loading, deduplication, stats |
-| `test_export_json.py` | 13 | JSON export integrity |
-| **Total** | **176** | |
+| `test_load_db.py` | 49 | DB loading, reconciliation, stats |
+| `test_export_json.py` | 15 | JSON export integrity |
+| `test_audit_data_quality.py` | 7 | Review export and audit integrity |
+| **Total** | **203** | |
 
 ## Milestones
 

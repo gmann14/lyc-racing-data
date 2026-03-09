@@ -9,6 +9,7 @@ from pathlib import Path
 from scraper.load_db import (
     DatabaseLoader,
     _collapse_whitespace,
+    _canonicalize_boat_name,
     _clean_event_name,
     _slugify,
     _classify_event_type,
@@ -109,6 +110,10 @@ class TestHelpers:
     def test_normalize_boat_class(self):
         assert _normalize_boat_class("J29") == "J/29"
         assert _normalize_boat_class("A3/15") == "A3/15"
+
+    def test_canonicalize_boat_name_alias(self):
+        assert _canonicalize_boat_name("Awsome") == "Awesome"
+        assert _canonicalize_boat_name("Paridigm Shift") == "Paradigm Shift"
 
     def test_extract_event_name_h1_h2(self):
         page = {"h1": "LYC Handicap", "h2": "June Thursday Night Series", "title": ""}
@@ -251,6 +256,75 @@ class TestDatabaseLoaderUnit:
         assert boats[0][0] == "Sly Fox"
         assert boats[0][1] == "34142"
         assert stats["merged_boats"] >= 0
+        loader.close()
+
+    def test_load_summary_assigns_rank_from_row_order_when_sailed(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+        loader.conn.execute("INSERT INTO seasons (year) VALUES (2024)")
+        event_id = loader.conn.execute(
+            "INSERT INTO events (year, name, canonical_name, slug, event_type, source_format) VALUES (2024, 'Test', 'Test', 'test', 'trophy', 'sailwave')"
+        ).lastrowid
+        source_page_id = loader.conn.execute(
+            "INSERT INTO source_pages (event_id, year, path, source_kind, page_role) VALUES (?, 2024, 'test.htm', 'local-html', 'canonical')",
+            (event_id,),
+        ).lastrowid
+
+        summary = {
+            "scope": "overall",
+            "metadata": {"sailed": 3, "entries": 2},
+            "rows": [
+                {
+                    "rank": "",
+                    "boat": "Boat A",
+                    "boat_class": "J29",
+                    "sail_number": "1",
+                    "club": "LYC",
+                    "total": "5",
+                    "nett": "4",
+                },
+                {
+                    "rank": None,
+                    "boat": "Boat B",
+                    "boat_class": "J29",
+                    "sail_number": "2",
+                    "club": "LYC",
+                    "total": "8",
+                    "nett": "6",
+                },
+            ],
+        }
+
+        loader._load_summary(event_id, source_page_id, summary, "boat")
+        rows = loader.conn.execute(
+            "SELECT rank FROM series_standings WHERE event_id = ? ORDER BY rank",
+            (event_id,),
+        ).fetchall()
+        assert [row[0] for row in rows] == [1, 2]
+        loader.close()
+
+    def test_reconcile_merges_synthetic_sail_name_with_single_clear_match(self, tmp_path):
+        db_path = tmp_path / "test.db"
+        loader = DatabaseLoader(db_path)
+        loader.create_schema()
+
+        real_id = loader._get_or_create_boat("Echo", "Sonar", "571", "LYC")
+        synthetic_id = loader._get_or_create_boat("Sail 571", None, "571", "LYC")
+        participant_id = loader._get_or_create_participant("Sail 571", "571", "LYC", "boat", None)
+
+        loader.conn.execute("UPDATE participants SET boat_id = ? WHERE id = ?", (synthetic_id, participant_id))
+        stats = loader.reconcile_entities()
+
+        boats = loader.conn.execute("SELECT id, name, sail_number FROM boats ORDER BY id").fetchall()
+        assert (real_id, "Echo", "571") in boats
+        assert all(row[0] != synthetic_id for row in boats)
+        participant_boat = loader.conn.execute(
+            "SELECT boat_id FROM participants WHERE id = ?",
+            (participant_id,),
+        ).fetchone()[0]
+        assert participant_boat == real_id
+        assert stats["merged_boats"] >= 1
         loader.close()
 
     def test_reconcile_missing_sail_only_merges_with_single_clear_match(self, tmp_path):

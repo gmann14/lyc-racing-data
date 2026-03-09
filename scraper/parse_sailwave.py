@@ -149,6 +149,21 @@ def _clean_text(cell: Tag) -> str:
     return cell.get_text(strip=True).replace("\xa0", "").strip()
 
 
+def _fallback_participant_name(
+    participant_name: str | None,
+    sail_number: str | None,
+    bow_number: str | None,
+) -> str | None:
+    """Provide a stable display name when a table lacks a boat/helm column."""
+    if participant_name:
+        return participant_name
+    if sail_number:
+        return f"Sail {sail_number}"
+    if bow_number:
+        return f"Bow {bow_number}"
+    return None
+
+
 def _detect_participant_type(headers: list[str]) -> str:
     """Detect whether this table uses boat names or helm names."""
     for h in headers:
@@ -254,14 +269,16 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
             header_map["fleet"] = i
         elif h_lower in ("division", "div"):
             header_map["division"] = i
-        elif h_lower in ("boat", "yacht"):
+        elif h_lower in ("boat", "yacht", "yachtname", "name"):
             header_map["boat"] = i
         elif "helm" in h_lower:
             header_map["boat"] = i  # treat helm as boat column
-        elif h_lower in ("class",):
+        elif h_lower in ("class", "model", "type"):
             header_map["class"] = i
-        elif h_lower in ("sailno", "sail number", "sail no"):
+        elif h_lower in ("sailno", "sail number", "sail no", "sail #", "sail#"):
             header_map["sail_number"] = i
+        elif "bow" in h_lower:
+            header_map["bow_number"] = i
         elif h_lower in ("club",):
             header_map["club"] = i
         elif "phrf" in h_lower or "rating" in h_lower or "handicap" in h_lower:
@@ -296,6 +313,7 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
             row.boat_class = _clean_text(cells[header_map["class"]])
         if "sail_number" in header_map:
             row.sail_number = _clean_text(cells[header_map["sail_number"]])
+        bow_number = _clean_text(cells[header_map["bow_number"]]) if "bow_number" in header_map else None
         if "club" in header_map:
             row.club = _clean_text(cells[header_map["club"]])
         if "phrf" in header_map:
@@ -304,6 +322,8 @@ def _parse_summary_table(table: Tag, scope: str, scope_title: str | None,
             row.total = _clean_text(cells[header_map["total"]])
         if "nett" in header_map:
             row.nett = _clean_text(cells[header_map["nett"]])
+
+        row.boat = _fallback_participant_name(row.boat, row.sail_number, bow_number)
 
         # Parse race score columns
         for rc in race_columns:
@@ -356,14 +376,16 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
             header_map["fleet"] = i
         elif h_lower in ("division", "div"):
             header_map["division"] = i
-        elif h_lower in ("boat", "yacht"):
+        elif h_lower in ("boat", "yacht", "yachtname", "name"):
             header_map["boat"] = i
         elif "helm" in h_lower:
             header_map["boat"] = i
-        elif h_lower in ("class",):
+        elif h_lower in ("class", "model", "type"):
             header_map["class"] = i
-        elif h_lower in ("sailno", "sail number", "sail no"):
+        elif h_lower in ("sailno", "sail number", "sail no", "sail #", "sail#"):
             header_map["sail_number"] = i
+        elif "bow" in h_lower:
+            header_map["bow_number"] = i
         elif h_lower in ("club",):
             header_map["club"] = i
         elif "phrf" in h_lower or "rating" in h_lower or "handicap" in h_lower:
@@ -404,6 +426,7 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
             row.boat_class = _clean_text(cells[header_map["class"]])
         if "sail_number" in header_map:
             row.sail_number = _clean_text(cells[header_map["sail_number"]])
+        bow_number = _clean_text(cells[header_map["bow_number"]]) if "bow_number" in header_map else None
         if "club" in header_map:
             row.club = _clean_text(cells[header_map["club"]])
         if "phrf" in header_map:
@@ -426,6 +449,8 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
                 if code in points_text.upper():
                     row.status = code
                     break
+
+        row.boat = _fallback_participant_name(row.boat, row.sail_number, bow_number)
 
         detail.rows.append(row)
 

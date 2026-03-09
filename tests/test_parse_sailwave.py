@@ -9,6 +9,7 @@ from scraper.parse_sailwave import (
     _parse_score_text,
     _clean_text,
     _detect_participant_type,
+    _fallback_participant_name,
     _normalize_scope,
     _parse_caption_metadata,
     _parse_summary_table,
@@ -81,6 +82,17 @@ class TestDetectParticipantType:
 
     def test_no_helm(self):
         assert _detect_participant_type(["Rank", "Fleet", "Division"]) == "boat"
+
+
+class TestFallbackParticipantName:
+    def test_prefers_explicit_name(self):
+        assert _fallback_participant_name("Poohsticks", "8", "12") == "Poohsticks"
+
+    def test_uses_sail_number_when_name_missing(self):
+        assert _fallback_participant_name(None, "701", None) == "Sail 701"
+
+    def test_uses_bow_number_when_name_and_sail_missing(self):
+        assert _fallback_participant_name(None, None, "12") == "Bow 12"
 
 
 class TestNormalizeScope:
@@ -289,6 +301,35 @@ class TestParseSummaryTable:
         assert section.metadata["sailed"] == 4
         assert section.metadata["entries"] == 3
 
+    def test_parse_summary_with_yachtname_and_sail_only(self):
+        html = """
+        <table class="summarytable">
+          <tr class="titlerow">
+            <th>Rank</th>
+            <th>YachtName</th>
+            <th>Model</th>
+            <th>SailNo</th>
+            <th>Total</th>
+            <th>Nett</th>
+          </tr>
+          <tr class="summaryrow">
+            <td>1st</td>
+            <td></td>
+            <td>Martin 16</td>
+            <td>132</td>
+            <td>10</td>
+            <td>8</td>
+          </tr>
+        </table>
+        """
+        soup = BeautifulSoup(html, "lxml")
+        table = soup.find("table")
+        section = _parse_summary_table(table, "overall", "Overall", None)
+
+        assert len(section.rows) == 1
+        assert section.rows[0].boat == "Sail 132"
+        assert section.rows[0].boat_class == "Martin 16"
+
 
 class TestParseRaceTable:
     def test_parse_race(self):
@@ -316,6 +357,33 @@ class TestParseRaceTable:
         row2 = detail.rows[1]
         assert row2.boat == "Second Chance"
         assert "C&C" in row2.boat_class or "C&C" in row2.boat_class  # HTML entity decoded
+
+    def test_parse_race_table_with_yachtname_header(self):
+        html = """
+        <table class="racetable">
+          <tr class="titlerow">
+            <th>Rank</th>
+            <th>YachtName</th>
+            <th>Model</th>
+            <th>SailNo</th>
+            <th>Points</th>
+          </tr>
+          <tr class="racerow">
+            <td>1</td>
+            <td>Rumble Fish</td>
+            <td>J29</td>
+            <td>31991</td>
+            <td>1.0</td>
+          </tr>
+        </table>
+        """
+        soup = BeautifulSoup(html, "lxml")
+        table = soup.find("table")
+        detail = _parse_race_table(table, "r1", None)
+
+        assert len(detail.rows) == 1
+        assert detail.rows[0].boat == "Rumble Fish"
+        assert detail.rows[0].boat_class == "J29"
 
 
 class TestParseSailwaveFileIntegration:
@@ -381,6 +449,24 @@ class TestParseSailwaveFileIntegration:
         # Should have helm names, not boat names
         first_summary = page.summaries[0]
         assert len(first_summary.rows) > 0
+
+    def test_real_sonar_na_2014_summary_only_rows_have_display_names(self):
+        path = self._get_file("racing2014_2025/racing2014/2014SonarNA.htm")
+        if not path.exists():
+            pytest.skip("Local file not available")
+        page = parse_sailwave_file(path)
+
+        assert len(page.summaries) > 0
+        assert any(row.boat for summary in page.summaries for row in summary.rows)
+
+    def test_real_mobility_challenge_gold_2024_rows_have_display_names(self):
+        path = self._get_file("racing2014_2025/racing2024/MC_Gold.htm")
+        if not path.exists():
+            pytest.skip("Local file not available")
+        page = parse_sailwave_file(path)
+
+        assert len(page.summaries) > 0
+        assert all(row.boat for row in page.summaries[0].rows)
 
     def test_scores_have_race_keys(self):
         """All scores should have race_key set."""

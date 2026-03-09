@@ -67,7 +67,7 @@ def _is_placeholder_sail_number(sail_number: str | None) -> bool:
         return True
     if re.fullmatch(r"[?X]+", cleaned):
         return True
-    if cleaned in {"0", "000", "999", "9999", "1111111"}:
+    if cleaned in {"0", "000", "9999", "1111111"}:
         return True
     if "?" in cleaned or "X" in cleaned:
         return True
@@ -390,12 +390,16 @@ def _build_event_review_rows(conn: sqlite3.Connection) -> list[dict]:
                e.source_file,
                COUNT(DISTINCT r.id) AS races,
                COUNT(DISTINCT rr.id) AS result_rows,
+               COUNT(DISTINCT ss.id) AS standings,
                'event_has_no_results' AS issue
         FROM events e
         LEFT JOIN races r ON r.event_id = e.id
         LEFT JOIN results rr ON rr.race_id = r.id
+        LEFT JOIN series_standings ss ON ss.event_id = e.id
         GROUP BY e.id
-        HAVING COUNT(DISTINCT r.id) > 0 AND COUNT(DISTINCT rr.id) = 0
+        HAVING COUNT(DISTINCT r.id) > 0
+           AND COUNT(DISTINCT rr.id) = 0
+           AND COUNT(DISTINCT ss.id) = 0
     """
 
     rows = []
