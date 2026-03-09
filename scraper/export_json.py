@@ -40,20 +40,43 @@ def _collapse_whitespace(text: str | None) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _event_name_group_key(name: str) -> str:
+    cleaned = _collapse_whitespace(name).lower()
+    cleaned = cleaned.replace("&", "and")
+    cleaned = re.sub(r"['\"`|]", "", cleaned)
+    cleaned = re.sub(r"[^a-z0-9]+", "", cleaned)
+    return cleaned
+
+
 def _looks_like_variant_name(name: str) -> bool:
     lowered = _collapse_whitespace(name).lower()
     return bool(
         re.search(r"\boverall\b|\bsummary\b", lowered)
         or re.search(r"\ba\s*&\s*b\b", lowered)
         or re.search(r"\ba,b\b", lowered)
+        or re.search(r"\ba&b\b", lowered)
         or re.search(r"\ball\b", lowered)
     )
 
 
 def _canonical_source_stem(source_file: str | None) -> str:
     stem = Path(source_file or "").stem.lower().replace("-", "_")
-    stem = re.sub(r"_(overall|summary|all|ab)$", "", stem)
-    stem = re.sub(r"(overall|summary|all|ab)$", "", stem)
+    suffixes = ["overall", "summary", "all", "ab", "seriesab", "series"]
+    while True:
+        updated = stem
+        for suffix in suffixes:
+            if updated.endswith(f"_{suffix}"):
+                updated = updated[: -len(f"_{suffix}")]
+                break
+            if suffix in {"overall", "summary", "seriesab", "series"} and updated.endswith(suffix):
+                updated = updated[: -len(suffix)]
+                break
+            if updated == suffix:
+                updated = ""
+                break
+        if updated == stem:
+            break
+        stem = updated.rstrip("_")
     return stem
 
 
@@ -62,10 +85,53 @@ def _canonical_event_name(name: str) -> str:
     cleaned = re.sub(r"\s+\boverall\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+\bsummary\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+A\s*&\s*B(?:\s*&\s*S)?\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+A&?B(?:&S)?\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+A,B(?:\s*&\s*S)?\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s+ALL\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s{2,}", " ", cleaned)
     return cleaned.strip(" -")
+
+
+def _logical_race_token(race_number: int | None, race_key: str | None, date: str | None = None) -> tuple:
+    if race_number is not None:
+        return ("num", race_number)
+    cleaned_key = _collapse_whitespace(race_key).lower()
+    match = re.search(r"(\d+)", cleaned_key)
+    if match:
+        return ("key", int(match.group(1)))
+    if date:
+        return ("date", date)
+    return ("key", cleaned_key or "unknown")
+
+
+def _logical_race_count(conn: sqlite3.Connection, event_ids: list[int]) -> int:
+    if not event_ids:
+        return 0
+    placeholders = ",".join("?" for _ in event_ids)
+    rows = conn.execute(
+        f"SELECT race_number, race_key, date FROM races WHERE event_id IN ({placeholders})",
+        tuple(event_ids),
+    ).fetchall()
+    return len(
+        {
+            _logical_race_token(row["race_number"], row["race_key"], row["date"])
+            for row in rows
+        }
+    )
+
+
+def _display_race_count(conn: sqlite3.Connection, event_ids: list[int], event_type: str | None) -> int:
+    if not event_ids:
+        return 0
+    placeholders = ",".join("?" for _ in event_ids)
+    if event_type == "tns":
+        date_rows = conn.execute(
+            f"SELECT DISTINCT date FROM races WHERE event_id IN ({placeholders}) AND date IS NOT NULL AND date != ''",
+            tuple(event_ids),
+        ).fetchall()
+        if date_rows:
+            return len(date_rows)
+    return _logical_race_count(conn, event_ids)
 
 
 def _event_rows(conn: sqlite3.Connection) -> list[dict]:
@@ -94,9 +160,13 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
         source_root = _canonical_source_stem(event["source_file"])
         original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
         is_variant = source_root != original_stem or _looks_like_variant_name(event["name"])
+        name_root = _event_name_group_key(_canonical_event_name(event["name"]))
         event["source_root"] = source_root
+        event["name_root"] = name_root
         event["is_variant"] = is_variant
-        if source_root:
+        if event["event_type"] == "tns" and event["month"] and source_root:
+            grouped[(event["year"], f"tns:{event['month']}:{source_root}")].append(event)
+        elif source_root:
             grouped[(event["year"], source_root)].append(event)
         else:
             singletons.append(event)
@@ -366,6 +436,7 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
             f"SELECT COUNT(DISTINCT id) AS n FROM races WHERE event_id IN ({placeholders})",
             tuple(group_ids),
         ).fetchone()["n"]
+        merged_display_races = _display_race_count(conn, group_ids, event["event_type"])
         merged_entries = conn.execute(
             f"""
             SELECT COUNT(DISTINCT res.participant_id) AS n
@@ -381,7 +452,7 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
                 **event,
                 "name": meta["canonical_name"],
                 "slug": event["slug"],
-                "races_sailed": merged_races or event["races_sailed"],
+                "races_sailed": merged_display_races or merged_races or event["races_sailed"],
                 "entries": merged_entries or event["entries"],
                 "canonical_event_id": meta["canonical_event_id"],
                 "is_variant_view": False,
@@ -427,10 +498,11 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
 
     # Backfill races_sailed/entries from actual data when NULL
     if event["races_sailed"] is None or len(group_ids) > 1:
-        event["races_sailed"] = conn.execute(
+        raw_race_count = conn.execute(
             f"SELECT COUNT(DISTINCT id) as n FROM races WHERE event_id IN ({group_placeholders})",
             tuple(group_ids),
         ).fetchone()["n"]
+        event["races_sailed"] = _display_race_count(conn, group_ids, event["event_type"]) or raw_race_count
     if event["entries"] is None or len(group_ids) > 1:
         event["entries"] = conn.execute("""
             SELECT COUNT(DISTINCT res.participant_id) as n

@@ -20,14 +20,14 @@ export default function MethodologyPage() {
 
       <div className="grid gap-4 md:grid-cols-3 mb-8">
         <MetricCard
-          label="Canonical events"
+          label="Unique events"
           value={overview.canonical_event_count.toLocaleString()}
-          note="Duplicate overall/division views collapsed into one logical event."
+          note="Duplicate overall/division result pages are combined into one event record."
         />
         <MetricCard
           label="Core handicap events"
           value={overview.handicap_canonical_event_count.toLocaleString()}
-          note="Canonical events remaining after special-event exclusions."
+          note="Core event records remaining after special-event exclusions."
         />
         <MetricCard
           label="Excluded special events"

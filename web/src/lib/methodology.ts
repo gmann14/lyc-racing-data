@@ -31,11 +31,11 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
     title: "Archive Scope",
     items: [
       {
-        term: "Canonical Event",
-        shortLabel: "canonical event",
-        summary: "One logical event after merging duplicate source views.",
+        term: "Duplicate Source Pages",
+        shortLabel: "combined results",
+        summary: "Related result pages are combined so one series is shown once.",
         detail:
-          "Some Sailwave exports exist as separate pages for overall, division, or combined views. The archive groups those pages under one canonical event so trophy histories, counts, and leaderboards are not duplicated.",
+          "Some result series were published as separate overall, division, or alternate pages. The archive combines those related pages so trophy histories, counts, and leaderboards are not duplicated.",
       },
       {
         term: "Special Event",
@@ -49,7 +49,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "handicap stats",
         summary: "The default leaderboard/stat set for regular LYC handicap racing.",
         detail:
-          "These stats exclude flagged special events and use canonical event grouping. This keeps recurring club-series comparisons from being distorted by one-off regattas or duplicate views.",
+          "These stats exclude flagged special events and combine duplicate result pages automatically. This keeps recurring club-series comparisons from being distorted by one-off regattas or duplicate views.",
       },
     ],
   },
@@ -66,9 +66,9 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       {
         term: "Trophy / Series Wins",
         shortLabel: "trophy wins",
-        summary: "First-place series standings, deduplicated by canonical event.",
+        summary: "First-place series standings, with duplicate source pages counted once.",
         detail:
-          "A boat gets one trophy win per canonical event where it finished rank 1 in the series standings. Duplicate overall/division variants are collapsed so the same series does not count multiple times.",
+          "A boat gets one trophy win per combined event record where it finished rank 1 in the series standings. Duplicate overall/division pages are collapsed so the same series does not count multiple times.",
       },
       {
         term: "Fleet Size",

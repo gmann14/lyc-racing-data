@@ -142,6 +142,7 @@ class AuditSummary:
     empty_events: int
     provisional_entry_list_events: int
     races_without_results: int
+    tns_validation_rows: int
     manifest_entries: int
     manifest_assets: int
     source_pages_rows: int
@@ -576,6 +577,135 @@ def _build_special_event_review_rows(conn: sqlite3.Connection) -> list[dict]:
     return sorted(review_rows, key=lambda item: (-item["oneoff_ratio"], -item["participants"], item["year"], item["event_name"]))
 
 
+def _normalize_event_name_for_grouping(name: str | None) -> str:
+    cleaned = _collapse_whitespace(name).lower()
+    cleaned = re.sub(r"\boverall\b|\bsummary\b", "", cleaned)
+    cleaned = re.sub(r"\ba\s*&\s*b\b|\ba&b\b|\ba,b\b", "", cleaned)
+    cleaned = re.sub(r"[^a-z0-9]+", "", cleaned)
+    return cleaned
+
+
+def _canonical_source_stem(source_file: str | None) -> str:
+    stem = Path(source_file or "").stem.lower().replace("-", "_")
+    suffixes = ["overall", "summary", "all", "ab", "seriesab", "series"]
+    while True:
+        updated = stem
+        for suffix in suffixes:
+            if updated.endswith(f"_{suffix}"):
+                updated = updated[: -len(f"_{suffix}")]
+                break
+            if suffix in {"overall", "summary", "seriesab", "series"} and updated.endswith(suffix):
+                updated = updated[: -len(suffix)]
+                break
+            if updated == suffix:
+                updated = ""
+                break
+        if updated == stem:
+            break
+        stem = updated.rstrip("_")
+    return stem
+
+
+def _logical_race_token(race_number: int | None, race_key: str | None, date: str | None) -> tuple:
+    if race_number is not None:
+        return ("num", race_number)
+    cleaned_key = _collapse_whitespace(race_key).lower()
+    match = re.search(r"(\d+)", cleaned_key)
+    if match:
+        return ("key", int(match.group(1)))
+    if date:
+        return ("date", date)
+    return ("key", cleaned_key or "unknown")
+
+
+def _build_tns_validation_rows(conn: sqlite3.Connection) -> list[dict]:
+    event_columns = {
+        row["name"]
+        for row in conn.execute("PRAGMA table_info(events)").fetchall()
+    }
+    required_columns = {"id", "year", "name", "event_type", "source_file"}
+    if not required_columns.issubset(event_columns):
+        return []
+
+    month_expr = "month" if "month" in event_columns else "NULL AS month"
+    entries_expr = "entries" if "entries" in event_columns else "NULL AS entries"
+    races_sailed_expr = "races_sailed" if "races_sailed" in event_columns else "NULL AS races_sailed"
+    event_rows = conn.execute(
+        f"""
+        SELECT id, year, name, {month_expr}, {entries_expr}, {races_sailed_expr}, source_file
+        FROM events
+        WHERE event_type = 'tns'
+        ORDER BY year, month, name
+        """
+    ).fetchall()
+
+    grouped: dict[tuple[int, str], list[dict]] = defaultdict(list)
+    for row in event_rows:
+        month = _collapse_whitespace(row["month"]).lower()
+        source_key = _canonical_source_stem(row["source_file"])
+        name_key = _normalize_event_name_for_grouping(row["name"])
+        grouped[(row["year"], f"{month}:{source_key or name_key}")].append(row)
+
+    by_year: dict[int, list[dict]] = defaultdict(list)
+    for (_, _), members in grouped.items():
+        primary = max(members, key=lambda row: ((row["entries"] or 0), -(row["id"] or 0)))
+        by_year[primary["year"]].append(primary)
+
+    expected_months = ["june", "july", "august", "september"]
+    rows: list[dict] = []
+    for year, members in sorted(by_year.items()):
+        month_counts = Counter(_collapse_whitespace(row["month"]).lower() for row in members if row["month"])
+        present_months = [month for month in expected_months if month_counts.get(month)]
+        missing_months = [month for month in expected_months if month not in present_months]
+        extra_months = sorted(month for month in month_counts if month not in expected_months)
+
+        logical_race_total = 0
+        for row in members:
+            race_rows = conn.execute(
+                "SELECT race_number, race_key, date FROM races WHERE event_id = ?",
+                (row["id"],),
+            ).fetchall()
+            dated_rows = {
+                race["date"]
+                for race in race_rows
+                if race["date"]
+            }
+            if dated_rows:
+                logical_race_total += len(dated_rows)
+            else:
+                logical_race_total += len(
+                    {
+                        _logical_race_token(race["race_number"], race["race_key"], race["date"])
+                        for race in race_rows
+                    }
+                ) or (row["races_sailed"] or 0)
+
+        notes: list[str] = []
+        if missing_months:
+            notes.append(f"missing months: {', '.join(missing_months)}")
+        if extra_months:
+            notes.append(f"unexpected months: {', '.join(extra_months)}")
+        if len(members) != 4:
+            notes.append(f"expected 4 monthly series, found {len(members)}")
+        if logical_race_total != 16:
+            notes.append(f"TNS race nights = {logical_race_total} (expected about 16)")
+
+        rows.append(
+            {
+                "year": year,
+                "monthly_series_count": len(members),
+                "months_present": ", ".join(present_months),
+                "missing_months": ", ".join(missing_months),
+                "logical_race_total": logical_race_total,
+                "expected_logical_races": 16,
+                "status": "review" if notes else "ok",
+                "notes": " | ".join(notes),
+            }
+        )
+
+    return rows
+
+
 def _manifest_stats() -> tuple[int, int]:
     if not MANIFEST_PATH.exists():
         return 0, 0
@@ -659,6 +789,7 @@ def _build_summary(conn: sqlite3.Connection, boats: list[dict]) -> AuditSummary:
         """
     ).fetchone()["n"]
     manifest_entries, manifest_assets = _manifest_stats()
+    tns_validation_rows = len(_build_tns_validation_rows(conn))
     suspicious_placeholder_sail_boats = sum(
         1
         for boat in boats
@@ -680,6 +811,7 @@ def _build_summary(conn: sqlite3.Connection, boats: list[dict]) -> AuditSummary:
         empty_events=empty_events,
         provisional_entry_list_events=provisional_entry_list_events,
         races_without_results=races_without_results,
+        tns_validation_rows=tns_validation_rows,
         manifest_entries=manifest_entries,
         manifest_assets=manifest_assets,
         source_pages_rows=source_pages_rows,
@@ -689,7 +821,8 @@ def _build_summary(conn: sqlite3.Connection, boats: list[dict]) -> AuditSummary:
 
 
 def _write_report(summary: AuditSummary, alias_rows: list[dict], class_rows: list[dict],
-                  event_rows: list[dict], race_rows: list[dict], special_event_rows: list[dict]) -> None:
+                  event_rows: list[dict], race_rows: list[dict], special_event_rows: list[dict],
+                  tns_validation_rows: list[dict]) -> None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     report_path = REPORTS_DIR / "data_quality_report.md"
 
@@ -761,6 +894,12 @@ def _write_report(summary: AuditSummary, alias_rows: list[dict], class_rows: lis
 
     lines.extend(
         [
+            "",
+            "## TNS Validation",
+            "",
+            f"- TNS season rows checked: {summary.tns_validation_rows}",
+            f"- TNS rows needing review: {sum(1 for row in tns_validation_rows if row['status'] != 'ok')}",
+            "- Expected baseline: June, July, August, September monthly series, about 16 logical Thursday-night races total.",
             "",
             "## Special Event Suggestions",
             "",
@@ -859,6 +998,7 @@ def generate_audit_outputs(
     event_rows = _build_event_review_rows(conn)
     race_rows = _build_races_without_results_rows(conn)
     special_event_rows = _build_special_event_review_rows(conn)
+    tns_validation_rows = _build_tns_validation_rows(conn)
     summary = _build_summary(conn, boats)
 
     enrichment_dir.mkdir(parents=True, exist_ok=True)
@@ -987,7 +1127,21 @@ def generate_audit_outputs(
         ],
         special_event_rows,
     )
-    _write_report(summary, alias_rows, class_rows, event_rows, race_rows, special_event_rows)
+    _write_csv(
+        reports_dir / "tns_validation.csv",
+        [
+            "year",
+            "monthly_series_count",
+            "months_present",
+            "missing_months",
+            "logical_race_total",
+            "expected_logical_races",
+            "status",
+            "notes",
+        ],
+        tns_validation_rows,
+    )
+    _write_report(summary, alias_rows, class_rows, event_rows, race_rows, special_event_rows, tns_validation_rows)
     conn.close()
 
     return {
@@ -999,6 +1153,7 @@ def generate_audit_outputs(
         "event_review_rows": len(event_rows),
         "special_event_review_rows": len(special_event_rows),
         "races_without_results": len(race_rows),
+        "tns_validation_rows": len(tns_validation_rows),
     }
 
 

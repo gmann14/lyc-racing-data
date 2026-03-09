@@ -1,0 +1,22 @@
+year,monthly_series_count,months_present,missing_months,logical_race_total,expected_logical_races,status,notes
+2003,3,,"june, july, august, september",3,16,review,"missing months: june, july, august, september | expected 4 monthly series, found 3 | TNS race nights = 3 (expected about 16)"
+2006,3,june,"july, august, september",3,16,review,"missing months: july, august, september | expected 4 monthly series, found 3 | TNS race nights = 3 (expected about 16)"
+2007,1,,"june, july, august, september",1,16,review,"missing months: june, july, august, september | expected 4 monthly series, found 1 | TNS race nights = 1 (expected about 16)"
+2008,4,september,"june, july, august",4,16,review,"missing months: june, july, august | TNS race nights = 4 (expected about 16)"
+2009,4,"june, july, august, september",,14,16,review,TNS race nights = 14 (expected about 16)
+2010,4,"june, july, august",september,15,16,review,missing months: september | TNS race nights = 15 (expected about 16)
+2011,4,"june, july, august, september",,15,16,review,TNS race nights = 15 (expected about 16)
+2012,4,"june, july, august, september",,16,16,ok,
+2013,4,"june, july, august, september",,16,16,ok,
+2014,4,"june, july, august, september",,16,16,ok,
+2015,4,"june, july, august, september",,15,16,review,TNS race nights = 15 (expected about 16)
+2016,4,"june, july, august, september",,15,16,review,TNS race nights = 15 (expected about 16)
+2017,4,"june, july, august, september",,10,16,review,TNS race nights = 10 (expected about 16)
+2018,4,"june, july, august, september",,12,16,review,TNS race nights = 12 (expected about 16)
+2019,4,"june, july, august, september",,16,16,ok,
+2020,3,"july, august, september",june,13,16,review,"missing months: june | expected 4 monthly series, found 3 | TNS race nights = 13 (expected about 16)"
+2021,3,"july, august, september",june,12,16,review,"missing months: june | expected 4 monthly series, found 3 | TNS race nights = 12 (expected about 16)"
+2022,4,"june, july, august, september",,14,16,review,TNS race nights = 14 (expected about 16)
+2023,4,"june, july, august, september",,13,16,review,TNS race nights = 13 (expected about 16)
+2024,4,"june, july, august, september",,12,16,review,TNS race nights = 12 (expected about 16)
+2025,4,"june, july, august, september",,14,16,review,TNS race nights = 14 (expected about 16)

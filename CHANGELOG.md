@@ -28,9 +28,11 @@ This file tracks changes to archive logic that materially affect published stats
 - Fixed summary-only standings loading for pages that omit explicit rank values but still include sailed-series totals.
 - Rebuilt the database and exports after those parser/loader fixes, recovering hundreds of missing standings/results from previously under-loaded pages.
 - Reclassified provisional entry-list pages separately from true parser misses, leaving only one event-review row instead of a long list of variant-title noise.
+- Added TNS validation reporting around the June–September monthly-series baseline and switched season-detail TNS counts to race-night counts instead of raw A/B race-table sections.
 
 ### Public site
 
 - Added a methodology/glossary page to explain canonical events, special-event exclusions, and headline leaderboard definitions.
 - Updated home, seasons, and leaderboards pages to surface canonical-event counts and special-event exclusions directly in the UI.
 - Added a structured metric-definition layer in the methodology page so future Thursday/Sunday race-duration stats can declare time basis, participant scope, event scope, and aggregation explicitly.
+- Removed internal archive jargon such as “canonical events” and “merged variants” from the public home/season UI in favor of plain-language explanations.

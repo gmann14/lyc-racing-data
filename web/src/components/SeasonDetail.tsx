@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { useHashParam, useJsonData } from "@/lib/use-data";
 import type { SeasonDetail, EventSummary, EventDetail } from "@/lib/data";
-import InfoTip from "@/components/InfoTip";
 
 const MONTH_ORDER: Record<string, number> = {
   january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
@@ -47,14 +46,9 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
       <div className="px-4 py-3 text-xs text-gray-500 border-b border-border/30 space-y-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium text-navy">{event.name}</span>
-          {event.variant_sources.length > 1 && (
-            <span className="rounded bg-blue-light px-2 py-0.5 text-navy-light">
-              merged {event.variant_sources.length} source views
-            </span>
-          )}
           {event.exclude_from_handicap_stats && (
             <span className="rounded bg-red-50 px-2 py-0.5 text-red-700">
-              excluded from handicap stats
+              special event
             </span>
           )}
         </div>
@@ -192,7 +186,7 @@ function EventRow({
       <tr
         className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
       >
-        <td className="py-1.5">
+        <td className="py-1.5 pr-4">
           <button
             type="button"
             onClick={() => onToggle(event.id)}
@@ -210,11 +204,6 @@ function EventRow({
                 {event.name}
               </span>
               <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
-                {event.variant_view_count > 0 && (
-                  <span className="rounded bg-blue-light px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-navy-light">
-                    merged variants
-                  </span>
-                )}
                 {event.exclude_from_handicap_stats && (
                   <span className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-red-700">
                     special
@@ -225,11 +214,11 @@ function EventRow({
           </button>
         </td>
         {showMonth && (
-          <td className="py-1.5 text-gray-400 capitalize">
+          <td className="py-1.5 pr-4 text-gray-400 capitalize">
             {event.month ?? "\u2014"}
           </td>
         )}
-        <td className="py-1.5 text-right font-mono">
+        <td className="py-1.5 pr-4 text-right font-mono">
           {event.races_sailed ?? "\u2014"}
         </td>
         <td className="py-1.5 text-right font-mono text-gray-400">
@@ -264,13 +253,13 @@ function EventTable({
   return (
     <div className="mb-4">
       <h3 className="font-bold text-navy mb-2 text-sm">{title}</h3>
-      <table className="w-full text-sm">
+      <table className="w-full table-fixed text-sm">
         <thead>
           <tr className="border-b border-border text-left">
-            <th className="pb-1">Event</th>
-            {showMonth && <th className="pb-1">Month</th>}
-            <th className="pb-1 text-right">Races</th>
-            <th className="pb-1 text-right">Entries</th>
+            <th className="pb-1 pr-4">Event</th>
+            {showMonth && <th className="pb-1 w-24 pr-4">Month</th>}
+            <th className="pb-1 w-20 pr-4 text-right">Races</th>
+            <th className="pb-1 w-20 text-right">Entries</th>
           </tr>
         </thead>
         <tbody>
@@ -340,8 +329,8 @@ export default function SeasonDetailPanel() {
         <div>
           <h2 className="text-2xl font-bold text-navy">{year} Season</h2>
           <p className="text-gray-400 text-sm">
-            {season.events.length} canonical events &middot; {season.boats.length} boats
-            &middot; Click an event to see merged results
+            {season.events.length} events &middot; {season.boats.length} boats
+            &middot; Click an event to view details
           </p>
         </div>
         <a
@@ -360,12 +349,9 @@ export default function SeasonDetailPanel() {
         </div>
         <div>
           <div className="mb-4 rounded-lg border border-border bg-cream/50 p-4 text-xs text-gray-500">
-            <div className="flex items-center gap-1 font-bold text-navy">
-              Season Notes
-              <InfoTip term="canonical event" />
-            </div>
+            <div className="font-bold text-navy">Season Notes</div>
             <p className="mt-2">
-              This season shows canonical events. Duplicate overall or division views are merged into a single event detail.
+              Some results pages are alternate views of the same series. The archive combines them into one event listing here.
             </p>
             {specialEvents.length > 0 && (
               <p className="mt-2">

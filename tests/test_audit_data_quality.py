@@ -172,6 +172,7 @@ class TestGenerateAuditOutputs:
             "event_review_rows": 2,
             "special_event_review_rows": 1,
             "races_without_results": 1,
+            "tns_validation_rows": 0,
         }
 
         boat_aliases = list(csv.DictReader((enrichment_dir / "boat_aliases.csv").open()))
@@ -197,6 +198,7 @@ class TestGenerateAuditOutputs:
         assert "Boats missing sail numbers: 1" in report
         assert "Boats with non-empty placeholder / suspicious sail numbers: 0" in report
         assert "Provisional entry-list events: 0" in report
+        assert "TNS season rows checked: 0" in report
 
     def test_provisional_entry_list_is_not_flagged_as_empty_event(self, tmp_path):
         db_path = tmp_path / "test.db"

@@ -118,6 +118,24 @@ class TestExportIntegration:
         assert data["year"] == 1999
         assert len(data["events"]) > 0
 
+    def test_season_detail_2011_has_four_tns_series(self):
+        path = OUTPUT_DIR / "seasons" / "2011.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        tns_events = [event for event in data["events"] if event["event_type"] == "tns"]
+        assert len(tns_events) == 4
+        assert {event["month"] for event in tns_events} == {"june", "july", "august", "september"}
+
+    def test_season_detail_2024_tns_race_counts_are_logical(self):
+        path = OUTPUT_DIR / "seasons" / "2024.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        tns_events = [event for event in data["events"] if event["event_type"] == "tns"]
+        assert len(tns_events) == 4
+        assert all((event["races_sailed"] or 0) <= 4 for event in tns_events)
+
     def test_boats_json_has_stats(self):
         path = OUTPUT_DIR / "boats.json"
         if not path.exists():

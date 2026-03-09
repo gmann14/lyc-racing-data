@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { getOverview, getLeaderboards } from "@/lib/data";
-import InfoTip from "@/components/InfoTip";
 
 export default function HomePage() {
   const overview = getOverview();
@@ -21,7 +20,7 @@ export default function HomePage() {
           history, fully searchable and browsable.
         </p>
         <p className="mt-3 text-sm text-gray-400 max-w-2xl mx-auto">
-          Public leaderboards use canonical events and exclude{" "}
+          Public leaderboards combine duplicate source pages automatically and exclude{" "}
           {leaderboards.excluded_event_count} flagged special events by default.{" "}
           <Link
             href="/methodology/"
@@ -55,7 +54,6 @@ export default function HomePage() {
             <div className="text-3xl font-bold text-white">{stat.value}</div>
             <div className="text-xs text-white/60 mt-1 uppercase tracking-wider">
               {stat.label}
-              {stat.label === "Core Events" && <InfoTip term="canonical event" className="ml-1 align-middle" />}
             </div>
           </div>
         ))}
