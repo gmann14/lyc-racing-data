@@ -15,16 +15,16 @@
 | Data | Records | Notes |
 |------|---------|-------|
 | Seasons | 27 | 1999–2025 |
-| Events | ~1,500 | After duplicate page merging |
-| Races | 5,612 | 5,068 have dates |
-| Results | ~30,000 | 26,352 with elapsed time, 26,164 with corrected time |
-| PHRF Ratings | 23,600 | Per-result ratings |
-| DNF/DNS/DNC/etc | 2,268 | Status codes on results |
-| Series Standings | 12,392 | Series-level placements |
-| Series Scores | 39,876 | Per-race series scoring |
-| Boats | ~275 | After entity reconciliation |
-| Skippers/Helms | 482 | Linked to participants |
-| Weather | 607 dates | Open-Meteo historical backfill |
+| Events | 751 | 553 canonical after grouping fleet splits |
+| Races | 1,403 | 1,361 have dates |
+| Results | 11,610 | 6,588 with elapsed time, 6,541 with corrected time |
+| PHRF Ratings | 5,904 | Per-result ratings |
+| DNF/DNS/DNC/etc | 568 | Status codes on results |
+| Series Standings | 3,098 | Series-level placements |
+| Series Scores | 9,969 | Per-race series scoring |
+| Boats | 273 | After entity reconciliation (173 with handicap results) |
+| Skippers/Helms | 482 | Linked to 919 participants |
+| Weather | 609 dates | Open-Meteo historical backfill |
 | Boat Ownership | 0 loaded | CSVs exist in enrichment/ but not loaded to DB |
 
 ---

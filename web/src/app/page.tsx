@@ -44,7 +44,7 @@ export default function HomePage() {
             label: "Race Results",
             value: overview.handicap_results.toLocaleString(),
           },
-          { label: "Boats", value: overview.total_boats },
+          { label: "Boats", value: overview.handicap_boat_count ?? overview.total_boats },
         ].map((stat, i) => (
           <div
             key={stat.label}

@@ -9,10 +9,11 @@
 | Metric | Count |
 |--------|-------|
 | Seasons | 27 |
-| Events | 751 |
-| Race results | 11,610 |
-| Boats | 317 |
-| Participants | 964 |
+| Events | 751 (553 canonical after grouping fleet splits) |
+| Races | 1,403 |
+| Race results | 11,610 (4,855 handicap-only after dedup) |
+| Boats | 273 (173 with handicap results) |
+| Participants | 919 |
 
 ## Current status
 
@@ -25,7 +26,7 @@
 
 ```
 HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js static site
-(1999-2025)        (BeautifulSoup)      (DB)        (1,070 files)     (GitHub Pages)
+(1999-2025)        (BeautifulSoup)      (DB)        (~1,100 files)    (GitHub Pages)
 ```
 
 ### Pipeline
@@ -35,9 +36,9 @@ HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js s
 3. **Parse** - Extract structured data from HTML:
    - `scraper/parse_sailwave.py` - Sailwave format (2007-2025, 382 pages)
    - `scraper/parse_legacy.py` - WinRegatta format (1999-2008, 353 pages)
-4. **Load** (`scraper/load_db.py`) - Normalize and load into SQLite
-5. **Reconcile** (`scraper/reconcile_entities.py`) - Apply high-confidence boat / skipper cleanup
-6. **Export** (`scraper/export_json.py`) - Generate static JSON files
+4. **Load** (`scraper/load_db.py`) - Normalize, reconcile entities, and load into SQLite
+5. **Backfill weather** (`scraper/backfill_weather.py`) - Fetch Open-Meteo historical weather for race dates
+6. **Export** (`scraper/export_json.py`) - Generate static JSON files with canonical event grouping
 7. **Frontend** (`web/`) - Next.js 16 static export, deployed to GitHub Pages
 
 ### Source data directories
@@ -47,13 +48,13 @@ HTML sources  -->  Python parsers  -->  SQLite  -->  JSON export  -->  Next.js s
 
 ### Database
 
-SQLite database (`lyc_racing.db`) with tables including `seasons`, `events`, `source_pages`, `races`, `results`, `boats`, `participants`, `skippers`, `series_standings`, and `series_scores`.
+SQLite database (`lyc_racing.db`) with tables including `seasons`, `events`, `source_pages`, `races`, `results`, `boats`, `participants`, `skippers`, `series_standings`, `series_scores`, and `weather`.
 
 ### Web frontend
 
 - **Next.js 16** with static export (`output: "export"`)
 - **Tailwind CSS v4** with custom nautical theme
-- **7 pages**: Home, Seasons, Boats, Leaderboards, Trophies, Methodology, 404
+- **8 pages**: Home, Seasons, Boats, Leaderboards, Trophies, Analysis, Methodology, 404
 - **Client-side detail panels** via hash-based URLs (e.g. `/boats/#2`, `/seasons/#2025`)
 - **basePath**: `/lyc-racing-data` for GitHub Pages hosting
 
@@ -75,7 +76,7 @@ pip install -r requirements.txt
 ### Run tests
 
 ```sh
-# Python (222 tests)
+# Python (330 tests)
 .venv/bin/python -m pytest tests/ -q
 
 # TypeScript type check
@@ -89,11 +90,11 @@ cd web && npx tsc --noEmit
 .venv/bin/python -m scraper.parse_sailwave
 .venv/bin/python -m scraper.parse_legacy
 
-# Load into SQLite
-.venv/bin/python -m scraper.load_db
+# Load into SQLite (--fresh to rebuild from scratch)
+.venv/bin/python -m scraper.load_db --fresh
 
-# Apply high-confidence reconciliation
-.venv/bin/python -m scraper.reconcile_entities
+# Backfill weather data for race dates
+.venv/bin/python -m scraper.backfill_weather
 
 # Export JSON for frontend
 .venv/bin/python -m scraper.export_json
@@ -121,14 +122,18 @@ npm run build  # outputs to web/out/
 
 | Test file | Tests | Coverage |
 |-----------|-------|----------|
-| `test_scrape_remote.py` | 31 | HTML mirroring, URL resolution |
-| `test_classify_sources.py` | 33 | Format detection, edge cases |
-| `test_parse_sailwave.py` | 38 | Sailwave HTML parsing (2007-2025) |
-| `test_parse_legacy.py` | 30 | WinRegatta HTML parsing (1999-2008) |
+| `test_merge_owners.py` | 66 | Owner merge pipeline, matching, dedup |
 | `test_load_db.py` | 57 | DB loading, reconciliation, stats |
+| `test_parse_sailwave.py` | 40 | Sailwave HTML parsing (2007-2025) |
+| `test_scrape_crw.py` | 36 | Chester Race Week scraper |
+| `test_classify_sources.py` | 33 | Format detection, edge cases |
+| `test_scrape_remote.py` | 31 | HTML mirroring, URL resolution |
+| `test_parse_legacy.py` | 30 | WinRegatta HTML parsing (1999-2008) |
 | `test_export_json.py` | 20 | JSON export integrity |
-| `test_audit_data_quality.py` | 8 | Review export and audit integrity |
-| **Total** | **222** | |
+| `test_audit_data_quality.py` | 9 | Review export and audit integrity |
+| `test_scrape_sailns.py` | 5 | Sail NS PHRF registry scraper |
+| `test_audit_original_coverage.py` | 3 | Original source coverage audit |
+| **Total** | **330** | |
 
 ## Milestones
 
@@ -137,5 +142,5 @@ npm run build  # outputs to web/out/
 - [x] M3: Load into SQLite database
 - [x] M4: Ship public MVP (static site on GitHub Pages)
 - [x] M5: Parse legacy WinRegatta results (1999-2013)
-- [ ] M6: Entity reconciliation (merge duplicate boats/participants, owner history, special-case review)
-- [ ] M7: Analytics and search features
+- [x] M6: Entity reconciliation (merge duplicate boats/participants, owner history, special-case review)
+- [ ] M7: Analytics and search features (in progress)

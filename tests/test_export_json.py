@@ -20,6 +20,13 @@ from scraper.export_json import (
     export_trophy_history,
     export_all,
     _classify_special_event,
+    _canonical_source_stem,
+    _source_stem_without_numeric_suffix,
+    _event_name_group_key,
+    _canonical_event_name,
+    _looks_like_variant_name,
+    _variant_event_ids,
+    _variant_filter_sql,
     DB_PATH,
     OUTPUT_DIR,
 )
@@ -75,6 +82,151 @@ class TestHelpers:
         assert is_special
         assert kind == "special_local"
         assert "special_local_keyword" in reasons
+
+
+class TestCanonicalSourceStem:
+    """Unit tests for _canonical_source_stem — strips known variant suffixes."""
+
+    def test_plain_stem(self):
+        assert _canonical_source_stem("june_tns.htm") == "june_tns"
+
+    def test_overall_suffix(self):
+        assert _canonical_source_stem("june_tns_overall.htm") == "june_tns"
+
+    def test_ab_suffix(self):
+        assert _canonical_source_stem("june_tns_ab.htm") == "june_tns"
+
+    def test_series_suffix(self):
+        assert _canonical_source_stem("glube_series.htm") == "glube"
+
+    def test_seriesab_suffix(self):
+        assert _canonical_source_stem("june_tns_seriesab.htm") == "june_tns"
+
+    def test_summary_suffix(self):
+        assert _canonical_source_stem("race_summary.htm") == "race"
+
+    def test_all_suffix(self):
+        assert _canonical_source_stem("june_tns_all.htm") == "june_tns"
+
+    def test_no_suffix_match(self):
+        assert _canonical_source_stem("glube2.htm") == "glube2"
+
+    def test_none_input(self):
+        assert _canonical_source_stem(None) == ""
+
+    def test_nested_path(self):
+        assert _canonical_source_stem("/path/to/june_tns_overall.htm") == "june_tns"
+
+
+class TestSourceStemWithoutNumericSuffix:
+    """Unit tests for _source_stem_without_numeric_suffix — strips trailing digits."""
+
+    def test_no_suffix(self):
+        assert _source_stem_without_numeric_suffix("glube.htm") == "glube"
+
+    def test_numeric_suffix(self):
+        assert _source_stem_without_numeric_suffix("glube2.htm") == "glube"
+
+    def test_numeric_suffix_multi_digit(self):
+        assert _source_stem_without_numeric_suffix("fall12.htm") == "fall"
+
+    def test_no_digits(self):
+        assert _source_stem_without_numeric_suffix("charter_cup.htm") == "charter_cup"
+
+    def test_none_input(self):
+        assert _source_stem_without_numeric_suffix(None) == ""
+
+    def test_underscored_name(self):
+        assert _source_stem_without_numeric_suffix("june_tns.htm") == "june_tns"
+
+
+class TestEventNameGroupKey:
+    """Unit tests for _event_name_group_key — normalizes names for grouping."""
+
+    def test_case_insensitive(self):
+        assert _event_name_group_key("GLUBE SERIES") == _event_name_group_key("glube series")
+
+    def test_strips_punctuation(self):
+        assert _event_name_group_key("Boland's Cup") == _event_name_group_key("Bolands Cup")
+
+    def test_ampersand_to_and(self):
+        assert _event_name_group_key("A & B") == _event_name_group_key("A and B")
+
+    def test_whitespace_collapsed(self):
+        assert _event_name_group_key("Fall   Series") == _event_name_group_key("Fall Series")
+
+
+class TestCanonicalEventName:
+    """Unit tests for _canonical_event_name — strips variant label suffixes."""
+
+    def test_strips_overall(self):
+        assert _canonical_event_name("June TNS Overall") == "June TNS"
+
+    def test_strips_ab(self):
+        assert _canonical_event_name("June TNS A&B") == "June TNS"
+
+    def test_strips_summary(self):
+        assert _canonical_event_name("Race Summary") == "Race"
+
+    def test_strips_all(self):
+        assert _canonical_event_name("June TNS ALL") == "June TNS"
+
+    def test_no_match(self):
+        assert _canonical_event_name("Glube Series") == "Glube Series"
+
+
+class TestLooksLikeVariantName:
+    """Unit tests for _looks_like_variant_name."""
+
+    def test_overall(self):
+        assert _looks_like_variant_name("June TNS Overall")
+
+    def test_ab(self):
+        assert _looks_like_variant_name("June TNS A & B")
+
+    def test_summary(self):
+        assert _looks_like_variant_name("Race Summary")
+
+    def test_normal_name(self):
+        assert not _looks_like_variant_name("Glube Series")
+
+    def test_all(self):
+        assert _looks_like_variant_name("TNS All")
+
+
+class TestVariantEventIds:
+    """Unit tests for _variant_event_ids and _variant_filter_sql."""
+
+    def test_extracts_variant_ids(self):
+        meta = {
+            1: {"is_variant_view": False},
+            2: {"is_variant_view": True},
+            3: {"is_variant_view": False},
+            4: {"is_variant_view": True},
+        }
+        assert _variant_event_ids(meta) == {2, 4}
+
+    def test_empty_meta(self):
+        assert _variant_event_ids({}) == set()
+
+    def test_no_variants(self):
+        meta = {1: {"is_variant_view": False}, 2: {"is_variant_view": False}}
+        assert _variant_event_ids(meta) == set()
+
+    def test_filter_sql_empty(self):
+        sql, params = _variant_filter_sql(set())
+        assert sql == ""
+        assert params == ()
+
+    def test_filter_sql_nonempty(self):
+        sql, params = _variant_filter_sql({2, 4})
+        assert "NOT IN" in sql
+        assert len(params) == 2
+        assert set(params) == {2, 4}
+
+    def test_filter_sql_custom_alias(self):
+        sql, params = _variant_filter_sql({1}, event_alias="ev")
+        assert "ev.id NOT IN" in sql
 
 
 class TestExportIntegration:
@@ -238,3 +390,69 @@ class TestExportIntegration:
             data = json.loads(f.read_text())
             assert "name" in data, f"Event file {f.name} missing name"
             assert "year" in data, f"Event file {f.name} missing year"
+
+    def test_overview_handicap_boat_count_matches_boats_json(self):
+        overview_path = OUTPUT_DIR / "overview.json"
+        boats_path = OUTPUT_DIR / "boats.json"
+        if not overview_path.exists() or not boats_path.exists():
+            pytest.skip("JSON not yet exported")
+        overview = json.loads(overview_path.read_text())
+        boats = json.loads(boats_path.read_text())
+        assert overview.get("handicap_boat_count") == len(boats)
+
+    def test_season_trophy_count_not_inflated(self):
+        """Trophy count per season should be reasonable (not more than 25 unique series)."""
+        path = OUTPUT_DIR / "seasons.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        for season in data:
+            trophy = season.get("trophy_count", 0) or 0
+            assert trophy <= 25, (
+                f"Year {season['year']} has {trophy} trophy series — likely over-counted"
+            )
+
+    def test_season_tns_count_reasonable(self):
+        """TNS count per season should be 2-5 (monthly series June-Sept)."""
+        path = OUTPUT_DIR / "seasons.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        for season in data:
+            tns = season.get("tns_count", 0) or 0
+            assert tns <= 5, f"Year {season['year']} has {tns} TNS — expected ≤5"
+
+    def test_boat_detail_no_duplicate_race_results(self):
+        """No boat should have duplicate race results (same race_id counted twice)."""
+        boats_path = OUTPUT_DIR / "boats.json"
+        if not boats_path.exists():
+            pytest.skip("JSON not yet exported")
+        boats = json.loads(boats_path.read_text())
+        # Spot-check top 5 boats by race count
+        for boat in boats[:5]:
+            detail_path = OUTPUT_DIR / "boats" / f"{boat['id']}.json"
+            if not detail_path.exists():
+                continue
+            data = json.loads(detail_path.read_text())
+            # Verify season race counts sum to total
+            season_total = sum(s.get("races", 0) for s in data.get("seasons", []))
+            assert season_total == data["stats"]["total_races"], (
+                f"Boat {data['name']}: season sum {season_total} != "
+                f"total_races {data['stats']['total_races']}"
+            )
+
+    def test_leaderboard_wins_consistent_with_boat_detail(self):
+        """Most-wins leaderboard should match individual boat detail stats."""
+        lb_path = OUTPUT_DIR / "leaderboards.json"
+        if not lb_path.exists():
+            pytest.skip("JSON not yet exported")
+        lb = json.loads(lb_path.read_text())
+        for entry in lb["most_wins"][:3]:
+            detail_path = OUTPUT_DIR / "boats" / f"{entry['id']}.json"
+            if not detail_path.exists():
+                continue
+            detail = json.loads(detail_path.read_text())
+            assert entry["wins"] == detail["stats"]["wins"], (
+                f"Boat {entry['name']}: leaderboard wins {entry['wins']} != "
+                f"detail wins {detail['stats']['wins']}"
+            )

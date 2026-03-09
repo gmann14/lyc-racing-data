@@ -471,6 +471,15 @@ def export_overview(conn: sqlite3.Connection) -> dict:
             tuple(variant_ids),
         ).fetchone()["n"],
         "total_boats": conn.execute("SELECT COUNT(*) as n FROM boats").fetchone()["n"],
+        "handicap_boat_count": conn.execute(
+            f"""SELECT COUNT(DISTINCT p.boat_id) AS n
+                FROM participants p
+                JOIN results res ON res.participant_id = p.id
+                JOIN races r ON r.id = res.race_id
+                JOIN events e ON e.id = r.event_id
+                {skip_where}""",
+            tuple(all_skip),
+        ).fetchone()["n"],
         "handicap_events": conn.execute(
             f"SELECT COUNT(*) AS n FROM events e {excl_where}",
             tuple(excluded.keys()),
@@ -509,9 +518,16 @@ def export_seasons(conn: sqlite3.Connection) -> None:
         row["id"]: row["event_type"]
         for row in conn.execute("SELECT id, event_type FROM events").fetchall()
     }
+    event_name_map = {
+        row["id"]: row["name"]
+        for row in conn.execute("SELECT id, name FROM events").fetchall()
+    }
 
     # Count canonical events per year and type
     canonical_by_year: dict[int, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    # Track unique trophy series per year by name root (legacy-era individual
+    # race files like glube.htm/glube2.htm/glube3.htm should count as one series)
+    trophy_series_by_year: dict[int, set[str]] = defaultdict(set)
     for primary_id in groups_by_primary:
         year = event_year_map[primary_id]
         etype = event_type_map[primary_id]
@@ -519,6 +535,10 @@ def export_seasons(conn: sqlite3.Connection) -> None:
         canonical_by_year[year][etype] += 1
         if primary_id not in excluded:
             canonical_by_year[year]["handicap"] += 1
+        if etype == "trophy":
+            name = event_name_map[primary_id]
+            name_root = _event_name_group_key(_canonical_event_name(name))
+            trophy_series_by_year[year].add(name_root)
 
     # Count special events per year
     special_by_year: dict[int, int] = defaultdict(int)
@@ -536,7 +556,7 @@ def export_seasons(conn: sqlite3.Connection) -> None:
             "year": year,
             "event_count": counts.get("total", 0),
             "tns_count": counts.get("tns", 0),
-            "trophy_count": counts.get("trophy", 0),
+            "trophy_count": len(trophy_series_by_year.get(year, set())),
             "championship_count": counts.get("championship", 0),
             "special_event_count": special_by_year.get(year, 0),
             "handicap_event_count": counts.get("handicap", 0),

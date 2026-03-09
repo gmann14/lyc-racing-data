@@ -35,7 +35,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "combined results",
         summary: "Related result pages are combined so one series is shown once.",
         detail:
-          "Some result series were published as separate overall, division, or alternate pages. The archive combines those related pages so trophy histories, counts, and leaderboards are not duplicated.",
+          "Some result series were published as separate overall, division, or alternate pages. The archive groups those related pages into one canonical event. When both a fleet-specific view and an overall view exist, leaderboards and stats prefer the fleet-specific result to avoid double-counting. Variant-view results are excluded from all analytical queries.",
       },
       {
         term: "Special Event",

@@ -16,6 +16,7 @@ export interface Overview {
   total_races: number;
   total_results: number;
   total_boats: number;
+  handicap_boat_count?: number;
   handicap_events: number;
   handicap_canonical_event_count: number;
   handicap_results: number;

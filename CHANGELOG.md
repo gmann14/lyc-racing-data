@@ -7,8 +7,12 @@ This file tracks changes to archive logic that materially affect published stats
 ### Data model and export logic
 
 - Added canonical event grouping so duplicate Sailwave views such as `_overall`, `_ab`, and similar variants are merged into one logical event in public exports.
+- Added variant-view result deduplication: race results from fleet-split/overall variant events are excluded from analytical queries (leaderboards, boat stats, analysis) to prevent double-counting. Primary events retain all results.
+- Added race-level deduplication (`GROUP BY boat_id, race_id` with `MIN(rank)`) in boat stats and leaderboard queries so a boat appearing in both fleet and overall views counts once per race.
 - Added special-event classification so flagged regattas/championships remain visible in the archive but are excluded from default handicap leaderboards and summary stats.
 - Deduplicated trophy counts and trophy history by canonical event instead of counting multiple source variants separately.
+- Fixed trophy series counting for legacy years: individual races within a series (e.g., `glube.htm`, `glube2.htm`, `glube3.htm`) are now counted as one trophy series instead of separate events.
+- Fixed boat count on home page to show handicap-active boats (173) instead of total DB boats (273), matching the boats page.
 
 ### Entity cleanup
 
@@ -48,6 +52,8 @@ This file tracks changes to archive logic that materially affect published stats
 
 ### Public site
 
+- Added Analysis page with 5 chart sections: Fleet Trends, Race Performance, Participation, Thursday Night Deep Dive, Weather Conditions.
+- Added mobile responsiveness across all pages.
 - Added a methodology/glossary page to explain canonical events, special-event exclusions, and headline leaderboard definitions.
 - Updated home, seasons, and leaderboards pages to surface canonical-event counts and special-event exclusions directly in the UI.
 - Added a structured metric-definition layer in the methodology page so future Thursday/Sunday race-duration stats can declare time basis, participant scope, event scope, and aggregation explicitly.
