@@ -27,6 +27,7 @@ This file tracks changes to archive logic that materially affect published stats
 - Added support for early/classless Sailwave `table.main` race tables from legacy years, including `Pos`, `Boat Name`, and `Pts` style headers.
 - Added fallback participant names for summary/race rows that only expose sail number or bow number.
 - Fixed summary-only standings loading for pages that omit explicit rank values but still include sailed-series totals.
+- Reclassified legacy Thursday night sponsor-series pages as `tns` when their race dates and source patterns indicate they are part of the June–September monthly Thursday program.
 - Fixed source-page loading to resolve the existing `source_pages.id` by path after `INSERT OR IGNORE` instead of trusting `lastrowid`.
 - Fixed boat loading to reuse an existing `(name, sail_number)` row when a uniqueness collision occurs during import.
 - Rebuilt the database and exports after those parser/loader fixes, recovering hundreds of missing standings/results from previously under-loaded pages.
@@ -42,6 +43,8 @@ This file tracks changes to archive logic that materially affect published stats
 ### Export pipeline
 
 - Added output-directory cleanup logic for `web/public/data/seasons`, `web/public/data/events`, and `web/public/data/boats` so stale JSON files do not survive after ids disappear.
+- Grouped older Thursday night racing into one monthly series per season/month instead of exposing each per-race legacy source page as a separate series row.
+- Grouped same-name, same-date numbered source pages such as `rum_race.htm` and `rum_race1.htm` into one public event so updated duplicate files no longer appear twice.
 
 ### Public site
 
@@ -49,3 +52,8 @@ This file tracks changes to archive logic that materially affect published stats
 - Updated home, seasons, and leaderboards pages to surface canonical-event counts and special-event exclusions directly in the UI.
 - Added a structured metric-definition layer in the methodology page so future Thursday/Sunday race-duration stats can declare time basis, participant scope, event scope, and aggregation explicitly.
 - Removed internal archive jargon such as “canonical events” and “merged variants” from the public home/season UI in favor of plain-language explanations.
+- Expanded season event detail tables to show race date, start/notes context, fleet, elapsed time, corrected time, and points so Thursday-night data is accessible without drilling into raw JSON.
+
+### Review and audit artifacts
+
+- Added `reports/manual_review_inventory_2026-03-09.md` as the current handoff list for CSVs that still benefit from club-side validation or enrichment.

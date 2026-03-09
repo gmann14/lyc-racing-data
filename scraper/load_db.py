@@ -10,9 +10,10 @@ from __future__ import annotations
 import json
 import re
 import sqlite3
-from dataclasses import dataclass
-from pathlib import Path
 from collections import defaultdict
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
@@ -427,12 +428,54 @@ def _clean_event_name(text: str | None) -> str:
     return cleaned.strip(" -")
 
 
+LEGACY_TNS_SERIES_KEYWORDS = (
+    "glube",
+    "paceship",
+    "scotia trawler",
+    "fall series",
+    "fall september",
+    "thursday night series",
+)
+
+
+def _parse_legacy_date(value: str | None) -> datetime | None:
+    text = _collapse_whitespace(value)
+    if not text:
+        return None
+    for fmt in ("%d/%m/%y", "%d/%m/%Y", "%d/%B/%Y", "%d/%b/%Y"):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _looks_like_legacy_tns(
+    title: str | None,
+    h1: str | None,
+    h2: str | None,
+    source_path: str,
+    race_date: str | None = None,
+) -> bool:
+    combined = " ".join(filter(None, [title, h1, h2, source_path])).lower()
+    if "tns" in combined or "thursday night" in combined:
+        return True
+    if not any(keyword in combined for keyword in LEGACY_TNS_SERIES_KEYWORDS):
+        return False
+    parsed_date = _parse_legacy_date(race_date)
+    if parsed_date and parsed_date.weekday() == 3:
+        return True
+    if any(token in combined for token in ("_series", "series.htm", "june_", "july_", "august_", "sept_", "fall_")):
+        return True
+    return False
+
+
 def _classify_event_type(title: str | None, h1: str | None, h2: str | None,
-                         source_path: str) -> str:
+                         source_path: str, race_date: str | None = None) -> str:
     """Classify an event as tns, trophy, championship, or special."""
     combined = " ".join(filter(None, [title, h1, h2, source_path])).lower()
 
-    if "tns" in combined or "thursday night" in combined:
+    if _looks_like_legacy_tns(title, h1, h2, source_path, race_date):
         return "tns"
     if any(kw in combined for kw in [
         "championship", "nationals", "north american", "canadians",
@@ -444,7 +487,8 @@ def _classify_event_type(title: str | None, h1: str | None, h2: str | None,
     return "trophy"
 
 
-def _detect_month(title: str | None, h2: str | None, source_path: str) -> str | None:
+def _detect_month(title: str | None, h2: str | None, source_path: str,
+                  race_date: str | None = None) -> str | None:
     """Detect the month from event title or filename."""
     combined = " ".join(filter(None, [title, h2, source_path])).lower()
     for month in ["january", "february", "march", "april", "may", "june",
@@ -458,6 +502,9 @@ def _detect_month(title: str | None, h2: str | None, source_path: str) -> str | 
                         ("oct_", "october"), ("nov_", "november"), ("dec_", "december")]:
         if short in combined:
             return full
+    parsed_date = _parse_legacy_date(race_date)
+    if parsed_date:
+        return parsed_date.strftime("%B").lower()
     return None
 
 
@@ -1261,9 +1308,19 @@ class DatabaseLoader:
         if footer_name:
             event_name = footer_name
 
-        event_type = _classify_event_type(event_name, None, event_name,
-                                          page.get("source_path", ""))
-        month = _detect_month(event_name, None, page.get("source_path", ""))
+        event_type = _classify_event_type(
+            event_name,
+            None,
+            event_name,
+            page.get("source_path", ""),
+            meta.get("race_date", ""),
+        )
+        month = _detect_month(
+            event_name,
+            None,
+            page.get("source_path", ""),
+            meta.get("race_date", ""),
+        )
 
         cursor = self.conn.execute(
             """INSERT INTO events (year, name, canonical_name, slug, event_type, month,

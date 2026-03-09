@@ -47,6 +47,9 @@ class TestHelpers:
     def test_classify_event_type_tns(self):
         assert _classify_event_type("June TNS 2024", "LYC Handicap", "June Thursday Night Series", "") == "tns"
 
+    def test_classify_event_type_legacy_series_on_thursday(self):
+        assert _classify_event_type("Glube Series", None, None, "racing1999_2013/racing1999/glube1.htm", "08/07/99") == "tns"
+
     def test_classify_event_type_trophy(self):
         assert _classify_event_type("Bolands Cup", "LYC Handicap", "Boland's Cup", "") == "trophy"
 
@@ -55,6 +58,9 @@ class TestHelpers:
 
     def test_detect_month_june(self):
         assert _detect_month("June TNS 2024", None, "") == "june"
+
+    def test_detect_month_from_legacy_race_date(self):
+        assert _detect_month("Glube Series", None, "racing1999_2013/racing1999/glube1.htm", "08/07/99") == "july"
 
     def test_detect_month_from_filename(self):
         assert _detect_month(None, None, "aug_TNS.htm") == "august"

@@ -23,6 +23,17 @@ function formatReason(reason: string): string {
   return reason.replaceAll("_", " ");
 }
 
+function formatRaceMeta(event: EventDetail, race: EventDetail["races"][number]): string[] {
+  const bits: string[] = [];
+  if (race.date) bits.push(race.date);
+  if (race.start_time) bits.push(`start ${race.start_time}`);
+  if (race.notes) bits.push(race.notes);
+  if (!race.notes && event.source_format === "legacy" && race.start_time) {
+    bits.push("legacy race detail");
+  }
+  return bits;
+}
+
 function EventRaceDetail({ eventId }: { eventId: number }) {
   const {
     data: event,
@@ -109,17 +120,14 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
         <div className="px-4 py-3 border-t border-border/30">
           {event.races.map((race) => (
             <div key={race.id} className="mb-3 last:mb-0">
-              <div className="text-xs font-bold text-navy mb-1 flex items-center gap-2">
-                <span>
-                  Race {race.race_number ?? race.race_key ?? ""}
-                </span>
-                {race.date && (
-                  <span className="font-normal text-gray-400">{race.date}</span>
-                )}
-                {race.notes && (
-                  <span className="font-normal text-gray-400 truncate max-w-[200px]">
-                    {race.notes}
-                  </span>
+              <div className="mb-1">
+                <div className="text-xs font-bold text-navy flex items-center gap-2">
+                  <span>Race {race.race_number ?? race.race_key ?? ""}</span>
+                </div>
+                {formatRaceMeta(event, race).length > 0 && (
+                  <div className="mt-0.5 text-[11px] text-gray-400">
+                    {formatRaceMeta(event, race).join(" · ")}
+                  </div>
                 )}
               </div>
               <table className="w-full text-xs">
@@ -127,6 +135,9 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
                   <tr className="text-left text-gray-400">
                     <th className="pb-0.5 w-8">#</th>
                     <th className="pb-0.5">Name</th>
+                    <th className="pb-0.5 w-10">Fleet</th>
+                    <th className="pb-0.5 text-right w-20">Elapsed</th>
+                    <th className="pb-0.5 text-right w-20">Corrected</th>
                     <th className="pb-0.5 text-right">Points</th>
                   </tr>
                 </thead>
@@ -147,6 +158,18 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
                         ) : (
                           r.display_name
                         )}
+                        {r.boat_class && (
+                          <span className="ml-1 text-gray-400">({r.boat_class})</span>
+                        )}
+                      </td>
+                      <td className="py-0.5 text-gray-400">
+                        {r.fleet ?? r.division ?? "\u2014"}
+                      </td>
+                      <td className="py-0.5 text-right font-mono text-gray-400">
+                        {r.elapsed_time ?? "\u2014"}
+                      </td>
+                      <td className="py-0.5 text-right font-mono text-gray-400">
+                        {r.corrected_time ?? "\u2014"}
                       </td>
                       <td className="py-0.5 text-right font-mono">
                         {r.points?.toFixed(1) ?? "\u2014"}

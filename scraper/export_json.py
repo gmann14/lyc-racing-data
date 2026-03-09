@@ -55,6 +55,11 @@ def _event_name_group_key(name: str) -> str:
     return cleaned
 
 
+def _source_stem_without_numeric_suffix(source_file: str | None) -> str:
+    stem = Path(source_file or "").stem.lower().replace("-", "_")
+    return re.sub(r"\d+$", "", stem).rstrip("_")
+
+
 def _looks_like_variant_name(name: str) -> bool:
     lowered = _collapse_whitespace(name).lower()
     return bool(
@@ -146,6 +151,7 @@ def _event_rows(conn: sqlite3.Connection) -> list[dict]:
         """
         SELECT e.id, e.year, e.name, e.slug, e.event_type, e.month, e.source_format,
                e.source_file, e.races_sailed, e.entries,
+               MIN(r.date) AS first_race_date,
                COUNT(DISTINCT r.id) AS race_count,
                COUNT(DISTINCT ss.id) AS standings_count,
                COUNT(DISTINCT res.id) AS result_count
@@ -162,17 +168,36 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
     event_rows = _event_rows(conn)
     grouped: dict[tuple[int, str], list[dict]] = defaultdict(list)
     singletons: list[dict] = []
+    dated_duplicate_candidates: dict[tuple[int, str, str, str], int] = defaultdict(int)
+
+    for event in event_rows:
+        first_race_date = event.get("first_race_date")
+        if not first_race_date:
+            continue
+        name_root = _event_name_group_key(_canonical_event_name(event["name"]))
+        numeric_source_root = _source_stem_without_numeric_suffix(event["source_file"])
+        if not name_root or not numeric_source_root:
+            continue
+        dated_duplicate_candidates[(event["year"], name_root, first_race_date, numeric_source_root)] += 1
 
     for event in event_rows:
         source_root = _canonical_source_stem(event["source_file"])
         original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
+        numeric_source_root = _source_stem_without_numeric_suffix(event["source_file"])
         is_variant = source_root != original_stem or _looks_like_variant_name(event["name"])
         name_root = _event_name_group_key(_canonical_event_name(event["name"]))
         event["source_root"] = source_root
+        event["numeric_source_root"] = numeric_source_root
         event["name_root"] = name_root
         event["is_variant"] = is_variant
-        if event["event_type"] == "tns" and event["month"] and source_root:
-            grouped[(event["year"], f"tns:{event['month']}:{source_root}")].append(event)
+        if event["event_type"] == "tns" and event["month"]:
+            grouped[(event["year"], f"tns:{event['month']}")].append(event)
+        elif (
+            event["first_race_date"]
+            and numeric_source_root
+            and dated_duplicate_candidates[(event["year"], name_root, event["first_race_date"], numeric_source_root)] > 1
+        ):
+            grouped[(event["year"], f"dated:{name_root}:{event['first_race_date']}:{numeric_source_root}")].append(event)
         elif source_root:
             grouped[(event["year"], source_root)].append(event)
         else:
@@ -189,7 +214,7 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
             int((event["race_count"] or 0) > 0),
             event["result_count"] or 0,
             event["standings_count"] or 0,
-            -event["id"],
+            event["id"],
         )
 
     for _, group in grouped.items():

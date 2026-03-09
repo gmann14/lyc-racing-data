@@ -2,23 +2,23 @@
 
 ## Snapshot
 
-- Boats: 324
-- Participants: 967
-- Events: 1486
-- Races: 2779
-- Results: 23079
-- Boat results: 15665
-- Helm results: 7414
+- Boats: 317
+- Participants: 964
+- Events: 751
+- Races: 1403
+- Results: 11610
+- Boat results: 7903
+- Helm results: 3707
 
 ## Biggest Cleanup Gaps
 
-- Boats missing sail numbers: 35
-- Boats with non-empty placeholder / suspicious sail numbers: 21
-- Boats missing class: 22
-- Result rows tied to participants without `boat_id`: 7414
+- Boats missing sail numbers: 31
+- Boats with non-empty placeholder / suspicious sail numbers: 19
+- Boats missing class: 21
+- Result rows tied to participants without `boat_id`: 3707
 - Empty events (no races and no standings): 2
-- Provisional entry-list events: 2
-- Races without results: 54
+- Provisional entry-list events: 1
+- Races without results: 27
 - Skippers loaded: 482
 - Ownership rows loaded: 0
 
@@ -47,23 +47,23 @@
 ## Class Cleanup Highlights
 
 - Rating-band style raw classes: 5
-- Design-style raw classes: 91
+- Design-style raw classes: 92
 
 ## Event Review Highlights
 
 - no_races_or_standings: 2
-- provisional_entry_list: 2
+- provisional_entry_list: 1
 
 ## TNS Validation
 
-- TNS season rows checked: 21
-- TNS rows needing review: 17
+- TNS season rows checked: 27
+- TNS rows needing review: 23
 - Expected baseline: June, July, August, September monthly series, about 16 logical Thursday-night races total.
 
 ## Special Event Suggestions
 
-- Suggested `special_external`: 91
-- Suggested `special_local`: 34
+- Suggested `special_external`: 50
+- Suggested `special_local`: 19
 - These are good candidates to exclude from LYC handicap-only leaderboards and trend stats.
 
 ## Recommended Next Actions

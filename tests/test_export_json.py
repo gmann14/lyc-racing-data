@@ -129,6 +129,15 @@ class TestExportIntegration:
         assert data["year"] == 1999
         assert len(data["events"]) > 0
 
+    def test_season_detail_2004_has_four_monthly_tns_groups(self):
+        path = OUTPUT_DIR / "seasons" / "2004.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        tns_events = [event for event in data["events"] if event["event_type"] == "tns"]
+        assert len(tns_events) == 4
+        assert {event["month"] for event in tns_events} == {"june", "july", "august", "september"}
+
     def test_season_detail_2011_has_four_tns_series(self):
         path = OUTPUT_DIR / "seasons" / "2011.json"
         if not path.exists():
@@ -146,6 +155,14 @@ class TestExportIntegration:
         tns_events = [event for event in data["events"] if event["event_type"] == "tns"]
         assert len(tns_events) == 4
         assert all((event["races_sailed"] or 0) <= 4 for event in tns_events)
+
+    def test_season_detail_2016_has_single_absolute_last_race(self):
+        path = OUTPUT_DIR / "seasons" / "2016.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        matches = [event for event in data["events"] if "absolute last race" in event["name"].lower()]
+        assert len(matches) == 1
 
     def test_boats_json_has_stats(self):
         path = OUTPUT_DIR / "boats.json"
