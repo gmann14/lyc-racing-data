@@ -36,7 +36,7 @@ export default function TrophiesPage() {
                   <tr key={w.year} className="border-b last:border-0">
                     <td className="px-4 py-2 font-mono">
                       <Link
-                        href={`/events/${w.event_id}/`}
+                        href={`/seasons/#${w.year}`}
                         className="text-navy-light hover:underline"
                       >
                         {w.year}
@@ -45,7 +45,7 @@ export default function TrophiesPage() {
                     <td className="px-4 py-2">
                       {w.boat_id ? (
                         <Link
-                          href={`/boats/${w.boat_id}/`}
+                          href={`/boats/#${w.boat_id}`}
                           className="text-navy-light hover:underline font-medium"
                         >
                           {w.boat_name ?? w.display_name}

@@ -115,7 +115,7 @@ function LeaderboardTable({
                   >
                     {c.link ? (
                       <Link
-                        href={`/boats/${row.id}/`}
+                        href={`/boats/#${row.id}`}
                         className="text-navy-light hover:underline font-medium"
                       >
                         {String(val(c.key) ?? "—")}

@@ -52,7 +52,7 @@ export default function HomePage() {
                 <tr key={b.id} className="border-b last:border-0">
                   <td className="py-2">
                     <Link
-                      href={`/boats/${b.id}/`}
+                      href={`/boats/#${b.id}`}
                       className="text-navy-light hover:underline font-medium"
                     >
                       {b.name}

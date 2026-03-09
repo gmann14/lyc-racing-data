@@ -213,20 +213,8 @@ export function getSeasons(): SeasonSummary[] {
   return readJson<SeasonSummary[]>("seasons.json");
 }
 
-export function getSeasonDetail(year: number): SeasonDetail {
-  return readJson<SeasonDetail>(`seasons/${year}.json`);
-}
-
 export function getBoats(): BoatListItem[] {
   return readJson<BoatListItem[]>("boats.json");
-}
-
-export function getBoatDetail(id: number): BoatDetail {
-  return readJson<BoatDetail>(`boats/${id}.json`);
-}
-
-export function getEventDetail(id: number): EventDetail {
-  return readJson<EventDetail>(`events/${id}.json`);
 }
 
 export function getLeaderboards(): Leaderboards {
@@ -235,20 +223,6 @@ export function getLeaderboards(): Leaderboards {
 
 export function getTrophies(): Trophy[] {
   return readJson<Trophy[]>("trophies.json");
-}
-
-export function getAllBoatIds(): number[] {
-  const boats = getBoats();
-  return boats.map((b) => b.id);
-}
-
-export function getAllEventIds(): number[] {
-  const dir = path.join(DATA_DIR, "events");
-  return fs
-    .readdirSync(dir)
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => parseInt(f.replace(".json", ""), 10))
-    .filter((n) => !isNaN(n));
 }
 
 export function getAllYears(): number[] {
