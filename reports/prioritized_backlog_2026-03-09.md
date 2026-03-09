@@ -4,19 +4,23 @@ This file is the short-form backlog. For implementation context and validation e
 
 ## Current State
 
-- Public dataset: `27` seasons, `751` events, `1403` races, `11,610` results, `317` boats, `964` participants.
+- Public dataset: `27` seasons, `751` events, `1403` races, `11,610` results, `276` boats, `922` participants.
+- Boats with confirmed owners: `133` of `276` (48%). `21` unresolved review cases, `143` missing (mostly pre-2015).
 - Remaining event review queue: `3` rows in `enrichment/event_review.csv`.
 - Remaining boat review queue: `145` alias rows and `156` pairwise duplicate rows.
 - Thursday-series QA still has older-year anomalies to resolve in `reports/tns_validation.csv:1`.
 
 ## Highest-Value Remaining Work
 
-1. **Owner / skipper history**
-   - Needed for trustworthy owner/skipper leaderboards and participation stats.
-   - Best input path is still CSV/Google Sheets round-trip via `enrichment/boat_owners.csv`.
+1. **Owner / skipper history** — PARTIALLY DONE
+   - CRW/SailNS merge pipeline built (`enrichment/merge_owners.py`). 133/276 boats have owners.
+   - 21 unresolved sail-collision cases in `enrichment/owner_merge_review.csv` need club input.
+   - 143 boats still missing owners (96 pre-2015 with no CRW data, 32 post-2015, 15 no year).
+   - Top missing by participation: Sea Fever (156 events), Tsunami (105), Armada (88), Beatnik (60).
+   - Owner-boat tenure tracked via year_start/year_end for future owner vs boat stats.
    - Developer notes:
      - do not invent ownership from sparse race appearances alone
-     - build the import/apply path after enough human review is collected
+     - remaining gaps need club member input or other external sources
 
 2. **Ambiguous same-name boats**
    - Examples: `Ping`, `Scamp`, `Martha Jane`, `Barbarian`, `WAI WHARE`, `Rush Hour`.

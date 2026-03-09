@@ -53,6 +53,14 @@ This document is the implementation handoff for the current archive state. It is
   - `scraper/export_json.py`
 - **Quality control / human review generation**
   - `scraper/audit_data_quality.py`
+- **External data scrapers**
+  - `scraper/scrape_crw.py` — Chester Race Week (Playwright, yachtscoring.com)
+  - `scraper/scrape_sailns.py` — Sail Nova Scotia PHRF registry (requests+BS4)
+- **Owner enrichment**
+  - `enrichment/merge_owners.py` — matches LYC boats to CRW/SailNS data
+  - `enrichment/boat_owners.csv` — master owner file (133/276 populated)
+  - `enrichment/owner_merge_review.csv` — 21 unresolved cases needing club input
+  - `enrichment/owner_history.csv` — 32 auto-resolved ownership changes
 - **Public UI**
   - `web/src/components/SeasonDetail.tsx`
   - `web/src/lib/data.ts`
@@ -71,8 +79,9 @@ This document is the implementation handoff for the current archive state. It is
 - Events: `751`
 - Races: `1403`
 - Results: `11610`
-- Boats: `317`
-- Participants: `964`
+- Boats: `276`
+- Participants: `922`
+- Boats with confirmed owners: `133` (48%)
 - Helm-only results still present: `3707`
 
 See also:
