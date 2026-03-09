@@ -246,7 +246,7 @@ def _is_placeholder_sail_number(sail_number: str | None) -> bool:
         return True
     if re.fullmatch(r"[?X]+", cleaned):
         return True
-    if cleaned in {"0", "000", "999", "9999", "1111111"}:
+    if cleaned in {"0", "000", "9999", "1111111"}:
         return True
     if "?" in cleaned or "X" in cleaned:
         return True
@@ -312,6 +312,14 @@ def _slugify(text: str) -> str:
     return slug.strip("-")
 
 
+def _clean_event_name(text: str | None) -> str:
+    cleaned = _collapse_whitespace(text)
+    cleaned = re.sub(r"\s*(\?\?+|##+)\s*", " ", cleaned)
+    cleaned = re.sub(r"\s+([,.;:])", r"\1", cleaned)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    return cleaned.strip(" -")
+
+
 def _classify_event_type(title: str | None, h1: str | None, h2: str | None,
                          source_path: str) -> str:
     """Classify an event as tns, trophy, championship, or special."""
@@ -348,14 +356,14 @@ def _detect_month(title: str | None, h2: str | None, source_path: str) -> str | 
 
 def _extract_event_name(page: dict) -> str:
     """Extract a clean event name from parsed page data."""
-    h2 = _collapse_whitespace(page.get("h2"))
-    h1 = _collapse_whitespace(page.get("h1"))
-    title = _collapse_whitespace(page.get("title", ""))
+    h2 = _clean_event_name(page.get("h2"))
+    h1 = _clean_event_name(page.get("h1"))
+    title = _clean_event_name(page.get("title", ""))
 
     # Prefer h2 (usually the series/event name), combined with h1
     if h2 and h1:
         if h1.lower() not in h2.lower():
-            return _collapse_whitespace(f"{h1} - {h2}")
+            return _clean_event_name(f"{h1} - {h2}")
         return h2
     if h2:
         return h2
@@ -365,7 +373,7 @@ def _extract_event_name(page: dict) -> str:
     # Fall back to title, stripping "Sailwave results for"
     if title:
         cleaned = re.sub(r"^Sailwave results for\s+", "", title, flags=re.IGNORECASE)
-        return _collapse_whitespace(cleaned)
+        return _clean_event_name(cleaned)
 
     # Last resort: filename
     return Path(page.get("source_path", "unknown")).stem
@@ -763,8 +771,8 @@ class DatabaseLoader:
             "SELECT id, name, canonical_name FROM events"
         ).fetchall()
         for event_id, name, canonical_name in event_rows:
-            clean_name = _collapse_whitespace(name)
-            clean_canonical = _collapse_whitespace(canonical_name) or clean_name
+            clean_name = _clean_event_name(name)
+            clean_canonical = _clean_event_name(canonical_name) or clean_name
             self.conn.execute(
                 "UPDATE events SET name = ?, canonical_name = ?, slug = ? WHERE id = ?",
                 (clean_name, clean_canonical, _slugify(clean_canonical), event_id),
@@ -787,7 +795,7 @@ class DatabaseLoader:
         self.conn.execute("INSERT OR IGNORE INTO seasons (year) VALUES (?)", (year,))
 
         # Create event
-        event_name = _extract_event_name(page)
+        event_name = _clean_event_name(_extract_event_name(page))
         event_type = _classify_event_type(page.get("title"), page.get("h1"),
                                           page.get("h2"), page.get("source_path", ""))
         month = _detect_month(page.get("title"), page.get("h2"), page.get("source_path", ""))
@@ -949,11 +957,10 @@ class DatabaseLoader:
         self.conn.execute("INSERT OR IGNORE INTO seasons (year) VALUES (?)", (year,))
 
         meta = page.get("metadata", {})
-        event_name = meta.get("event_name", "") or page.get("title", "")
-        event_name = event_name.strip()
+        event_name = _clean_event_name(meta.get("event_name", "") or page.get("title", ""))
 
         # Use footer event name if available (more reliable)
-        footer_name = page.get("footer_event_name", "")
+        footer_name = _clean_event_name(page.get("footer_event_name", ""))
         if footer_name:
             event_name = footer_name
 

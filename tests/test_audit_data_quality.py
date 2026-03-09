@@ -189,3 +189,24 @@ class TestGenerateAuditOutputs:
         assert "Manifest entries: 2" in report
         assert "Boats missing sail numbers: 1" in report
         assert "Boats with non-empty placeholder / suspicious sail numbers: 0" in report
+
+    def test_preserves_existing_human_questions_file(self, tmp_path, monkeypatch):
+        db_path = tmp_path / "test.db"
+        enrichment_dir = tmp_path / "enrichment"
+        reports_dir = tmp_path / "reports"
+        manifest_path = tmp_path / "source_manifest.jsonl"
+        manifest_path.write_text('{"page_role":"canonical"}\n', encoding="utf-8")
+        monkeypatch.setattr(audit, "MANIFEST_PATH", manifest_path)
+        self._create_db(db_path)
+
+        reports_dir.mkdir(parents=True, exist_ok=True)
+        questions_path = reports_dir / "human_questions.md"
+        questions_path.write_text("do not overwrite\n", encoding="utf-8")
+
+        audit.generate_audit_outputs(
+            db_path=db_path,
+            enrichment_dir=enrichment_dir,
+            reports_dir=reports_dir,
+        )
+
+        assert questions_path.read_text(encoding="utf-8") == "do not overwrite\n"

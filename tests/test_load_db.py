@@ -9,6 +9,7 @@ from pathlib import Path
 from scraper.load_db import (
     DatabaseLoader,
     _collapse_whitespace,
+    _clean_event_name,
     _slugify,
     _classify_event_type,
     _detect_month,
@@ -33,6 +34,10 @@ class TestHelpers:
 
     def test_slugify_special_chars(self):
         assert _slugify("Boland's Cup") == "boland-s-cup"
+
+    def test_clean_event_name(self):
+        assert _clean_event_name("Womens Keelboat Championship by Bow ##") == "Womens Keelboat Championship by Bow"
+        assert _clean_event_name("LYC Handicap - Lunenburg Race??") == "LYC Handicap - Lunenburg Race"
 
     def test_classify_event_type_tns(self):
         assert _classify_event_type("June TNS 2024", "LYC Handicap", "June Thursday Night Series", "") == "tns"

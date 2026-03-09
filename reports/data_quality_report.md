@@ -2,7 +2,7 @@
 
 ## Snapshot
 
-- Boats: 310
+- Boats: 309
 - Participants: 908
 - Events: 735
 - Races: 1376
@@ -13,7 +13,7 @@
 ## Biggest Cleanup Gaps
 
 - Boats missing sail numbers: 24
-- Boats with non-empty placeholder / suspicious sail numbers: 33
+- Boats with non-empty placeholder / suspicious sail numbers: 32
 - Boats missing class: 10
 - Result rows tied to participants without `boat_id`: 3707
 - Empty events (no races and no standings): 7
@@ -53,7 +53,6 @@
 - variant_noise_in_title: 24
 - no_races_or_standings: 7
 - event_has_no_results: 6
-- suspicious_punctuation: 2
 
 ## Special Event Suggestions
 

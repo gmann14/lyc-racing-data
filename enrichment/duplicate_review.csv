@@ -93,7 +93,6 @@ name:westwind,200,Westwind,WW2,Westwind,241,Westwind,,,same_normalized_name,high
 name:westwind,221,Westwind,WWII,Westwind II,241,Westwind,,,same_normalized_name,high,,,
 name:zephyr,147,Zephyr,2,IOD,195,Zephyr,CAN2,IOD,same_normalized_name,high,,,
 name:crest,134,Crest,AUS1384,Etchells,137,Crest,1170,Etchels 22,same_normalized_name,high,,,
-name:tombarkley,343,Tom Barkley **,999,CS30,346,Tom Barkley,999,CS30,same_normalized_name,medium,,,
 name:goslingnabs,217,Gosling (NABS),XXXXXX,J/29 O/B,218,Gosling (NABS),9999,J/29 O/B,same_normalized_name,high,,,
 sail:34429,161,Scotch Mist IV,34429,J/29,189,Scotch Mist,34429,J29Fr ODR,same_cleaned_sail_number,medium,,,
 sail:203,278,Awesome,203,Kirby 25,298,Awsome,203,Kirby 25,same_cleaned_sail_number,medium,,,

@@ -53,5 +53,5 @@ event_id,year,event_name,event_type,source_file,participants,helm_participants,b
 74,2016,Sail Fest 2016 Laser Radial - LYC,trophy,racing2014_2025/racing2016/Radial_Final.htm,0,0,0,0,0.0,0.0,special_external,yes,special_external_keyword,,
 68,2016,Sail Fest 2016 OPTI - LYC,trophy,racing2014_2025/racing2016/Final_OPTI.htm,0,0,0,0,0.0,0.0,special_external,yes,special_external_keyword,,
 72,2016,Sail Fest 2016 OPTI - LYC,trophy,racing2014_2025/racing2016/OPTI_Final.htm,0,0,0,0,0.0,0.0,special_external,yes,special_external_keyword,,
-118,2017,Womens Keelboat Championship by Bow ##,championship,racing2014_2025/racing2017/sonar_fleet.htm,0,0,0,0,0.0,0.0,special_local,yes,event_type_championship | special_local_keyword | special_external_keyword,,
+118,2017,Womens Keelboat Championship by Bow,championship,racing2014_2025/racing2017/sonar_fleet.htm,0,0,0,0,0.0,0.0,special_local,yes,event_type_championship | special_local_keyword | special_external_keyword,,
 206,2023,Chester Yacht Club Opener - IOD Class,trophy,racing2014_2025/racing2023/IOD2023.htm,0,0,0,0,0.0,0.0,special_external,yes,special_external_keyword,,
