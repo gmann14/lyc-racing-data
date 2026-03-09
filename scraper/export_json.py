@@ -319,6 +319,29 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
     return event_meta, groups_by_primary
 
 
+def _variant_event_ids(event_meta: dict[int, dict]) -> set[int]:
+    """Return IDs of variant-view events (fleet splits/overalls that duplicate a primary).
+
+    These should be excluded from analytical queries to avoid double-counting
+    race results. The primary event in each canonical group retains all results.
+    """
+    return {eid for eid, meta in event_meta.items() if meta["is_variant_view"]}
+
+
+def _variant_filter_sql(
+    variant_ids: set[int], event_alias: str = "e"
+) -> tuple[str, tuple]:
+    """Build SQL WHERE clause and params to exclude variant events.
+
+    Returns (sql_fragment, params) where sql_fragment is either empty string
+    or 'AND e.id NOT IN (?,?,...)', suitable for appending to a WHERE clause.
+    """
+    if not variant_ids:
+        return "", ()
+    placeholders = ",".join("?" for _ in variant_ids)
+    return f"AND {event_alias}.id NOT IN ({placeholders})", tuple(variant_ids)
+
+
 def _event_metrics(conn: sqlite3.Connection) -> dict[int, dict]:
     rows = conn.execute(
         """
@@ -424,31 +447,44 @@ def export_overview(conn: sqlite3.Connection) -> dict:
     """Export high-level stats for the home page."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
-    placeholders = ",".join("?" for _ in excluded) if excluded else None
-    where = f"WHERE e.id NOT IN ({placeholders})" if placeholders else ""
+    variant_ids = _variant_event_ids(event_meta)
+    # For result counts, skip both special events and variant views
+    all_skip = set(excluded.keys()) | variant_ids
+    skip_ph = ",".join("?" for _ in all_skip) if all_skip else None
+    skip_where = f"WHERE e.id NOT IN ({skip_ph})" if skip_ph else ""
+    # For event counts, only skip special events (variants are grouped via canonical)
+    excl_ph = ",".join("?" for _ in excluded) if excluded else None
+    excl_where = f"WHERE e.id NOT IN ({excl_ph})" if excl_ph else ""
+    # Variant-only filter for total_results (excludes double-counted fleet/overall dupes)
+    var_ph = ",".join("?" for _ in variant_ids) if variant_ids else None
+    var_where = f"WHERE e.id NOT IN ({var_ph})" if var_ph else ""
     stats = {
         "total_seasons": conn.execute("SELECT COUNT(*) as n FROM seasons").fetchone()["n"],
         "total_events": conn.execute("SELECT COUNT(*) as n FROM events").fetchone()["n"],
         "canonical_event_count": len(groups_by_primary),
         "total_races": conn.execute("SELECT COUNT(*) as n FROM races").fetchone()["n"],
-        "total_results": conn.execute("SELECT COUNT(*) as n FROM results").fetchone()["n"],
+        "total_results": conn.execute(
+            f"""SELECT COUNT(*) as n FROM results res
+                JOIN races r ON res.race_id = r.id
+                JOIN events e ON r.event_id = e.id
+                {var_where}""",
+            tuple(variant_ids),
+        ).fetchone()["n"],
         "total_boats": conn.execute("SELECT COUNT(*) as n FROM boats").fetchone()["n"],
         "handicap_events": conn.execute(
-            f"SELECT COUNT(*) AS n FROM events e {where}",
+            f"SELECT COUNT(*) AS n FROM events e {excl_where}",
             tuple(excluded.keys()),
         ).fetchone()["n"],
         "handicap_canonical_event_count": sum(
             1 for primary_id in groups_by_primary if primary_id not in excluded
         ),
         "handicap_results": conn.execute(
-            f"""
-            SELECT COUNT(*) AS n
-            FROM results res
-            JOIN races r ON r.id = res.race_id
-            JOIN events e ON e.id = r.event_id
-            {where}
-            """,
-            tuple(excluded.keys()),
+            f"""SELECT COUNT(*) AS n
+                FROM results res
+                JOIN races r ON r.id = res.race_id
+                JOIN events e ON e.id = r.event_id
+                {skip_where}""",
+            tuple(all_skip),
         ).fetchone()["n"],
         "year_range": {
             "first": conn.execute("SELECT MIN(year) as y FROM seasons").fetchone()["y"],
@@ -463,32 +499,50 @@ def export_seasons(conn: sqlite3.Connection) -> None:
     """Export season list with event counts."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
-    rows = conn.execute("""
-        SELECT s.year,
-               COUNT(e.id) as event_count,
-               SUM(CASE WHEN e.event_type = 'tns' THEN 1 ELSE 0 END) as tns_count,
-               SUM(CASE WHEN e.event_type = 'trophy' THEN 1 ELSE 0 END) as trophy_count,
-               SUM(CASE WHEN e.event_type = 'championship' THEN 1 ELSE 0 END) as championship_count
-        FROM seasons s
-        LEFT JOIN events e ON s.year = e.year
-        GROUP BY s.year
-        ORDER BY s.year DESC
-    """).fetchall()
-    primary_ids = set(groups_by_primary.keys())
-    for row in rows:
-        canonical_events = [
-            primary_id for primary_id in primary_ids
-            if conn.execute("SELECT year FROM events WHERE id = ?", (primary_id,)).fetchone()["year"] == row["year"]
-        ]
-        special_count = sum(
-            1
-            for event_id, meta in excluded.items()
-            if conn.execute("SELECT year FROM events WHERE id = ?", (event_id,)).fetchone()["year"] == row["year"]
-        )
-        row["special_event_count"] = special_count
-        row["handicap_event_count"] = row["event_count"] - special_count
-        row["canonical_event_count"] = len(canonical_events)
-        row["handicap_canonical_event_count"] = sum(1 for event_id in canonical_events if event_id not in excluded)
+
+    # Build year lookup for all events and per-year canonical counts
+    event_year_map = {
+        row["id"]: row["year"]
+        for row in conn.execute("SELECT id, year FROM events").fetchall()
+    }
+    event_type_map = {
+        row["id"]: row["event_type"]
+        for row in conn.execute("SELECT id, event_type FROM events").fetchall()
+    }
+
+    # Count canonical events per year and type
+    canonical_by_year: dict[int, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    for primary_id in groups_by_primary:
+        year = event_year_map[primary_id]
+        etype = event_type_map[primary_id]
+        canonical_by_year[year]["total"] += 1
+        canonical_by_year[year][etype] += 1
+        if primary_id not in excluded:
+            canonical_by_year[year]["handicap"] += 1
+
+    # Count special events per year
+    special_by_year: dict[int, int] = defaultdict(int)
+    for event_id in excluded:
+        special_by_year[event_year_map[event_id]] += 1
+
+    years = [
+        row["year"]
+        for row in conn.execute("SELECT year FROM seasons ORDER BY year DESC").fetchall()
+    ]
+    rows = []
+    for year in years:
+        counts = canonical_by_year.get(year, {})
+        rows.append({
+            "year": year,
+            "event_count": counts.get("total", 0),
+            "tns_count": counts.get("tns", 0),
+            "trophy_count": counts.get("trophy", 0),
+            "championship_count": counts.get("championship", 0),
+            "special_event_count": special_by_year.get(year, 0),
+            "handicap_event_count": counts.get("handicap", 0),
+            "canonical_event_count": counts.get("total", 0),
+            "handicap_canonical_event_count": counts.get("handicap", 0),
+        })
     _write_json(OUTPUT_DIR / "seasons.json", rows)
 
 
@@ -690,24 +744,31 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int,
 def export_boats(conn: sqlite3.Connection) -> None:
     """Export boat list with career stats."""
     excluded = _excluded_event_map(conn)
-    placeholders = ",".join("?" for _ in excluded) if excluded else None
+    event_meta, _ = _canonical_event_groups(conn)
+    variant_ids = _variant_event_ids(event_meta)
+    skip_ids = set(excluded.keys()) | variant_ids
+    placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
     where = f"WHERE e.id NOT IN ({placeholders})" if placeholders else ""
     boats = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number, b.club,
-               COUNT(DISTINCT res.id) as total_results,
-               COUNT(DISTINCT e.year) as seasons_raced,
-               MIN(e.year) as first_year,
-               MAX(e.year) as last_year,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins
+               COUNT(*) as total_results,
+               COUNT(DISTINCT year) as seasons_raced,
+               MIN(year) as first_year,
+               MAX(year) as last_year,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins
         FROM boats b
-        JOIN participants p ON p.boat_id = b.id
-        JOIN results res ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
-        {where}
+        JOIN (
+            SELECT p.boat_id, res.race_id, e.year, MIN(res.rank) as best_rank
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            {where}
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         ORDER BY total_results DESC
-    """.format(where=where), tuple(excluded.keys())).fetchall()
+    """.format(where=where), tuple(skip_ids)).fetchall()
     _write_json(OUTPUT_DIR / "boats.json", boats)
 
 
@@ -715,44 +776,54 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
     """Export detail for a single boat."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
-    placeholders = ",".join("?" for _ in excluded) if excluded else None
+    variant_ids = _variant_event_ids(event_meta)
+    skip_ids = set(excluded.keys()) | variant_ids
+    placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
     where = f"AND e.id NOT IN ({placeholders})" if placeholders else ""
     boat = conn.execute("SELECT * FROM boats WHERE id = ?", (boat_id,)).fetchone()
     if not boat:
         return
 
-    # Career stats
+    # Career stats — deduplicate per race (best rank wins)
     stats = conn.execute("""
-        SELECT COUNT(DISTINCT res.id) as total_races,
-               COUNT(DISTINCT e.year) as seasons,
-               MIN(e.year) as first_year,
-               MAX(e.year) as last_year,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins,
-               SUM(CASE WHEN res.rank <= 3 THEN 1 ELSE 0 END) as podiums,
-               ROUND(AVG(CASE WHEN res.rank IS NOT NULL THEN res.rank END), 1) as avg_finish
-        FROM results res
-        JOIN participants p ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
-        WHERE p.boat_id = ?
-        {where}
-    """.format(where=where), (boat_id, *excluded.keys())).fetchone()
+        SELECT COUNT(*) as total_races,
+               COUNT(DISTINCT year) as seasons,
+               MIN(year) as first_year,
+               MAX(year) as last_year,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins,
+               SUM(CASE WHEN best_rank <= 3 THEN 1 ELSE 0 END) as podiums,
+               ROUND(AVG(best_rank), 1) as avg_finish
+        FROM (
+            SELECT res.race_id, e.year, MIN(res.rank) as best_rank
+            FROM results res
+            JOIN participants p ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            WHERE p.boat_id = ?
+            {where}
+            GROUP BY res.race_id
+        )
+    """.format(where=where), (boat_id, *skip_ids)).fetchone()
 
-    # Season-by-season breakdown
+    # Season-by-season breakdown — deduplicate per race
     seasons = conn.execute("""
-        SELECT e.year,
-               COUNT(DISTINCT res.id) as races,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins,
-               ROUND(AVG(CASE WHEN res.rank IS NOT NULL THEN res.rank END), 1) as avg_finish
-        FROM results res
-        JOIN participants p ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
-        WHERE p.boat_id = ?
-        {where}
-        GROUP BY e.year
-        ORDER BY e.year
-    """.format(where=where), (boat_id, *excluded.keys())).fetchall()
+        SELECT year,
+               COUNT(*) as races,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins,
+               ROUND(AVG(best_rank), 1) as avg_finish
+        FROM (
+            SELECT res.race_id, e.year, MIN(res.rank) as best_rank
+            FROM results res
+            JOIN participants p ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            WHERE p.boat_id = ?
+            {where}
+            GROUP BY res.race_id
+        )
+        GROUP BY year
+        ORDER BY year
+    """.format(where=where), (boat_id, *skip_ids)).fetchall()
 
     # Trophy wins (series standings rank 1)
     trophy_rows = conn.execute("""
@@ -763,7 +834,7 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
         WHERE p.boat_id = ? AND ss.rank = 1
         {where}
         ORDER BY e.year DESC, e.name
-    """.format(where=where), (boat_id, *excluded.keys())).fetchall()
+    """.format(where=where), (boat_id, *skip_ids)).fetchall()
     seen_trophies: set[int] = set()
     trophies = []
     for row in trophy_rows:
@@ -781,25 +852,32 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
 def export_leaderboards(conn: sqlite3.Connection) -> None:
     """Export precomputed leaderboard data."""
     excluded = _excluded_event_map(conn)
-    placeholders = ",".join("?" for _ in excluded) if excluded else None
+    event_meta, _ = _canonical_event_groups(conn)
+    variant_ids = _variant_event_ids(event_meta)
+    skip_ids = set(excluded.keys()) | variant_ids
+    placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
     where = f"WHERE e.id NOT IN ({placeholders})" if placeholders else ""
-    # Most race wins (individual races)
+    # Most race wins (individual races) — deduplicate per race
     most_wins = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins,
-               COUNT(DISTINCT res.id) as total_races,
-               ROUND(100.0 * SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) / COUNT(DISTINCT res.id), 1) as win_pct
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins,
+               COUNT(*) as total_races,
+               ROUND(100.0 * SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as win_pct
         FROM boats b
-        JOIN participants p ON p.boat_id = b.id
-        JOIN results res ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
-        {where}
+        JOIN (
+            SELECT p.boat_id, res.race_id, MIN(res.rank) as best_rank
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            {where}
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         HAVING wins > 0
         ORDER BY wins DESC
         LIMIT 25
-    """.format(where=where), tuple(excluded.keys())).fetchall()
+    """.format(where=where), tuple(skip_ids)).fetchall()
 
     # Most seasons raced
     most_seasons = conn.execute("""
@@ -815,9 +893,11 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         GROUP BY b.id
         ORDER BY seasons DESC
         LIMIT 25
-    """.format(where=where), tuple(excluded.keys())).fetchall()
+    """.format(where=where), tuple(skip_ids)).fetchall()
 
-    # Most trophy/series wins
+    # Most trophy/series wins (exclude special but include variants for standings dedup)
+    excl_placeholders = ",".join("?" for _ in excluded) if excluded else None
+    trophy_where = f"AND e.id NOT IN ({excl_placeholders})" if excl_placeholders else ""
     trophy_rows = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number, e.id as event_id
         FROM series_standings ss
@@ -826,8 +906,7 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         JOIN events e ON ss.event_id = e.id
         WHERE ss.rank = 1
         {where_and}
-    """.format(where_and=(f"AND e.id NOT IN ({placeholders})" if placeholders else "")), tuple(excluded.keys())).fetchall()
-    event_meta, groups_by_primary = _canonical_event_groups(conn)
+    """.format(where_and=trophy_where), tuple(excluded.keys())).fetchall()
     trophy_counts: dict[int, dict] = {}
     seen_trophy_keys: set[tuple[int, int]] = set()
     for row in trophy_rows:
@@ -843,52 +922,66 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         entry["trophy_wins"] += 1
     most_trophies = sorted(trophy_counts.values(), key=lambda item: (-item["trophy_wins"], item["name"]))[:25]
 
-    # Best win percentage (min 20 races)
+    # Best win percentage (min 20 races) — deduplicate per race
     best_pct = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins,
-               COUNT(DISTINCT res.id) as total_races,
-               ROUND(100.0 * SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) / COUNT(DISTINCT res.id), 1) as win_pct
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins,
+               COUNT(*) as total_races,
+               ROUND(100.0 * SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) / COUNT(*), 1) as win_pct
         FROM boats b
-        JOIN participants p ON p.boat_id = b.id
-        JOIN results res ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
-        {where}
+        JOIN (
+            SELECT p.boat_id, res.race_id, MIN(res.rank) as best_rank
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            {where}
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         HAVING total_races >= 20 AND wins > 0
         ORDER BY win_pct DESC
         LIMIT 25
-    """.format(where=where), tuple(excluded.keys())).fetchall()
+    """.format(where=where), tuple(skip_ids)).fetchall()
 
-    # Best average finish position as % of fleet (min 20 races)
+    # Best average finish position as % of fleet (min 20 races) — deduplicate per race
     best_avg_finish_pct = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number,
                COUNT(*) as total_races,
-               ROUND(AVG(CAST(res.rank AS REAL) / race_sizes.field_size) * 100, 1) as avg_finish_pct,
-               ROUND(AVG(res.rank), 1) as avg_finish,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins
+               ROUND(AVG(CAST(best_rank AS REAL) / field_size) * 100, 1) as avg_finish_pct,
+               ROUND(AVG(best_rank), 1) as avg_finish,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins
         FROM boats b
-        JOIN participants p ON p.boat_id = b.id
-        JOIN results res ON res.participant_id = p.id
-        JOIN races rc ON res.race_id = rc.id
-        JOIN events e ON rc.event_id = e.id
+        JOIN (
+            SELECT p.boat_id, res.race_id, MIN(res.rank) as best_rank
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            {where}
+            AND res.rank IS NOT NULL
+            AND (res.status IS NULL OR res.status = '')
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
         JOIN (
             SELECT r2.race_id, COUNT(*) as field_size
             FROM results r2
             JOIN participants p2 ON r2.participant_id = p2.id
+            JOIN races rc2 ON r2.race_id = rc2.id
+            JOIN events e2 ON rc2.event_id = e2.id
             WHERE p2.boat_id IS NOT NULL AND r2.rank IS NOT NULL
               AND (r2.status IS NULL OR r2.status = '')
+              {variant_filter}
             GROUP BY r2.race_id
-        ) race_sizes ON race_sizes.race_id = res.race_id
-        {where}
-        AND res.rank IS NOT NULL
-        AND (res.status IS NULL OR res.status = '')
+        ) race_sizes ON race_sizes.race_id = deduped.race_id
         GROUP BY b.id
         HAVING total_races >= 20
         ORDER BY avg_finish_pct ASC
         LIMIT 25
-    """.format(where=where if where else "WHERE 1=1"), tuple(excluded.keys())).fetchall()
+    """.format(
+        where=where if where else "WHERE 1=1",
+        variant_filter=f"AND e2.id NOT IN ({placeholders})" if placeholders else "",
+    ), (*skip_ids, *skip_ids)).fetchall()
 
     # Fleet size by year
     fleet_by_year = conn.execute("""
@@ -903,7 +996,7 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         {where}
         GROUP BY e.year
         ORDER BY e.year
-    """.format(where=where), tuple(excluded.keys())).fetchall()
+    """.format(where=where), tuple(skip_ids)).fetchall()
 
     data = {
         "most_wins": most_wins,
@@ -991,9 +1084,12 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
 def export_analysis(conn: sqlite3.Connection) -> None:
     """Export pre-computed analysis data for stats pages."""
     excluded = _excluded_event_map(conn)
-    excl_placeholders = ",".join("?" for _ in excluded) if excluded else None
+    event_meta, _ = _canonical_event_groups(conn)
+    variant_ids = _variant_event_ids(event_meta)
+    skip_ids = set(excluded.keys()) | variant_ids
+    excl_placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
     excl_where = f"AND e.id NOT IN ({excl_placeholders})" if excl_placeholders else ""
-    excl_params = tuple(excluded) if excluded else ()
+    excl_params = tuple(skip_ids) if skip_ids else ()
 
     # --- Fleet Trends ---
     # Unique boats per year
@@ -1152,19 +1248,23 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         })
 
     # --- Participation & Consistency ---
-    # Most races sailed (all-time)
+    # Most races sailed (all-time) — deduplicate per race
     most_races = conn.execute(f"""
         SELECT b.id, b.name, b.class, b.sail_number,
-               COUNT(DISTINCT res.id) as races,
-               COUNT(DISTINCT e.year) as seasons,
-               MIN(e.year) as first_year, MAX(e.year) as last_year,
-               SUM(CASE WHEN res.rank = 1 THEN 1 ELSE 0 END) as wins
-        FROM results res
-        JOIN participants p ON res.participant_id = p.id
-        JOIN boats b ON p.boat_id = b.id
-        JOIN races r ON res.race_id = r.id
-        JOIN events e ON r.event_id = e.id
-        WHERE p.boat_id IS NOT NULL {excl_where}
+               COUNT(*) as races,
+               COUNT(DISTINCT year) as seasons,
+               MIN(year) as first_year, MAX(year) as last_year,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins
+        FROM boats b
+        JOIN (
+            SELECT p.boat_id, res.race_id, e.year, MIN(res.rank) as best_rank
+            FROM results res
+            JOIN participants p ON res.participant_id = p.id
+            JOIN races r ON res.race_id = r.id
+            JOIN events e ON r.event_id = e.id
+            WHERE p.boat_id IS NOT NULL {excl_where}
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         ORDER BY races DESC
         LIMIT 30
@@ -1225,7 +1325,9 @@ def export_analysis(conn: sqlite3.Connection) -> None:
     longest_streaks = sorted(best_by_boat.values(), key=lambda x: -x["streak"])[:25]
 
     # --- TNS Deep Dive ---
-    tns_by_year = conn.execute("""
+    # Use variant filter to avoid double-counting fleet+overall results
+    variant_where, variant_params = _variant_filter_sql(variant_ids)
+    tns_by_year = conn.execute(f"""
         SELECT e.year, e.month,
                COUNT(DISTINCT r.date) as race_nights,
                COUNT(DISTINCT b.id) as unique_boats,
@@ -1236,9 +1338,10 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         JOIN races r ON res.race_id = r.id
         JOIN events e ON r.event_id = e.id
         WHERE e.event_type = 'tns'
+        {variant_where}
         GROUP BY e.year, e.month
         ORDER BY e.year, e.month
-    """).fetchall()
+    """, variant_params).fetchall()
 
     # --- Weather Summary ---
     weather_summary = conn.execute("""

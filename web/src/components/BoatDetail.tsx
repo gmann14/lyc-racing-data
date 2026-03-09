@@ -5,6 +5,13 @@ import { useRef, useEffect } from "react";
 import { useHashParam, useJsonData } from "@/lib/use-data";
 import type { BoatDetail } from "@/lib/data";
 
+function shortenTrophyName(name: string): string {
+  return name
+    .replace(/^LYC\s+(Handicap|TNS Handicap|Thursday Night)\s*(Series\s*)?[-\s]*/i, "")
+    .replace(/\s*\(\d+(\.\d+)?nm\s*\)\s*/, " ")
+    .trim();
+}
+
 export default function BoatDetailPanel() {
   const id = useHashParam();
   const {
@@ -110,25 +117,21 @@ export default function BoatDetailPanel() {
             <h3 className="font-bold text-navy mb-2 text-sm">
               Trophy Wins ({boat.trophies.length})
             </h3>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <th className="pb-1">Year</th>
-                  <th className="pb-1">Event</th>
-                </tr>
-              </thead>
-              <tbody>
-                {boat.trophies.map((t, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-border/50 last:border-0"
-                  >
-                    <td className="py-1.5 font-mono">{t.year}</td>
-                    <td className="py-1.5">{t.name}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="space-y-0">
+              {boat.trophies.map((t, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 py-1.5 border-b border-border/50 last:border-0 text-sm"
+                >
+                  <span className="font-mono text-gray-400 shrink-0">
+                    {t.year}
+                  </span>
+                  <span className="text-navy-light">
+                    {shortenTrophyName(t.name)}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
