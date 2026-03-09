@@ -69,7 +69,10 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
     """Export detail for a single season."""
     events = conn.execute("""
         SELECT e.id, e.name, e.slug, e.event_type, e.month, e.source_format,
-               e.races_sailed, e.entries
+               COALESCE(e.races_sailed, (SELECT COUNT(*) FROM races r WHERE r.event_id = e.id)) as races_sailed,
+               COALESCE(e.entries, (SELECT COUNT(DISTINCT res.participant_id)
+                   FROM results res JOIN races r ON res.race_id = r.id
+                   WHERE r.event_id = e.id)) as entries
         FROM events e
         WHERE e.year = ?
         ORDER BY e.event_type, e.name
@@ -101,6 +104,18 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int) -> None:
     """, (event_id,)).fetchone()
     if not event:
         return
+
+    # Backfill races_sailed/entries from actual data when NULL
+    if event["races_sailed"] is None:
+        event["races_sailed"] = conn.execute(
+            "SELECT COUNT(*) as n FROM races WHERE event_id = ?", (event_id,)
+        ).fetchone()["n"]
+    if event["entries"] is None:
+        event["entries"] = conn.execute("""
+            SELECT COUNT(DISTINCT res.participant_id) as n
+            FROM results res JOIN races r ON res.race_id = r.id
+            WHERE r.event_id = ?
+        """, (event_id,)).fetchone()["n"]
 
     # Series standings
     standings = conn.execute("""
