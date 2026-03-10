@@ -136,6 +136,27 @@ export default function BoatDetailPanel() {
         )}
       </div>
 
+      {boat.owners && boat.owners.length > 0 && (
+        <div className="mt-4 border-t border-border pt-3">
+          <h3 className="font-bold text-navy mb-2 text-sm">
+            {boat.owners.length === 1 ? "Owner" : "Owner History"}
+          </h3>
+          <div className="space-y-0">
+            {boat.owners.map((o, i) => (
+              <div
+                key={i}
+                className="flex gap-3 py-1 text-sm"
+              >
+                <span className="font-mono text-gray-400 shrink-0 text-xs">
+                  {o.year_start ?? "?"}&ndash;{o.year_end ?? "present"}
+                </span>
+                <span className="text-navy-light">{o.owner_name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {boat.stats.avg_finish !== null && (
         <div className="mt-4 text-xs text-gray-400 border-t border-border pt-3">
           Career avg finish: {boat.stats.avg_finish} &middot; Active{" "}
