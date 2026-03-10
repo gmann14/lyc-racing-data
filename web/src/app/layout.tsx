@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
 import MobileNav from "@/components/MobileNav";
+import SearchOverlay from "@/components/SearchOverlay";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -60,7 +61,7 @@ function Nav() {
           </span>
         </Link>
         {/* Desktop nav */}
-        <div className="hidden md:flex gap-6 text-sm">
+        <div className="hidden md:flex items-center gap-6 text-sm">
           {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
@@ -70,9 +71,13 @@ function Nav() {
               {l.label}
             </Link>
           ))}
+          <SearchOverlay />
         </div>
-        {/* Mobile hamburger */}
-        <MobileNav links={NAV_LINKS} />
+        {/* Mobile nav */}
+        <div className="flex items-center gap-1 md:hidden">
+          <SearchOverlay />
+          <MobileNav links={NAV_LINKS} />
+        </div>
       </div>
     </nav>
   );

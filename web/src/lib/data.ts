@@ -90,6 +90,12 @@ export interface BoatListItem {
   wins: number;
 }
 
+export interface BoatOwner {
+  owner_name: string;
+  year_start: number | null;
+  year_end: number | null;
+}
+
 export interface BoatDetail {
   id: number;
   name: string;
@@ -118,6 +124,7 @@ export interface BoatDetail {
     summary_scope: string;
     nett_points: number | null;
   }>;
+  owners?: BoatOwner[];
 }
 
 export interface RaceResult {

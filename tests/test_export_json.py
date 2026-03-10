@@ -456,3 +456,51 @@ class TestExportIntegration:
                 f"Boat {entry['name']}: leaderboard wins {entry['wins']} != "
                 f"detail wins {detail['stats']['wins']}"
             )
+
+    def test_search_index_exists_and_has_entries(self):
+        path = OUTPUT_DIR / "search-index.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        assert len(data) > 100
+        types = {entry["t"] for entry in data}
+        assert "boat" in types
+        assert "event" in types
+        assert "season" in types
+
+    def test_search_index_boats_have_keywords(self):
+        path = OUTPUT_DIR / "search-index.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        boats = [e for e in data if e["t"] == "boat"]
+        assert len(boats) >= 250
+        # Every boat should have non-empty keywords and a URL
+        for b in boats:
+            assert b["k"], f"Boat {b['l']} has empty keywords"
+            assert b["u"].startswith("/boats/#")
+
+    def test_search_index_no_variant_events(self, conn):
+        """Search index should not include variant-view events."""
+        path = OUTPUT_DIR / "search-index.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        events = [e for e in data if e["t"] == "event"]
+        # Should be fewer than total events (variants excluded)
+        total_events = conn.execute("SELECT COUNT(*) as n FROM events").fetchone()["n"]
+        assert len(events) < total_events
+
+    def test_boat_detail_has_owners(self):
+        """Boats with known owners should have owners in detail JSON."""
+        path = OUTPUT_DIR / "boats.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        boats = json.loads(path.read_text())
+        pooh = next((b for b in boats if b["name"] == "Poohsticks"), None)
+        if not pooh:
+            pytest.skip("Poohsticks not found")
+        detail = json.loads((OUTPUT_DIR / "boats" / f"{pooh['id']}.json").read_text())
+        owners = detail.get("owners", [])
+        assert len(owners) >= 1
+        assert owners[0]["owner_name"] == "Colin Mann"

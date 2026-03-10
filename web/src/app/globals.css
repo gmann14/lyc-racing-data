@@ -140,3 +140,18 @@ html {
 .animate-slide-down {
   animation: slide-down 0.2s ease-out both;
 }
+
+/* Tooltip fade in */
+@keyframes tooltip-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.animate-tooltip-in {
+  animation: tooltip-in 0.15s ease-out both;
+}

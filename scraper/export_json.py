@@ -865,7 +865,22 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
             seen_trophies.add(canonical_id)
         trophies.append(row)
 
-    data = {**boat, "stats": stats, "seasons": seasons, "trophies": trophies}
+    # Ownership history
+    owners = conn.execute("""
+        SELECT s.name as owner_name, bo.year_start, bo.year_end
+        FROM boat_ownership bo
+        JOIN skippers s ON s.id = bo.skipper_id
+        WHERE bo.boat_id = ?
+        ORDER BY bo.year_start
+    """, (boat_id,)).fetchall()
+
+    data = {
+        **boat,
+        "stats": stats,
+        "seasons": seasons,
+        "trophies": trophies,
+        "owners": [dict(o) for o in owners] if owners else [],
+    }
     _write_json(OUTPUT_DIR / "boats" / f"{boat_id}.json", data)
 
 
@@ -1078,7 +1093,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
 
         # Fallback: for events with no series standings (race-only), get race winner
         if not winners:
-            winners = conn.execute(f"""
+            fallback_rows = conn.execute(f"""
                 SELECT e.year, e.id as event_id,
                        p.display_name, b.name as boat_name, b.class as boat_class,
                        b.id as boat_id, res.points as nett_points
@@ -1088,8 +1103,14 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 JOIN participants p ON res.participant_id = p.id
                 LEFT JOIN boats b ON p.boat_id = b.id
                 WHERE e.id IN ({placeholders}) AND res.rank = 1
-                ORDER BY e.year
+                ORDER BY e.year, res.points
             """, tuple(group_ids)).fetchall()
+            # Dedup: one winner per year (lowest points = best)
+            for row in fallback_rows:
+                if row["year"] in seen_years:
+                    continue
+                seen_years.add(row["year"])
+                winners.append(row)
 
         trophy_list.append({
             "name": trophy["name"],
@@ -1438,6 +1459,77 @@ def export_analysis(conn: sqlite3.Connection) -> None:
     _write_json(OUTPUT_DIR / "analysis.json", analysis)
 
 
+def export_search_index(conn: sqlite3.Connection) -> int:
+    """Export a search index for client-side search.
+
+    Returns the number of entries in the index.
+    """
+    entries: list[dict] = []
+
+    # Boats
+    excluded = _excluded_event_map(conn)
+    event_meta, _ = _canonical_event_groups(conn)
+    variant_ids = _variant_event_ids(event_meta)
+    skip_ids = set(excluded.keys()) | variant_ids
+
+    for row in conn.execute("""
+        SELECT b.id, b.name, b.class, b.sail_number
+        FROM boats b
+        ORDER BY b.name
+    """).fetchall():
+        keywords = " ".join(filter(None, [
+            row["name"],
+            row["class"],
+            row["sail_number"],
+        ])).lower()
+        entries.append({
+            "t": "boat",
+            "id": row["id"],
+            "l": row["name"],
+            "s": row["class"] or "",
+            "u": f"/boats/#{row['id']}",
+            "k": keywords,
+        })
+
+    # Events (canonical only — skip variants)
+    for row in conn.execute("""
+        SELECT e.id, e.name, e.year, e.event_type, e.month
+        FROM events e
+        ORDER BY e.year DESC, e.name
+    """).fetchall():
+        if row["id"] in variant_ids:
+            continue
+        year_str = str(row["year"]) if row["year"] else ""
+        keywords = " ".join(filter(None, [
+            row["name"],
+            year_str,
+            row["event_type"],
+            row["month"],
+        ])).lower()
+        entries.append({
+            "t": "event",
+            "id": row["id"],
+            "l": row["name"],
+            "s": year_str,
+            "u": f"/seasons/#{row['year']}",
+            "k": keywords,
+        })
+
+    # Seasons
+    for row in conn.execute("SELECT year FROM seasons ORDER BY year DESC").fetchall():
+        entries.append({
+            "t": "season",
+            "id": row["year"],
+            "l": f"{row['year']} Season",
+            "s": "",
+            "u": f"/seasons/#{row['year']}",
+            "k": str(row["year"]),
+        })
+
+    _write_json(OUTPUT_DIR / "search-index.json", entries)
+    return len(entries)
+
+
 def export_all() -> None:
     """Run the full export pipeline."""
     conn = _connect()
@@ -1483,6 +1575,10 @@ def export_all() -> None:
 
     print("Exporting analysis data...")
     export_analysis(conn)
+
+    print("Exporting search index...")
+    search_count = export_search_index(conn)
+    print(f"  {search_count} search entries")
 
     conn.close()
     print(f"\nDone! JSON files written to {OUTPUT_DIR}")
