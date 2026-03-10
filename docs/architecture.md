@@ -41,14 +41,14 @@ Next.js 16 static build (web/) → GitHub Pages
 - **`--fresh` flag**: Deletes entire `lyc_racing.db` and recreates from scratch
 - **Also runs**: `load_owners.py` (boat_owners.csv) and `backfill_weather()`
 - **Destructive?** YES with `--fresh` — wipes all tables including weather
-- **Time**: ~5 sec (schema + load) + ~13 min (weather API calls)
+- **Time**: ~5 sec (schema + load) + ~5 sec (weather from cache)
 
 ### Step 3: Backfill Weather (optional standalone)
-- **Script**: `backfill_weather.py`
-- **Source**: Open-Meteo historical API (Lunenburg coordinates)
+- **Script**: `backfill_weather.py [--force-fetch]`
+- **Source**: Local cache (`enrichment/weather_cache.json`) first, then Open-Meteo API for missing dates
 - **Operation**: `INSERT OR REPLACE` — upserts, doesn't wipe
-- **Time**: ~13 minutes (27 API calls with rate limiting)
-- **Fragility**: No retry logic. If API fails mid-run, some years have no weather.
+- **Time**: ~5 sec from cache; ~13 min if `--force-fetch` or cache missing
+- **Cache**: 609 dates cached locally. New dates auto-fetched and added to cache.
 
 ### Step 4: Export JSON
 - **Script**: `export_json.py`
@@ -85,22 +85,20 @@ git push                 # Deploy
 
 ## Known Fragility Issues
 
-### 1. Full wipe on every export (HIGH)
-`export_json.py` calls `shutil.rmtree()` on `boats/`, `events/`, `seasons/` directories before regenerating. If the export crashes mid-way (out of disk, Python error, `.DS_Store` blocking rmtree), you end up with partially deleted data and no easy recovery.
+### ~~1. Full wipe on every export~~ FIXED
+Write-in-place with `_clean_orphans()` replaced `shutil.rmtree()`. Crash during export leaves existing files intact.
 
-**Impact**: Crash during export = missing data until next successful export.
-
-### 2. `.DS_Store` blocks export (MEDIUM)
-macOS creates `.DS_Store` files in `web/public/data/` subdirectories. `shutil.rmtree()` can fail on these, crashing the entire export. Current workaround: `find web/public/data -name .DS_Store -delete` before every export.
+### ~~2. `.DS_Store` blocks export~~ FIXED
+`_clean_orphans()` skips `.DS_Store` files automatically.
 
 ### 3. No incremental export (MEDIUM)
 Cannot export a single boat, event, or season. Every change requires regenerating all ~1,100 JSON files. This makes the export slow and the git diff noisy (every file touched).
 
-### 4. Concurrent agents corrupt data (HIGH)
-No file locking. If two Claude Code sessions (or any two processes) run `export_json.py` simultaneously, they race on the same `web/public/data/` directory. One session's output overwrites the other's. This is the likely cause of lost work in previous sessions.
+### ~~4. Concurrent agents corrupt data~~ FIXED
+`fcntl.LOCK_EX` file locking prevents concurrent exports.
 
-### 5. Weather API coupled to `--fresh` (MEDIUM)
-`load_db --fresh` automatically calls `backfill_weather()`. If the API is slow or fails, you lose all weather data (609 rows). No local cache is used. Re-fetching takes ~13 minutes.
+### ~~5. Weather API coupled to `--fresh`~~ FIXED
+`backfill_weather.py` now loads from `enrichment/weather_cache.json` first. Only fetches from API for dates not in cache. `--fresh` rebuild takes ~5 sec instead of ~13 min.
 
 ### 6. Generated JSON committed to git (HIGH)
 All ~1,100 generated JSON files live in the repo. Any session that runs export and pushes can silently overwrite uncommitted changes from another session. This creates merge conflicts and data loss when working in parallel.
@@ -114,18 +112,19 @@ No checksums, row counts, or schema validation between steps. A corrupt database
 |-----------|------|----------|-------------|
 | Parse HTML → JSONL | ~5s | No | No |
 | Load DB (no --fresh) | ~5s | No | No |
-| Load DB --fresh | ~5s + 13min | Yes (weather API) | Yes |
-| Backfill weather | ~13min | Yes | No (upsert) |
-| Export JSON | ~60s | No | Yes (wipes dirs) |
+| Load DB --fresh | ~10s | No (cache) | Yes |
+| Backfill weather (cached) | ~5s | No | No (upsert) |
+| Backfill weather (--force-fetch) | ~13min | Yes | No (upsert) |
+| Export JSON | ~60s | No | No (write-in-place) |
 | Next.js build | ~15s | No | Yes (wipes .next/) |
 | GitHub Pages deploy | ~2min | Yes | No |
 
 ## Recommended Improvements
 
-### Priority 1: Prevent data loss
-1. **Write-in-place instead of rmtree** — Write JSON files directly, then delete orphans. No wipe step.
-2. **File locking** — Prevent concurrent exports with a lock file.
-3. **Cache weather locally** — Save API responses to `enrichment/weather_cache.json`. Load from cache on `--fresh` instead of re-fetching.
+### ~~Priority 1: Prevent data loss~~ ALL DONE
+1. ~~Write-in-place instead of rmtree~~ — Done: `_clean_orphans()`
+2. ~~File locking~~ — Done: `fcntl.LOCK_EX`
+3. ~~Cache weather locally~~ — Done: `enrichment/weather_cache.json`
 
 ### Priority 2: Enable faster iteration
 4. **Incremental export** — Add `--only analysis`, `--only boats`, `--only events` flags to export subsets.

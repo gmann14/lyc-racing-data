@@ -8,6 +8,7 @@ weather table.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import time
 from datetime import datetime
@@ -17,6 +18,7 @@ import requests
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
+CACHE_PATH = PROJECT_ROOT / "enrichment" / "weather_cache.json"
 
 # Lunenburg Yacht Club / Mahone Bay
 LATITUDE = 44.3724
@@ -258,12 +260,31 @@ def extract_weather_for_date(
     }
 
 
-def backfill_weather() -> None:
-    """Main entry point: fetch weather and insert into the database."""
+def load_cache() -> dict[str, dict]:
+    """Load the local weather cache (date → weather dict)."""
+    if CACHE_PATH.exists():
+        try:
+            return json.loads(CACHE_PATH.read_text())
+        except (json.JSONDecodeError, OSError) as exc:
+            print(f"  Warning: could not load cache: {exc}")
+    return {}
+
+
+def save_cache(cache: dict[str, dict]) -> None:
+    """Save the weather cache to disk."""
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CACHE_PATH.write_text(json.dumps(cache, indent=1, sort_keys=True, ensure_ascii=False))
+
+
+def backfill_weather(force_fetch: bool = False) -> None:
+    """Main entry point: fetch weather and insert into the database.
+
+    By default, uses the local cache for dates that already have data.
+    Pass ``force_fetch=True`` to re-fetch everything from the API.
+    """
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute("PRAGMA journal_mode=WAL")
 
-    # Ensure weather table exists (schema should already be created)
     race_dates = get_unique_race_dates(conn)
     if not race_dates:
         print("No race dates found.")
@@ -272,9 +293,41 @@ def backfill_weather() -> None:
 
     print(f"Found {len(race_dates)} unique race dates across handicap events.")
 
-    by_year = group_dates_by_year(race_dates)
+    # Load existing cache
+    cache = load_cache() if not force_fetch else {}
+    cached_count = 0
+
+    # Insert any cached data first
+    for iso_date in sorted(race_dates):
+        if iso_date in cache:
+            weather = cache[iso_date]
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO weather
+                    (date, temp_c, wind_speed_kmh, wind_direction_deg,
+                     wind_gust_kmh, precipitation_mm, conditions, source)
+                VALUES
+                    (:date, :temp_c, :wind_speed_kmh, :wind_direction_deg,
+                     :wind_gust_kmh, :precipitation_mm, :conditions, :source)
+                """,
+                weather,
+            )
+            cached_count += 1
+
+    if cached_count:
+        conn.commit()
+        print(f"Loaded {cached_count} dates from local cache.")
+
+    # Determine which dates still need fetching
+    missing_dates = {d: h for d, h in race_dates.items() if d not in cache}
+    if not missing_dates:
+        print("All dates covered by cache. No API calls needed.")
+        conn.close()
+        return
+
+    print(f"{len(missing_dates)} dates need API fetch.\n")
+    by_year = group_dates_by_year(missing_dates)
     years = sorted(by_year.keys())
-    print(f"Years to fetch: {years[0]}-{years[-1]} ({len(years)} years)\n")
 
     inserted = 0
     skipped = 0
@@ -308,6 +361,8 @@ def backfill_weather() -> None:
                 """,
                 weather,
             )
+            # Update cache with newly fetched data
+            cache[iso_date] = weather
             year_inserted += 1
 
         conn.commit()
@@ -317,10 +372,19 @@ def backfill_weather() -> None:
         # Polite delay between API requests
         time.sleep(0.5)
 
+    # Save updated cache
+    save_cache(cache)
+    print(f"Cache updated ({len(cache)} total dates).")
+
     conn.close()
 
-    print(f"\nDone! Inserted: {inserted}, Skipped: {skipped}, Errors: {errors}")
+    print(f"\nDone! From cache: {cached_count}, Fetched: {inserted}, Skipped: {skipped}, Errors: {errors}")
 
 
 if __name__ == "__main__":
-    backfill_weather()
+    import sys
+
+    force = "--force-fetch" in sys.argv
+    if force:
+        print("Force-fetch mode: ignoring local cache.\n")
+    backfill_weather(force_fetch=force)
