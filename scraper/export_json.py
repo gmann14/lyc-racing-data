@@ -161,8 +161,10 @@ _FIXED_COURSE_TROPHIES: dict[str, dict] = {
 def _match_fixed_course(event_name: str) -> dict | None:
     """Return fixed-course info if event name matches a known fixed-course trophy."""
     lower = event_name.lower()
+    # Also try with dots stripped so "R. G. Smith Cup" matches "r g smith"
+    stripped = lower.replace(".", "")
     for key, info in _FIXED_COURSE_TROPHIES.items():
-        if key in lower:
+        if key in lower or key in stripped:
             return info
     return None
 
@@ -1643,8 +1645,6 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
                 "event_type": t.get("event_type", "trophy"),
                 "winners": [],
             }
-            if "course" in t:
-                canonical[cname]["course"] = t["course"]
         entry = canonical[cname]
         # Merge winners, dedup by year
         existing_years = {w["year"] for w in entry["winners"]}
@@ -1652,9 +1652,19 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
             if w["year"] not in existing_years:
                 entry["winners"].append(w)
                 existing_years.add(w["year"])
-        # Keep course data if present
-        if "course" not in entry and "course" in t:
-            entry["course"] = t["course"]
+        # Merge course data — combine race_history from all event variants
+        if "course" in t:
+            if "course" not in entry:
+                entry["course"] = t["course"]
+            else:
+                # Merge race_history from this variant into existing course data
+                existing_years_course = {
+                    r["year"] for r in entry["course"].get("race_history", [])
+                }
+                for rh in t["course"].get("race_history", []):
+                    if rh["year"] not in existing_years_course:
+                        entry["course"]["race_history"].append(rh)
+                        existing_years_course.add(rh["year"])
 
     # Step 2: Load historical CSV data
     csv_path = Path(__file__).parent.parent / "enrichment" / "trophy_case_historical.csv"
