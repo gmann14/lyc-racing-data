@@ -4,7 +4,10 @@ import { getOverview, getLeaderboards } from "@/lib/data";
 export default function HomePage() {
   const overview = getOverview();
   const leaderboards = getLeaderboards();
-  const topBoats = leaderboards.most_wins.slice(0, 5);
+  const topBoats = [...leaderboards.most_wins]
+    .sort((a, b) => (b.total_races ?? 0) - (a.total_races ?? 0))
+    .slice(0, 20);
+  const maxRaces = Math.max(...topBoats.map((b) => b.total_races ?? 0));
   const maxBoats = Math.max(...leaderboards.fleet_by_year.map((f) => f.unique_boats));
 
   return (
@@ -61,48 +64,45 @@ export default function HomePage() {
 
       {/* Main content */}
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Top boats */}
+        {/* Most active boats */}
         <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
             <h2 className="text-xl font-bold text-navy">
-              Top Boats by Race Wins
+              Most Active Boats
             </h2>
             <p className="mt-1 text-xs text-gray-400">
-              Handicap-only results, excluding flagged special events.
+              Top 20 by total races in the handicap dataset.
             </p>
           </div>
           <div className="p-5">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <th className="pb-2">Boat</th>
-                  <th className="pb-2">Class</th>
-                  <th className="pb-2 text-right">Wins</th>
-                  <th className="pb-2 text-right">Races</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topBoats.map((b) => (
-                  <tr key={b.id} className="border-b border-border/50 last:border-0">
-                    <td className="py-2.5">
-                      <Link
-                        href={`/boats/#${b.id}`}
-                        className="text-navy-light hover:text-gold font-medium transition-colors"
-                      >
-                        {b.name}
-                      </Link>
-                    </td>
-                    <td className="py-2.5 text-gray-400">{b.class}</td>
-                    <td className="py-2.5 text-right font-mono font-semibold text-navy">
-                      {b.wins}
-                    </td>
-                    <td className="py-2.5 text-right font-mono text-gray-400">
+            <div className="space-y-1">
+              {topBoats.map((b) => {
+                const pct = ((b.total_races ?? 0) / maxRaces) * 100;
+                return (
+                  <div
+                    key={b.id}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <Link
+                      href={`/boats/#${b.id}`}
+                      className="w-24 text-right text-navy-light hover:text-gold font-medium transition-colors truncate shrink-0"
+                      title={b.name}
+                    >
+                      {b.name}
+                    </Link>
+                    <div className="flex-1 bg-blue-light rounded-full h-4 overflow-hidden">
+                      <div
+                        className="bg-navy h-full rounded-full bar-animated"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <span className="w-6 text-right font-mono font-semibold text-navy">
                       {b.total_races}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
           <div className="px-5 py-3 border-t border-border bg-cream/50">
             <Link

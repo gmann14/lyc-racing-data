@@ -1632,6 +1632,10 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 ],
             }
 
+        # Mark all DB winners with source
+        for w in winners:
+            w["source"] = "db"
+
         trophy_entry: dict = {
             "name": trophy["name"],
             "slug": trophy["slug"],
@@ -1642,6 +1646,147 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
             trophy_entry["course"] = course_data
 
         trophy_list.append(trophy_entry)
+
+    # --- Consolidate trophies by normalized name ---
+    def _trophy_group_key(name: str) -> str:
+        """Normalize trophy name for grouping duplicates."""
+        n = name.lower().strip()
+        # Strip common prefixes
+        n = re.sub(r"^lyc\s+handicap\s*[-–—]\s*", "", n)
+        n = re.sub(r"^lyc\s+", "", n)
+        # Normalize punctuation
+        n = n.replace("\u2019", "'").replace("\u201c", "").replace("\u201d", "")
+        n = re.sub(r"['\"\u00ef\u00bb\u00bf`]", "", n)
+        # Strip trailing " race", "cup race" → "cup"
+        n = re.sub(r"\s+race$", "", n)
+        # Remove all non-alphanumeric
+        n = re.sub(r"[^a-z0-9]+", "", n)
+        return n
+
+    consolidated: dict[str, dict] = {}
+    key_to_name: dict[str, str] = {}
+    for t in trophy_list:
+        gkey = _trophy_group_key(t["name"])
+        if gkey not in consolidated:
+            consolidated[gkey] = t
+            key_to_name[gkey] = t["name"]
+        else:
+            # Merge winners, dedup by year
+            existing_years = {w["year"] for w in consolidated[gkey]["winners"]}
+            for w in t["winners"]:
+                if w["year"] not in existing_years:
+                    consolidated[gkey]["winners"].append(w)
+                    existing_years.add(w["year"])
+            # Keep course data if present
+            if "course" not in consolidated[gkey] and "course" in t:
+                consolidated[gkey]["course"] = t["course"]
+            # Prefer the shorter/cleaner name
+            if len(t["name"]) < len(consolidated[gkey]["name"]):
+                consolidated[gkey]["name"] = t["name"]
+    trophy_list = list(consolidated.values())
+
+    # --- Load historical trophy data from CSV ---
+    csv_path = Path(__file__).parent.parent / "enrichment" / "trophy_case_historical.csv"
+    if csv_path.exists():
+        import csv as csv_mod
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv_mod.DictReader(f)
+            hist_by_name: dict[str, list[dict]] = {}
+            first_awarded_map: dict[str, int | None] = {}
+            for row in reader:
+                tname = row["trophy_name"].strip()
+                hist_by_name.setdefault(tname, []).append(row)
+                fa = row.get("first_awarded")
+                if fa:
+                    try:
+                        fa_int = int(fa)
+                        if tname not in first_awarded_map or (
+                            first_awarded_map[tname] is not None
+                            and fa_int < first_awarded_map[tname]
+                        ):
+                            first_awarded_map[tname] = fa_int
+                    except ValueError:
+                        pass
+
+        # Match historical trophies to DB trophies by normalized name
+        db_by_normalized: dict[str, dict] = {}
+        for t in trophy_list:
+            norm = _trophy_group_key(t["name"])
+            db_by_normalized[norm] = t
+
+        matched_csv_names: set[str] = set()
+        for csv_name, csv_rows in hist_by_name.items():
+            norm = _trophy_group_key(csv_name)
+            db_trophy = db_by_normalized.get(norm)
+            if db_trophy:
+                matched_csv_names.add(csv_name)
+                existing_years = {w["year"] for w in db_trophy["winners"]}
+                for row in csv_rows:
+                    try:
+                        year = int(row["year"])
+                    except (ValueError, KeyError):
+                        continue
+                    if year in existing_years:
+                        continue
+                    db_trophy["winners"].append({
+                        "year": year,
+                        "event_id": None,
+                        "display_name": row.get("skipper_name") or "",
+                        "boat_name": row.get("boat_name") or None,
+                        "boat_class": None,
+                        "boat_id": None,
+                        "nett_points": None,
+                        "source": "historical",
+                    })
+                    existing_years.add(year)
+                # Set first_awarded
+                fa = first_awarded_map.get(csv_name)
+                if fa:
+                    db_trophy["first_awarded"] = fa
+                db_trophy["verified"] = True
+
+        # Add CSV-only trophies (not matched to any DB trophy)
+        for csv_name, csv_rows in hist_by_name.items():
+            if csv_name in matched_csv_names:
+                continue
+            winners = []
+            for row in csv_rows:
+                try:
+                    year = int(row["year"])
+                except (ValueError, KeyError):
+                    continue
+                winners.append({
+                    "year": year,
+                    "event_id": None,
+                    "display_name": row.get("skipper_name") or "",
+                    "boat_name": row.get("boat_name") or None,
+                    "boat_class": None,
+                    "boat_id": None,
+                    "nett_points": None,
+                    "source": "historical",
+                })
+            if winners:
+                fa = first_awarded_map.get(csv_name)
+                trophy_list.append({
+                    "name": csv_name,
+                    "slug": csv_name.lower().replace(" ", "-"),
+                    "event_type": "trophy",
+                    "first_awarded": fa,
+                    "verified": True,
+                    "winners": winners,
+                })
+
+    # Ensure all trophies have first_awarded and verified fields
+    for t in trophy_list:
+        if "first_awarded" not in t:
+            years = [w["year"] for w in t["winners"]] if t["winners"] else []
+            t["first_awarded"] = min(years) if years else None
+        if "verified" not in t:
+            t["verified"] = False
+
+    # Sort winners within each trophy by year
+    for t in trophy_list:
+        t["winners"].sort(key=lambda w: w["year"])
 
     # Aggregate course data: merge all per-event course data into one per fixed course
     # Group trophies by their course label to collect all yearly data

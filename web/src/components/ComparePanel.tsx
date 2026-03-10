@@ -213,10 +213,19 @@ export default function ComparePanel({ boats }: { boats: BoatOption[] }) {
   const boatA = boats.find((b) => b.id === idA);
   const boatB = boats.find((b) => b.id === idB);
 
-  const results = useMemo(() => {
+  const [hideNonFinishers, setHideNonFinishers] = useState(true);
+
+  const allResults = useMemo(() => {
     if (!racesA || !racesB) return [];
     return computeHeadToHead(racesA, racesB);
   }, [racesA, racesB]);
+
+  const results = useMemo(() => {
+    if (!hideNonFinishers) return allResults;
+    return allResults.filter(
+      (r) => !r.statusA && !r.statusB,
+    );
+  }, [allResults, hideNonFinishers]);
 
   const stats = useMemo(() => {
     let winsA = 0;
@@ -355,10 +364,19 @@ export default function ComparePanel({ boats }: { boats: BoatOption[] }) {
 
               {/* Race-by-race table */}
               <div className="bg-card rounded-lg border border-border overflow-hidden">
-                <div className="p-4 border-b border-border">
+                <div className="p-4 border-b border-border flex items-center justify-between gap-4">
                   <h3 className="font-serif text-lg text-navy">
                     Race-by-Race Results
                   </h3>
+                  <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={hideNonFinishers}
+                      onChange={(e) => setHideNonFinishers(e.target.checked)}
+                      className="rounded border-border"
+                    />
+                    Hide DNC/DNS/DNF
+                  </label>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">

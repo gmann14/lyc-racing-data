@@ -559,7 +559,7 @@ function TnsSection({ data }: { data: AnalysisData }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
         <div className="stat-card rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-white font-mono">{totalRaceNights}</div>
-          <div className="text-xs text-white/60 mt-1">Total Race Nights</div>
+          <div className="text-xs text-white/60 mt-1">TNS Races</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-white font-mono">{tnsYearData.length}</div>
@@ -576,7 +576,7 @@ function TnsSection({ data }: { data: AnalysisData }) {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <Card title="Race Nights by Year" subtitle="Stacked by month (June-September)">
+        <Card title="TNS Races by Year" subtitle="Stacked by month (June-September)">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={tnsYearData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2ddd5" />
