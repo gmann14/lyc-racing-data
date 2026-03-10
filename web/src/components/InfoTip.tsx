@@ -6,9 +6,13 @@ import { METHODOLOGY_LOOKUP } from "@/lib/methodology";
 export default function InfoTip({
   term,
   className = "",
+  position = "above",
+  align = "center",
 }: {
   term: string;
   className?: string;
+  position?: "above" | "below";
+  align?: "center" | "right";
 }) {
   const item = METHODOLOGY_LOOKUP.get(term.toLowerCase());
   const [open, setOpen] = useState(false);
@@ -64,7 +68,9 @@ export default function InfoTip({
         <div
           ref={tooltipRef}
           role="tooltip"
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-lg bg-navy text-white text-xs shadow-lg border border-navy-light p-3 animate-tooltip-in pointer-events-auto"
+          className={`absolute z-50 w-72 rounded-lg bg-navy text-white text-xs shadow-lg border border-navy-light p-3 animate-tooltip-in pointer-events-auto ${
+            position === "below" ? "top-full mt-2" : "bottom-full mb-2"
+          } ${align === "right" ? "right-0" : "left-1/2 -translate-x-1/2"}`}
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={() => setOpen(false)}
         >
@@ -76,7 +82,11 @@ export default function InfoTip({
             </div>
           )}
           {/* Arrow */}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-navy" />
+          {position === "below" ? (
+            <div className={`absolute bottom-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-navy ${align === "right" ? "right-2" : "left-1/2 -translate-x-1/2"}`} />
+          ) : (
+            <div className={`absolute top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-navy ${align === "right" ? "right-2" : "left-1/2 -translate-x-1/2"}`} />
+          )}
         </div>
       )}
     </span>

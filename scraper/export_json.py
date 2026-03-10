@@ -96,6 +96,28 @@ def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None)
     return None
 
 
+# Fixed-course trophies with known distances from LYC Course Card.
+# Keys are substrings to match against canonical event names (case-insensitive).
+_FIXED_COURSE_TROPHIES: dict[str, dict] = {
+    "boland": {"course": "#53 Bolands", "distance_nm": 16.7, "label": "Boland's Cup"},
+    "leeward": {"course": "#52 Leeward Island", "distance_nm": 14.2, "label": "Leeward Island Trophy"},
+    "tancook": {"course": "#50/#51 Tancook Island", "distance_nm": 22.2, "label": "R. G. Smith Cup"},
+    "r g smith": {"course": "#50/#51 Tancook Island", "distance_nm": 22.2, "label": "R. G. Smith Cup"},
+    "rg smith": {"course": "#50/#51 Tancook Island", "distance_nm": 22.2, "label": "R. G. Smith Cup"},
+    "r.g.smith": {"course": "#50/#51 Tancook Island", "distance_nm": 22.2, "label": "R. G. Smith Cup"},
+    # Charter Cup course TBD — needs manual verification
+}
+
+
+def _match_fixed_course(event_name: str) -> dict | None:
+    """Return fixed-course info if event name matches a known fixed-course trophy."""
+    lower = event_name.lower()
+    for key, info in _FIXED_COURSE_TROPHIES.items():
+        if key in lower:
+            return info
+    return None
+
+
 def _event_name_group_key(name: str) -> str:
     cleaned = _collapse_whitespace(name).lower()
     cleaned = cleaned.replace("&", "and")

@@ -10,6 +10,8 @@ from scraper.export_json import (
     _dict_factory,
     _reset_output_dir,
     _write_json,
+    _elapsed_to_seconds,
+    _format_elapsed,
     export_overview,
     export_seasons,
     export_season_detail,
@@ -28,6 +30,10 @@ from scraper.export_json import (
     _looks_like_variant_name,
     _variant_event_ids,
     _variant_filter_sql,
+    _normalize_trophy_name,
+    _slugify_trophy,
+    _load_trophy_historical,
+    _FIXED_COURSE_TROPHIES,
     DB_PATH,
     OUTPUT_DIR,
 )
@@ -545,3 +551,119 @@ class TestExportIntegration:
         ids_b = {r["r"] for r in log_b}
         shared = ids_a & ids_b
         assert len(shared) > 0, f"{top[0]['name']} and {top[1]['name']} should share races"
+
+
+class TestTrophyNormalization:
+    @pytest.mark.parametrize(
+        "input_name,expected",
+        [
+            ("LYC Handicap - Boland's Cup", "Boland's Cup"),
+            ("Bolands", "Boland's Cup"),
+            ("LYC Handicap - RG Smith Trophy", "R. G. Smith Cup"),
+            ("R.G.Smith (Tancook Race)", "R. G. Smith Cup"),
+            ("LYC Handicap - Leeward Island Race", "Leeward Island Trophy"),
+            ("LYC Handicap - Charter Cup", "Charter Cup"),
+            ("LYC Handicap - Bolands Trophy Pursuit Race (16.7nm )", "Boland's Cup"),
+        ],
+    )
+    def test_normalize_trophy_name(self, input_name, expected):
+        assert _normalize_trophy_name(input_name) == expected
+
+    def test_slugify_trophy(self):
+        assert _slugify_trophy("Boland's Cup") == "bolands-cup"
+        assert _slugify_trophy("R. G. Smith Cup") == "r-g-smith-cup"
+        assert _slugify_trophy("Himmelman's Trophy") == "himmelmans-trophy"
+
+    def test_load_trophy_historical(self):
+        data = _load_trophy_historical()
+        assert len(data) > 0
+        assert "Charter Cup" in data
+        # Charter Cup should have entries back to 1947
+        years = [e["year"] for e in data["Charter Cup"]]
+        assert min(years) == 1947
+        # Mini-Ocean Tray should be aliased to Ocean Tray
+        assert "Mini-Ocean Tray" not in data
+        assert "Ocean Tray" in data
+
+    def test_trophies_json_canonical_count(self):
+        """Trophy output should have ~35-40 canonical trophies, not hundreds."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        assert 25 <= len(data) <= 50, f"Expected 25-50 trophies, got {len(data)}"
+
+    def test_trophies_have_historical_winners(self):
+        """Key trophies should have pre-1999 winners from historical data."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        by_name = {t["name"]: t for t in data}
+        smith = by_name.get("R. G. Smith Cup")
+        assert smith is not None
+        years = [w["year"] for w in smith["winners"]]
+        assert min(years) == 1947, f"R.G. Smith should go back to 1947, got {min(years)}"
+        # Should have both DB and historical sources
+        sources = {w.get("source") for w in smith["winners"]}
+        assert "db" in sources
+        assert "historical" in sources
+
+    def test_trophies_have_first_awarded(self):
+        """Every trophy should have a first_awarded field."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        for t in data:
+            assert "first_awarded" in t, f"{t['name']} missing first_awarded"
+            if t["winners"]:
+                assert t["first_awarded"] is not None
+
+    def test_no_duplicate_mini_ocean_tray(self):
+        """Mini-Ocean Tray should be merged into Ocean Tray."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        names = [t["name"] for t in data]
+        assert "Mini-Ocean Tray" not in names
+        assert "Ocean Tray" in names
+
+    def test_fixed_course_trophies_have_course_data(self):
+        """Fixed-course trophies should have course enrichment in JSON."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        by_name = {t["name"]: t for t in data}
+        for trophy_name, info in _FIXED_COURSE_TROPHIES.items():
+            trophy = by_name.get(trophy_name)
+            assert trophy is not None, f"Missing trophy: {trophy_name}"
+            assert "course" in trophy, f"{trophy_name} missing course data"
+            course = trophy["course"]
+            assert course["distance_nm"] == info["distance_nm"]
+            assert course["races_with_elapsed"] > 0
+            assert course["fastest"] is not None
+            assert course["fastest"]["knots"] > 0
+            assert len(course["race_history"]) > 0
+
+
+class TestElapsedTimeParsing:
+    def test_hhmmss(self):
+        assert _elapsed_to_seconds("3:29:58") == 3 * 3600 + 29 * 60 + 58
+
+    def test_legacy_day_prefix(self):
+        assert _elapsed_to_seconds("00 04:46:32") == 4 * 3600 + 46 * 60 + 32
+
+    def test_mmss(self):
+        assert _elapsed_to_seconds("45:30") == 45 * 60 + 30
+
+    def test_none(self):
+        assert _elapsed_to_seconds(None) is None
+        assert _elapsed_to_seconds("") is None
+
+    def test_format_elapsed(self):
+        assert _format_elapsed(3600) == "1:00:00"
+        assert _format_elapsed(3661) == "1:01:01"
+        assert _format_elapsed(12600) == "3:30:00"

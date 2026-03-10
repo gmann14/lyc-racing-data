@@ -41,9 +41,8 @@ export default function LeaderboardsPage() {
           columns={[
             { key: "name", label: "Boat", link: true },
             { key: "class", label: "Class" },
-            { key: "seasons", label: "Seasons", align: "right" },
-            { key: "first_year", label: "First", align: "right" },
-            { key: "last_year", label: "Last", align: "right" },
+            { key: "seasons", label: "Seasons", align: "center" },
+            { key: "first_year", label: "Years", align: "right", combineKey: "last_year", light: true },
           ]}
         />
 
@@ -88,11 +87,15 @@ export default function LeaderboardsPage() {
 interface Column {
   key: string;
   label: string;
-  align?: "right";
+  align?: "right" | "center";
   link?: boolean;
   suffix?: string;
   infoTerm?: string;
   decimals?: number;
+  /** Second key to combine with en-dash, e.g. first_year–last_year */
+  combineKey?: string;
+  /** Use lighter styling like the boats table years column */
+  light?: boolean;
 }
 
 function LeaderboardTable({
@@ -105,25 +108,25 @@ function LeaderboardTable({
   columns: Column[];
 }) {
   return (
-    <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+    <div className="bg-card rounded-lg shadow-sm border border-border">
       <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border">
         {title}
       </h2>
-      <div className="overflow-x-auto">
-      <table className="w-full text-sm min-w-[480px]">
+      <div className="overflow-x-auto overflow-y-visible">
+      <table className="w-full text-sm min-w-[520px]">
         <thead>
           <tr className="bg-cream text-left">
             <th className="px-3 py-2 text-center w-8">#</th>
             {columns.map((c) => (
               <th
                 key={c.key}
-                className={`px-3 py-2 ${
-                  c.align === "right" ? "text-right" : ""
+                className={`px-3 py-2 whitespace-nowrap ${
+                  c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : ""
                 }`}
               >
                 <span className="inline-flex items-center gap-1">
                   <span>{c.label}</span>
-                  {c.infoTerm && <InfoTip term={c.infoTerm} />}
+                  {c.infoTerm && <InfoTip term={c.infoTerm} position="below" align="right" />}
                 </span>
               </th>
             ))}
@@ -140,34 +143,43 @@ function LeaderboardTable({
             };
             return (
               <tr
-                key={row.id}
+                key={`${row.id}-${row.name}`}
                 className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
               >
                 <td className="px-3 py-2 text-center text-gray-400 font-mono text-xs">
                   {i + 1}
                 </td>
-                {columns.map((c) => (
-                  <td
-                    key={c.key}
-                    className={`px-3 py-2 ${
-                      c.align === "right" ? "text-right font-mono" : ""
-                    }`}
-                  >
-                    {c.link ? (
-                      <Link
-                        href={`/boats/#${row.id}`}
-                        className="text-navy-light hover:text-gold font-medium transition-colors"
-                      >
-                        {String(val(c.key, c) ?? "\u2014")}
-                      </Link>
-                    ) : (
-                      <span className={c.align === "right" ? "" : "text-gray-500"}>
-                        {String(val(c.key, c) ?? "\u2014")}
-                        {c.suffix && val(c.key, c) != null ? c.suffix : ""}
-                      </span>
-                    )}
-                  </td>
-                ))}
+                {columns.map((c) => {
+                  const alignCls =
+                    c.align === "right"
+                      ? `text-right ${c.light ? "" : "font-mono"} whitespace-nowrap`
+                      : c.align === "center"
+                        ? "text-center font-mono whitespace-nowrap"
+                        : "";
+                  const noWrap = !c.link && !c.align ? "whitespace-nowrap" : "";
+                  return (
+                    <td key={c.key} className={`px-3 py-2 ${alignCls} ${noWrap}`}>
+                      {c.link ? (
+                        <Link
+                          href={`/boats/#${row.id}`}
+                          className="text-navy-light hover:text-gold font-medium transition-colors inline-block max-w-[180px] truncate align-bottom"
+                          title={row.owner ? `${row.name} (${row.owner})` : row.name}
+                        >
+                          {String(val(c.key, c) ?? "\u2014")}
+                        </Link>
+                      ) : c.combineKey ? (
+                        <span className={c.light ? "text-xs text-gray-400" : ""}>
+                          {String(val(c.key, c) ?? "\u2014")}&ndash;{String(val(c.combineKey, c) ?? "\u2014")}
+                        </span>
+                      ) : (
+                        <span className={c.align ? "" : "text-gray-500"}>
+                          {String(val(c.key, c) ?? "\u2014")}
+                          {c.suffix && val(c.key, c) != null ? c.suffix : ""}
+                        </span>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

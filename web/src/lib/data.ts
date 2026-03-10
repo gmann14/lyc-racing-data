@@ -225,6 +225,8 @@ export interface LeaderboardEntry {
   trophy_wins?: number;
   unique_boats?: number;
   total_results?: number;
+  boat_ids?: number[];
+  owner?: string | null;
 }
 
 export interface Leaderboards {
@@ -243,19 +245,66 @@ export interface Leaderboards {
 
 export interface TrophyWinner {
   year: number;
-  event_id: number;
+  event_id: number | null;
   display_name: string;
   boat_name: string | null;
   boat_class: string | null;
   boat_id: number | null;
   nett_points: number | null;
+  source?: "db" | "historical";
+}
+
+export interface TrophyCourseRaceHistory {
+  year: number;
+  winner_elapsed: string | null;
+  winner_elapsed_secs: number | null;
+  winner_boat: string | null;
+  finishers: number;
+  dnf_count: number;
+  wind_speed_kmh: number | null;
+  wind_gust_kmh: number | null;
+  conditions: string | null;
+  temp_c: number | null;
+}
+
+export interface TrophyCourseData {
+  course_name: string;
+  distance_nm: number;
+  races_with_elapsed: number;
+  fastest: {
+    elapsed: string;
+    elapsed_secs: number;
+    year: number;
+    boat: string;
+    knots: number;
+  } | null;
+  slowest: {
+    elapsed: string;
+    elapsed_secs: number;
+    year: number;
+    boat: string;
+  } | null;
+  median_winner_elapsed: string | null;
+  avg_finishers: number | null;
+  wind_correlation: {
+    light_avg: string | null;
+    light_count: number;
+    moderate_avg: string | null;
+    moderate_count: number;
+    heavy_avg: string | null;
+    heavy_count: number;
+  } | null;
+  race_history: TrophyCourseRaceHistory[];
 }
 
 export interface Trophy {
   name: string;
   slug: string;
   event_type: string;
+  first_awarded: number | null;
+  verified: boolean;
   winners: TrophyWinner[];
+  course?: TrophyCourseData;
 }
 
 export function getOverview(): Overview {
