@@ -235,6 +235,7 @@ export interface Leaderboards {
   most_trophies: LeaderboardEntry[];
   best_win_pct: LeaderboardEntry[];
   best_avg_finish_pct: LeaderboardEntry[];
+  most_active?: LeaderboardEntry[];
   excluded_event_count: number;
   fleet_by_year: Array<{
     year: number;

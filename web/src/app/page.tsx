@@ -4,11 +4,12 @@ import { getOverview, getLeaderboards } from "@/lib/data";
 export default function HomePage() {
   const overview = getOverview();
   const leaderboards = getLeaderboards();
-  const topBoats = [...leaderboards.most_wins]
-    .sort((a, b) => (b.total_races ?? 0) - (a.total_races ?? 0))
+  const topBoats = (leaderboards.most_active ?? [...leaderboards.most_wins]
+    .sort((a, b) => (b.total_races ?? 0) - (a.total_races ?? 0)))
     .slice(0, 20);
   const maxRaces = Math.max(...topBoats.map((b) => b.total_races ?? 0));
-  const maxBoats = Math.max(...leaderboards.fleet_by_year.map((f) => f.unique_boats));
+  const fleetYears = leaderboards.fleet_by_year.slice(-20);
+  const maxBoats = Math.max(...fleetYears.map((f) => f.unique_boats));
 
   return (
     <div>
@@ -126,7 +127,7 @@ export default function HomePage() {
           </div>
           <div className="p-5">
             <div className="space-y-1">
-              {leaderboards.fleet_by_year.map((fy) => {
+              {fleetYears.map((fy) => {
                 const pct = (fy.unique_boats / maxBoats) * 100;
                 return (
                   <div
