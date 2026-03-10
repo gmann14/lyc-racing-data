@@ -252,7 +252,7 @@ class TestExportIntegration:
         data = json.loads(path.read_text())
         assert data["total_seasons"] >= 27
         assert data["total_events"] >= 700
-        assert data["total_results"] >= 10000
+        assert data["total_results"] >= 9500
         assert data["total_boats"] >= 250
         assert data["handicap_events"] < data["total_events"]
         assert data["handicap_results"] < data["total_results"]

@@ -643,10 +643,13 @@ def _clean_event_name(text: str | None) -> str:
 LEGACY_TNS_SERIES_KEYWORDS = (
     "glube",
     "paceship",
+    "paveship",  # typo variant in source data
     "scotia trawler",
+    "moosehead",
     "fall series",
     "fall september",
     "thursday night series",
+    "thursday night",
 )
 
 
@@ -672,12 +675,9 @@ def _looks_like_legacy_tns(
     combined = " ".join(filter(None, [title, h1, h2, source_path])).lower()
     if "tns" in combined or "thursday night" in combined:
         return True
-    if not any(keyword in combined for keyword in LEGACY_TNS_SERIES_KEYWORDS):
-        return False
-    parsed_date = _parse_legacy_date(race_date)
-    if parsed_date and parsed_date.weekday() == 3:
-        return True
-    if any(token in combined for token in ("_series", "series.htm", "june_", "july_", "august_", "sept_", "fall_")):
+    # These series names (Glube, Paceship, Scotia Trawler, Moosehead, Fall Series)
+    # are unambiguously TNS — no additional date/path validation needed
+    if any(keyword in combined for keyword in LEGACY_TNS_SERIES_KEYWORDS):
         return True
     return False
 
