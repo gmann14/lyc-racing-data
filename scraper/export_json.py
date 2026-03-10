@@ -7,16 +7,17 @@ static Next.js site without needing a live database connection.
 
 from __future__ import annotations
 
+import fcntl
 import json
 import re
 import sqlite3
-import shutil
 from collections import defaultdict
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 OUTPUT_DIR = PROJECT_ROOT / "web" / "public" / "data"
+LOCK_PATH = PROJECT_ROOT / ".export_json.lock"
 
 
 def _dict_factory(cursor: sqlite3.Cursor, row: tuple) -> dict:
@@ -35,10 +36,19 @@ def _write_json(path: Path, data: object) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")))
 
 
-def _reset_output_dir(path: Path) -> None:
-    if path.exists():
-        shutil.rmtree(path)
-    path.mkdir(parents=True, exist_ok=True)
+def _clean_orphans(directory: Path, valid_files: set[Path]) -> int:
+    """Remove files in directory that aren't in the valid set.
+
+    Returns the number of orphan files removed.
+    """
+    if not directory.exists():
+        return 0
+    removed = 0
+    for f in directory.iterdir():
+        if f.is_file() and f not in valid_files and f.name != ".DS_Store":
+            f.unlink()
+            removed += 1
+    return removed
 
 
 def _collapse_whitespace(text: str | None) -> str:
@@ -2369,7 +2379,29 @@ def export_search_index(conn: sqlite3.Connection) -> int:
 
 
 def export_all() -> None:
-    """Run the full export pipeline."""
+    """Run the full export pipeline.
+
+    Uses file locking to prevent concurrent exports and write-in-place
+    with orphan cleanup instead of destructive rmtree.
+    """
+    # Acquire exclusive lock to prevent concurrent exports
+    lock_file = open(LOCK_PATH, "w")
+    try:
+        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        print("ERROR: Another export is already running (lock held). Aborting.")
+        lock_file.close()
+        return
+    try:
+        _export_all_locked()
+    finally:
+        fcntl.flock(lock_file, fcntl.LOCK_UN)
+        lock_file.close()
+        LOCK_PATH.unlink(missing_ok=True)
+
+
+def _export_all_locked() -> None:
+    """Inner export logic, called while holding the lock."""
     conn = _connect()
 
     print("Exporting overview...")
@@ -2381,28 +2413,40 @@ def export_all() -> None:
     export_seasons(conn)
 
     print("Exporting season details...")
-    _reset_output_dir(OUTPUT_DIR / "seasons")
+    season_dir = OUTPUT_DIR / "seasons"
+    season_dir.mkdir(parents=True, exist_ok=True)
     years = [r["year"] for r in conn.execute("SELECT year FROM seasons ORDER BY year").fetchall()]
+    season_files: set[Path] = set()
     for year in years:
         export_season_detail(conn, year)
-    print(f"  {len(years)} seasons exported")
+        season_files.add(season_dir / f"{year}.json")
+    orphans = _clean_orphans(season_dir, season_files)
+    print(f"  {len(years)} seasons exported" + (f" ({orphans} orphans removed)" if orphans else ""))
 
     print("Exporting event details...")
-    _reset_output_dir(OUTPUT_DIR / "events")
+    event_dir = OUTPUT_DIR / "events"
+    event_dir.mkdir(parents=True, exist_ok=True)
     weather_lookup = _load_weather_lookup(conn)
     event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
+    event_files: set[Path] = set()
     for eid in event_ids:
         export_event_detail(conn, eid, weather_lookup=weather_lookup)
-    print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)")
+        event_files.add(event_dir / f"{eid}.json")
+    orphans = _clean_orphans(event_dir, event_files)
+    print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)"
+          + (f" ({orphans} orphans removed)" if orphans else ""))
 
     print("Exporting boats list...")
     export_boats(conn)
 
     print("Exporting boat details...")
-    _reset_output_dir(OUTPUT_DIR / "boats")
+    boat_dir = OUTPUT_DIR / "boats"
+    boat_dir.mkdir(parents=True, exist_ok=True)
     boat_ids = [r["id"] for r in conn.execute("SELECT id FROM boats ORDER BY id").fetchall()]
+    boat_files: set[Path] = set()
     for bid in boat_ids:
         export_boat_detail(conn, bid)
+        boat_files.add(boat_dir / f"{bid}.json")
     print(f"  {len(boat_ids)} boats exported")
 
     print("Exporting boat race logs...")
@@ -2413,7 +2457,10 @@ def export_all() -> None:
     race_total = 0
     for bid in boat_ids:
         race_total += export_boat_races(conn, bid, skip_ids=skip_all)
-    print(f"  {race_total} race entries across {len(boat_ids)} boats")
+        boat_files.add(boat_dir / f"{bid}-races.json")
+    orphans = _clean_orphans(boat_dir, boat_files)
+    print(f"  {race_total} race entries across {len(boat_ids)} boats"
+          + (f" ({orphans} orphans removed)" if orphans else ""))
 
     print("Exporting leaderboards...")
     export_leaderboards(conn)

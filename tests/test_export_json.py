@@ -8,7 +8,7 @@ import pytest
 from pathlib import Path
 from scraper.export_json import (
     _dict_factory,
-    _reset_output_dir,
+    _clean_orphans,
     _write_json,
     _elapsed_to_seconds,
     _format_elapsed,
@@ -59,15 +59,19 @@ class TestHelpers:
         text = path.read_text()
         assert " " not in text  # compact format
 
-    def test_reset_output_dir_removes_stale_files(self, tmp_path):
+    def test_clean_orphans_removes_stale_files(self, tmp_path):
         directory = tmp_path / "events"
         directory.mkdir(parents=True)
-        (directory / "old.json").write_text("{}", encoding="utf-8")
+        keep = directory / "keep.json"
+        keep.write_text("{}", encoding="utf-8")
+        orphan = directory / "old.json"
+        orphan.write_text("{}", encoding="utf-8")
 
-        _reset_output_dir(directory)
+        removed = _clean_orphans(directory, {keep})
 
-        assert directory.exists()
-        assert list(directory.iterdir()) == []
+        assert removed == 1
+        assert keep.exists()
+        assert not orphan.exists()
 
     def test_classify_special_event_external(self):
         is_special, kind, reasons = _classify_special_event(
