@@ -157,6 +157,13 @@ export interface RaceWeather {
   conditions: string | null;
 }
 
+export interface RaceTide {
+  time: string;
+  height_m: number;
+  type: "high" | "low";
+  source: string;
+}
+
 export interface Race {
   id: number;
   race_key: string | null;
@@ -169,6 +176,7 @@ export interface Race {
   distance_nm: number | null;
   notes: string | null;
   weather: RaceWeather | null;
+  tides: RaceTide[] | null;
   results: RaceResult[];
 }
 

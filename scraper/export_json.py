@@ -66,6 +66,25 @@ def _load_weather_lookup(conn: sqlite3.Connection) -> dict[str, dict]:
     return {row["date"]: row for row in rows}
 
 
+def _load_tide_lookup(conn: sqlite3.Connection) -> dict[str, list[dict]]:
+    """Load all tide rows grouped by ISO date (YYYY-MM-DD)."""
+    try:
+        rows = conn.execute(
+            "SELECT date, time, height_m, type, source FROM tides ORDER BY date, time"
+        ).fetchall()
+    except Exception:
+        return {}
+    result: dict[str, list[dict]] = {}
+    for row in rows:
+        result.setdefault(row["date"], []).append({
+            "time": row["time"],
+            "height_m": row["height_m"],
+            "type": row["type"],
+            "source": row["source"],
+        })
+    return result
+
+
 def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None) -> str | None:
     """Parse mixed race date formats to ISO YYYY-MM-DD string.
 
@@ -709,7 +728,8 @@ def export_season_detail(conn: sqlite3.Connection, year: int) -> None:
 
 
 def export_event_detail(conn: sqlite3.Connection, event_id: int,
-                        weather_lookup: dict[str, dict] | None = None) -> None:
+                        weather_lookup: dict[str, dict] | None = None,
+                        tide_lookup: dict[str, list[dict]] | None = None) -> None:
     """Export full detail for a single event."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
@@ -829,6 +849,12 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int,
                     "precipitation_mm": w["precipitation_mm"],
                     "conditions": w["conditions"],
                 }
+        # Attach tide data if available
+        race["tides"] = None
+        if tide_lookup and race.get("date"):
+            iso_date = _parse_race_date_to_iso(race["date"], event.get("year"))
+            if iso_date and iso_date in tide_lookup:
+                race["tides"] = tide_lookup[iso_date]
 
     data = {**event, "standings": standings, "races": races}
     _write_json(OUTPUT_DIR / "events" / f"{event_id}.json", data)
@@ -2673,13 +2699,14 @@ def _export_all_locked(only: set[str] | None = None) -> None:
         event_dir = OUTPUT_DIR / "events"
         event_dir.mkdir(parents=True, exist_ok=True)
         weather_lookup = _load_weather_lookup(conn)
+        tide_lookup = _load_tide_lookup(conn)
         event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
         event_files: set[Path] = set()
         for eid in event_ids:
-            export_event_detail(conn, eid, weather_lookup=weather_lookup)
+            export_event_detail(conn, eid, weather_lookup=weather_lookup, tide_lookup=tide_lookup)
             event_files.add(event_dir / f"{eid}.json")
         orphans = _clean_orphans(event_dir, event_files)
-        print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)"
+        print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather, {len(tide_lookup)} tide dates loaded)"
               + (f" ({orphans} orphans removed)" if orphans else ""))
 
     if _should("boats"):
