@@ -1633,11 +1633,20 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     # R. G. Smith Cup
     "RG Smith Trophy": "R. G. Smith Cup",
     "R.G. Smith Tancook Island Race": "R. G. Smith Cup",
+    "R.G. Smith Trophy": "R. G. Smith Cup",
+    "R.G. Smith trophy": "R. G. Smith Cup",
+    "R.G.Smith Trophy": "R. G. Smith Cup",
     "R.G.Smith (Tancook Race)": "R. G. Smith Cup",
+    "R G Smith Trophy": "R. G. Smith Cup",
     "RG Smith Trophy - Lunenburg Yacht Club": "R. G. Smith Cup",
     "LYC Handicap - RG Smith": "R. G. Smith Cup",
     "LYC Handicap - RG Smith Tancook Race": "R. G. Smith Cup",
     "LYC Handicap - RG Smith Trophy (Tancook Race)": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith Tancook RAce": "R. G. Smith Cup",
+    "LYC Handicap - RG.Smith Tancook Race": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith Trophy (Tancook Race )": "R. G. Smith Cup",
+    "LYC Handicap - R.G. Smith Tancook Race": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith (Tancook Race)": "R. G. Smith Cup",
     # R. H. Winters Cruise Trophy
     "LYC Handicap - R.H. Winters Trophy": "R. H. Winters Cruise Trophy",
     "LYC Handicap - Robert H Winters Trophy": "R. H. Winters Cruise Trophy",
@@ -1660,16 +1669,11 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "Bluenose Motors Trophy": "Bluenose Motors Trophy",
     "Boland's Cup": "Boland's Cup",
     "Commodore's Cup": "Commodores Cup",
-    "Craft Festival Race": "Craft Festival Cup",
-    "Crown Diamond Trophy": "Crown Diamond Paint Trophy",
     "Highliner Cup": "Highliner Cup",
     "Leeward Island": "Leeward Island Trophy",
-    "Leeward Island Race": "Leeward Island Trophy",
     "Leeward Island Trophy": "Leeward Island Trophy",
-    "MacDonald Trophy": "Fisheries Exhibition C Cup (MacDonald Cup)",
     "Martin Fielding Tray": "Martin Fielding Tray",
     "Ocean Tray": "Ocean Tray",
-    "RG Smith Trophy": "R. G. Smith Cup",
     "Sable Sailmakers Cup": "Sable Sailmakers Cup",
     "Commodore Cup": "Commodores Cup",
     "Rear Commodore's Cup": "Rear Commodores Cup",
@@ -1700,6 +1704,28 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "LYC Handicap - North Sails Atlantic Cup": "North Sails Atlantic Cup",
     # Ian Kent Race Day
     "LYC Handicap - Ian Kent Race Day": "Ian Kent Race Day",
+    # Uppercase and variant forms
+    "BOLAND'S CUP": "Boland's Cup",
+    "BOLANDS CUP": "Boland's Cup",
+    "THRASH": "T.H.R.A.S.H.",
+    "OCEAN TRAY": "Ocean Tray",
+    "LADIES HELM RACE": "Ladies Helm Race",
+    "CREW TROPHY": "Crew Trophy",
+    "Cruiser's Trophy": "Cruiser's Trophy",
+    "Sable Sailmaker's": "Sable Sailmakers Cup",
+    "Sable Sailmaker's Cup": "Sable Sailmakers Cup",
+    "Sable Sailmaker\u2019s Cup": "Sable Sailmakers Cup",
+    "Craft Festival Trophy": "Craft Festival Cup",
+    "Himmelman's Trophy": "Himmelman's Trophy",
+    "Mahone Bay Challenge Cup": "Mahone Bay Challenge Cup",
+    "Kirby Derby": "Kirby Derby",
+    "LYC Handicap - Mahone Bay Challenge": "Mahone Bay Challenge Cup",
+    "Opening Regatta": "Opening Regatta",
+    "Friday Night Fun Race #1": "Friday Night Fun Race",
+    "Friday Night Fun Race #2": "Friday Night Fun Race",
+    "Friday Night Fun Race #3": "Friday Night Fun Race",
+    "Friday Night Fun Race #4": "Friday Night Fun Race",
+    "Merrill Lynch Regatta": "Merrill Lynch Regatta",
 }
 
 
@@ -1707,6 +1733,7 @@ def _map_trophy_name(name: str) -> str:
     """Map a DB event name to a canonical trophy name.
 
     Tries explicit mapping first, then strips common prefixes and retries.
+    Also normalizes dots/spaces for fuzzy matching (e.g. "R.G." → "RG").
     """
     # Direct match
     if name in _TROPHY_NAME_MAP:
@@ -1715,6 +1742,14 @@ def _map_trophy_name(name: str) -> str:
     stripped = re.sub(r"^LYC\s+Handicap\s*[-–—]\s*", "", name)
     if stripped != name and stripped in _TROPHY_NAME_MAP:
         return _TROPHY_NAME_MAP[stripped]
+    # Normalize dots: "R.G. Smith" → "RG Smith", "R.G.Smith" → "RGSmith" → retry
+    nodots = re.sub(r"\.(\s?)", lambda m: m.group(1) or "", stripped)
+    if nodots != stripped and nodots in _TROPHY_NAME_MAP:
+        return _TROPHY_NAME_MAP[nodots]
+    # Also try with dots removed and spaces normalized
+    nodots_norm = re.sub(r"\s+", " ", nodots).strip()
+    if nodots_norm != nodots and nodots_norm in _TROPHY_NAME_MAP:
+        return _TROPHY_NAME_MAP[nodots_norm]
     # Check if stripped name matches a canonical CSV name directly
     # (e.g. "LYC Handicap - Commodore's Cup" → "Commodore's Cup")
     return stripped if stripped != name else name
@@ -1837,11 +1872,67 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
     return result
 
 
+def _build_owner_lookup(conn: sqlite3.Connection) -> dict[int, list[dict]]:
+    """Build boat_id → list of {owner_name, year_start, year_end} for skipper resolution."""
+    rows = conn.execute("""
+        SELECT bo.boat_id, s.name as owner_name, bo.year_start, bo.year_end
+        FROM boat_ownership bo
+        JOIN skippers s ON bo.skipper_id = s.id
+        ORDER BY bo.boat_id, bo.year_start
+    """).fetchall()
+    result: dict[int, list[dict]] = {}
+    for row in rows:
+        result.setdefault(row["boat_id"], []).append({
+            "owner_name": row["owner_name"],
+            "year_start": row["year_start"],
+            "year_end": row["year_end"],
+        })
+    return result
+
+
+def _resolve_owner_name(
+    owner_lookup: dict[int, list[dict]], boat_id: int | None, year: int
+) -> str | None:
+    """Find the owner name for a boat in a given year."""
+    if not boat_id or boat_id not in owner_lookup:
+        return None
+    for entry in owner_lookup[boat_id]:
+        start = entry["year_start"] or 0
+        end = entry["year_end"] or 9999
+        if start <= year <= end:
+            return entry["owner_name"]
+    # If no year-range match, return the most recent owner
+    return owner_lookup[boat_id][-1]["owner_name"]
+
+
+def _build_boat_name_normalizer(conn: sqlite3.Connection) -> dict[str, str]:
+    """Build a case-insensitive map from boat name variants to canonical DB names.
+
+    Includes explicit aliases for known historical CSV name discrepancies.
+    """
+    rows = conn.execute("SELECT name FROM boats").fetchall()
+    norm = {row["name"].lower(): row["name"] for row in rows}
+    # Known aliases from trophy_case_historical.csv
+    aliases = {
+        "slyfox": "Sly Fox",
+        "hearts 3": "Hearts3",
+        "maaderma": "MAAderMA",
+        "scotch mist iv": "Scotch Mist",
+        "andrea 4 of sunnybrook": "Andrea 4",
+    }
+    for alias, canonical in aliases.items():
+        if canonical.lower() in norm:
+            norm[alias] = norm[canonical.lower()]
+    return norm
+
+
 def export_trophy_history(conn: sqlite3.Connection) -> None:
     """Export winner history for each trophy/event name, with pace stats for fixed courses."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
     weather_lookup = _load_weather_lookup(conn)
+    owner_lookup = _build_owner_lookup(conn)
+    boat_name_norm = _build_boat_name_normalizer(conn)
 
     # Get distinct trophy events
     unique_trophies = []
@@ -1886,6 +1977,10 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 continue
             seen_years.add(row["year"])
             row.pop("summary_scope", None)
+            # Resolve owner/skipper name from boat_ownership
+            owner = _resolve_owner_name(owner_lookup, row.get("boat_id"), row["year"])
+            if owner:
+                row["display_name"] = owner
             winners.append(row)
 
         # Fallback: for events with no series standings (race-only), get race winner
@@ -1906,6 +2001,10 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 if row["year"] in seen_years:
                     continue
                 seen_years.add(row["year"])
+                # Resolve owner/skipper name from boat_ownership
+                owner = _resolve_owner_name(owner_lookup, row.get("boat_id"), row["year"])
+                if owner:
+                    row["display_name"] = owner
                 winners.append(row)
 
         # Check if this is a fixed-course trophy
@@ -2064,6 +2163,45 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
     # historical CSV. Events that don't map to any canonical name and aren't
     # recurring (>=3 unique years) are dropped.
     trophy_list = _consolidate_trophies(trophy_list)
+
+    # Enrich historical winners: normalize boat names, resolve boat_id/event_id
+    # Build lookup: boat name (lowercase) → (boat_id, canonical_name, boat_class)
+    boat_by_name: dict[str, dict] = {}
+    for row in conn.execute("SELECT id, name, class FROM boats").fetchall():
+        boat_by_name[row["name"].lower()] = {
+            "boat_id": row["id"], "boat_name": row["name"], "boat_class": row["class"],
+        }
+
+    for t in trophy_list:
+        # Build year→event_id from DB-sourced winners for cross-referencing
+        year_to_event: dict[int, int] = {}
+        for w in t["winners"]:
+            if w.get("event_id") and w.get("source") != "historical":
+                year_to_event[w["year"]] = w["event_id"]
+
+        for w in t["winners"]:
+            if w.get("source") != "historical":
+                continue
+            # Normalize boat name case to match DB (try direct, then alias map)
+            bname = w.get("boat_name")
+            lookup_key = bname.lower() if bname else None
+            if lookup_key and lookup_key not in boat_by_name and lookup_key in boat_name_norm:
+                lookup_key = boat_name_norm[lookup_key].lower()
+            if lookup_key and lookup_key in boat_by_name:
+                info = boat_by_name[lookup_key]
+                w["boat_name"] = info["boat_name"]
+                if not w.get("boat_id"):
+                    w["boat_id"] = info["boat_id"]
+                if not w.get("boat_class"):
+                    w["boat_class"] = info["boat_class"]
+                # Resolve owner name if we have boat_id and display_name looks like an abbreviation
+                if w["boat_id"] and w.get("display_name"):
+                    owner = _resolve_owner_name(owner_lookup, w["boat_id"], w["year"])
+                    if owner:
+                        w["display_name"] = owner
+            # Link to event if we have one for this year (from DB winners of same trophy)
+            if not w.get("event_id") and w["year"] in year_to_event:
+                w["event_id"] = year_to_event[w["year"]]
 
     # Aggregate course data: merge all per-event course data into one per fixed course
     # Group trophies by their course label to collect all yearly data
