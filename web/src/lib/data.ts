@@ -234,6 +234,8 @@ export interface LeaderboardEntry {
   unique_boats?: number;
   total_results?: number;
   boat_ids?: number[];
+  boat_names?: string[];
+  classes?: string[];
   owner?: string | null;
 }
 
@@ -393,6 +395,9 @@ export interface ParticipationLeader {
   first_year: number;
   last_year: number;
   wins: number;
+  boat_ids?: number[];
+  boat_names?: string[];
+  classes?: string[];
 }
 
 export interface StreakLeader {
@@ -401,6 +406,9 @@ export interface StreakLeader {
   streak: number;
   start: number;
   end: number;
+  boat_ids?: number[];
+  boat_names?: string[];
+  classes?: string[];
 }
 
 export interface TnsMonthData {

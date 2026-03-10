@@ -1066,11 +1066,18 @@ def _build_owner_map(
     for key, boats in owner_groups.items():
         # Pick the boat with the most results as primary
         primary = max(boats, key=lambda b: b.get("result_count", 0))
+        # Collect all unique boat names and classes for display
+        all_names = list(dict.fromkeys(b["name"] for b in boats))
+        all_classes = list(dict.fromkeys(
+            b["class"] for b in boats if b.get("class")
+        ))
         owner_info[key] = {
             "primary_id": primary["boat_id"],
             "display_name": primary["name"],
             "owner_name": primary["owner_name"],
             "boat_ids": [b["boat_id"] for b in boats],
+            "boat_names": all_names,
+            "classes": all_classes,
             "class": primary["class"],
             "sail_number": primary["sail_number"],
         }
@@ -1103,11 +1110,15 @@ def _merge_leaderboard_simple(
                     "total_races": 0,
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                 }
             else:
                 groups[gkey] = {
                     **row, "wins": 0, "total_races": 0,
                     "owner": None, "boat_ids": [row["id"]],
+                    "boat_names": [row.get("name", "")],
+                    "classes": [row["class"]] if row.get("class") else [],
                 }
         g = groups[gkey]
         g["wins"] += row.get("wins") or 0
@@ -1148,6 +1159,8 @@ def _merge_leaderboard_avg_finish(
                     "_weighted_finish": 0.0,
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                 }
             else:
                 groups[gkey] = {
@@ -1158,6 +1171,8 @@ def _merge_leaderboard_avg_finish(
                     "_weighted_finish": 0.0,
                     "owner": None,
                     "boat_ids": [row["id"]],
+                    "boat_names": [row.get("name", "")],
+                    "classes": [row["class"]] if row.get("class") else [],
                 }
         n = row["total_races"]
         groups[gkey]["total_races"] += n
@@ -1197,6 +1212,8 @@ def _merge_leaderboard_seasons(
                     "sail_number": info.get("sail_number") or row.get("sail_number"),
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                     "_years": set(),
                 }
             else:
@@ -1204,6 +1221,8 @@ def _merge_leaderboard_seasons(
                     **row,
                     "owner": None,
                     "boat_ids": [row["id"]],
+                    "boat_names": [row.get("name", "")],
+                    "classes": [row["class"]] if row.get("class") else [],
                     "_years": set(),
                 }
         for y in range(row.get("first_year", 0), row.get("last_year", 0) + 1):
@@ -1257,6 +1276,8 @@ def _merge_leaderboard_trophies(
                     "trophy_wins": 0,
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                 }
             else:
                 groups[gkey] = {
@@ -1264,6 +1285,8 @@ def _merge_leaderboard_trophies(
                     "trophy_wins": 0,
                     "owner": None,
                     "boat_ids": [r["id"]],
+                    "boat_names": [r.get("name", "")],
+                    "classes": [r["class"]] if r.get("class") else [],
                 }
         groups[gkey]["trophy_wins"] += r.get("trophy_wins", 0)
     return sorted(groups.values(), key=lambda x: (-x["trophy_wins"], x["name"]))[:limit]
@@ -1525,11 +1548,15 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
                     "total_races": 0, "wins": 0, "seasons": 0,
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                 }
             else:
                 active_groups[gkey] = {
                     **row, "total_races": 0, "wins": 0,
                     "owner": None, "boat_ids": [row["id"]],
+                    "boat_names": [row.get("name", "")],
+                    "classes": [row["class"]] if row.get("class") else [],
                 }
         g = active_groups[gkey]
         g["total_races"] += row["total_races"]
@@ -2495,6 +2522,8 @@ def export_analysis(conn: sqlite3.Connection) -> None:
                     "_years": set(),
                     "owner": info["owner_name"],
                     "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
                 }
             else:
                 mr_groups[gkey] = {
@@ -2502,6 +2531,8 @@ def export_analysis(conn: sqlite3.Connection) -> None:
                     "first_year": row["first_year"], "last_year": row["last_year"],
                     "_years": set(),
                     "owner": None, "boat_ids": [row["id"]],
+                    "boat_names": [row.get("name", "")],
+                    "classes": [row["class"]] if row.get("class") else [],
                 }
         g = mr_groups[gkey]
         g["races"] += row["races"]
@@ -2557,9 +2588,19 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         if gkey not in owner_display:
             if owner_key:
                 info = owner_info[owner_key]
-                owner_display[gkey] = {"id": info["primary_id"], "name": info["display_name"]}
+                owner_display[gkey] = {
+                    "id": info["primary_id"], "name": info["display_name"],
+                    "boat_ids": info["boat_ids"],
+                    "boat_names": info.get("boat_names", [info["display_name"]]),
+                    "classes": info.get("classes", []),
+                }
             else:
-                owner_display[gkey] = {"id": row["id"], "name": row["name"]}
+                owner_display[gkey] = {
+                    "id": row["id"], "name": row["name"],
+                    "boat_ids": [row["id"]],
+                    "boat_names": [row["name"]],
+                    "classes": [],
+                }
 
     # Compute longest consecutive streak per owner group
     best_by_owner: dict[str, dict] = {}
@@ -2588,6 +2629,9 @@ def export_analysis(conn: sqlite3.Connection) -> None:
             disp = owner_display[gkey]
             best_by_owner[gkey] = {
                 "id": disp["id"], "name": disp["name"],
+                "boat_ids": disp["boat_ids"],
+                "boat_names": disp["boat_names"],
+                "classes": disp["classes"],
                 "streak": best_streak, "start": best_start, "end": best_end,
             }
     longest_streaks = sorted(best_by_owner.values(), key=lambda x: -x["streak"])[:25]

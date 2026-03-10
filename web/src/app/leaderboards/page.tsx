@@ -141,6 +141,8 @@ function LeaderboardTable({
               }
               return v;
             };
+            const displayName = row.boat_names && row.boat_names.length > 1 ? row.boat_names.join(" / ") : row.name;
+            const displayClass = row.classes && row.classes.length > 1 ? row.classes.join(" / ") : (row.class ?? null);
             return (
               <tr
                 key={`${row.id}-${row.name}`}
@@ -162,11 +164,15 @@ function LeaderboardTable({
                       {c.link ? (
                         <Link
                           href={`/boats/#${row.id}`}
-                          className="text-navy-light hover:text-gold font-medium transition-colors inline-block max-w-[150px] truncate align-bottom"
-                          title={row.owner ? `${row.name} (${row.owner})` : row.name}
+                          className="text-navy-light hover:text-gold font-medium transition-colors inline-block max-w-[200px] truncate align-bottom"
+                          title={displayName + (row.owner ? ` (${row.owner})` : "")}
                         >
-                          {String(val(c.key, c) ?? "\u2014")}
+                          {displayName}
                         </Link>
+                      ) : c.key === "class" && displayClass ? (
+                        <span className="text-gray-500" title={displayClass}>
+                          {displayClass}
+                        </span>
                       ) : c.combineKey ? (
                         <span className={c.light ? "text-xs text-gray-400" : ""}>
                           {String(val(c.key, c) ?? "\u2014")}&ndash;{String(val(c.combineKey, c) ?? "\u2014")}

@@ -2,7 +2,59 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
-## Unreleased
+## 2026-03-10
+
+### Trophy system
+
+- Added 37 canonical trophy names consolidated from ~130 event name variants via `_map_trophy_name()`.
+- Added historical trophy data (1947–present) from `enrichment/trophy_case_historical.csv`, merged with DB-sourced winners.
+- Added owner name resolution for DB-sourced trophy winners using `boat_ownership` table.
+- Added boat name normalization for historical CSV entries (e.g., Slyfox → Sly Fox, Hearts 3 → Hearts3).
+- Added fixed-course timing analysis for Boland's Cup (16.7nm), Leeward Island Trophy (14.2nm), and R.G. Smith Cup (22.2nm) with speed/weather correlation.
+- Added speed-based outlier filter (max 7.5 kts avg) to exclude years with different/shorter courses.
+- Added dot-stripping fallback in trophy name matching so "R.G. Smith" maps to "RG Smith".
+
+### Owner merging
+
+- Added owner-merged leaderboards: same owner's boats (e.g., Sly Fox + Mojo = Jim Mosher) combine race counts, wins, seasons, and trophies.
+- Added `boat_names` and `classes` arrays to all merged entries so the UI can show "Sly Fox / Mojo" and "Chaser 29 Mod. / J/105".
+- Home page Most Active Boats chart now shows merged boat names.
+- Analysis Participation section shows merged names in charts and All-Time Leaders table.
+- Leaderboards page shows merged names and classes with tooltips.
+
+### Enrichment
+
+- Added tide predictions for 629 race dates using CHS station 00455 (Lunenburg): API for 2018+, harmonic model for 1999–2017.
+- Added tide data (high/low times and heights) to race detail JSON.
+- Added weather caching (`enrichment/weather_cache.json`) to avoid 13-minute API refetch on `--fresh` rebuilds.
+- Added tide caching (`enrichment/tide_cache.json`) with same pattern.
+
+### Search and navigation
+
+- Added Cmd+K site-wide search across boats, events, and seasons (806 entries).
+- Added head-to-head boat comparison page with shared race history.
+- Added win rate sparkline and compare link to boat detail panels.
+- Added stat cards to season detail panels.
+
+### Public site
+
+- Added Analysis page with 5 chart sections: Fleet Trends, Race Performance, Participation, Thursday Night Deep Dive, Weather Conditions.
+- Added mobile responsiveness across all pages.
+- Added a methodology/glossary page to explain canonical events, special-event exclusions, and headline leaderboard definitions.
+- Fleet Size Over Time chart on home page now shows all 27 years (1999–2025).
+- Added `--only` flag to `export_json.py` for incremental export of specific targets.
+- Added `Makefile` for pipeline orchestration (`make export`, `make fresh`, `make validate`, `make test`).
+- Added `validate.py` for pre-deploy sanity checks.
+
+### Repo organization
+
+- Added `CLAUDE.md` with comprehensive project instructions for Claude Code.
+- Rewrote `README.md` for public audience.
+- Moved `SPEC.md` and `spec-m7-analytics.md` to `docs/`.
+- Updated `.gitignore` for PDFs, screenshots, and build artifacts.
+- Removed `web/tsconfig.tsbuildinfo` from git tracking.
+
+## Pre-release (M1–M6)
 
 ### Data model and export logic
 
@@ -49,16 +101,6 @@ This file tracks changes to archive logic that materially affect published stats
 - Added output-directory cleanup logic for `web/public/data/seasons`, `web/public/data/events`, and `web/public/data/boats` so stale JSON files do not survive after ids disappear.
 - Grouped older Thursday night racing into one monthly series per season/month instead of exposing each per-race legacy source page as a separate series row.
 - Grouped same-name, same-date numbered source pages such as `rum_race.htm` and `rum_race1.htm` into one public event so updated duplicate files no longer appear twice.
-
-### Public site
-
-- Added Analysis page with 5 chart sections: Fleet Trends, Race Performance, Participation, Thursday Night Deep Dive, Weather Conditions.
-- Added mobile responsiveness across all pages.
-- Added a methodology/glossary page to explain canonical events, special-event exclusions, and headline leaderboard definitions.
-- Updated home, seasons, and leaderboards pages to surface canonical-event counts and special-event exclusions directly in the UI.
-- Added a structured metric-definition layer in the methodology page so future Thursday/Sunday race-duration stats can declare time basis, participant scope, event scope, and aggregation explicitly.
-- Removed internal archive jargon such as “canonical events” and “merged variants” from the public home/season UI in favor of plain-language explanations.
-- Expanded season event detail tables to show race date, start/notes context, fleet, elapsed time, corrected time, and points so Thursday-night data is accessible without drilling into raw JSON.
 
 ### Review and audit artifacts
 

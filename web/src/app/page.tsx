@@ -8,7 +8,7 @@ export default function HomePage() {
     .sort((a, b) => (b.total_races ?? 0) - (a.total_races ?? 0)))
     .slice(0, 20);
   const maxRaces = Math.max(...topBoats.map((b) => b.total_races ?? 0));
-  const fleetYears = leaderboards.fleet_by_year.slice(-20);
+  const fleetYears = leaderboards.fleet_by_year;
   const maxBoats = Math.max(...fleetYears.map((f) => f.unique_boats));
 
   return (
@@ -79,6 +79,9 @@ export default function HomePage() {
             <div className="space-y-1">
               {topBoats.map((b) => {
                 const pct = ((b.total_races ?? 0) / maxRaces) * 100;
+                const displayName = b.boat_names && b.boat_names.length > 1
+                  ? b.boat_names.join(" / ")
+                  : b.name;
                 return (
                   <div
                     key={b.id}
@@ -86,10 +89,10 @@ export default function HomePage() {
                   >
                     <Link
                       href={`/boats/#${b.id}`}
-                      className="w-24 text-right text-navy-light hover:text-gold font-medium transition-colors truncate shrink-0"
-                      title={b.name}
+                      className="w-28 text-right text-navy-light hover:text-gold font-medium transition-colors truncate shrink-0"
+                      title={displayName + (b.owner ? ` (${b.owner})` : "")}
                     >
-                      {b.name}
+                      {displayName}
                     </Link>
                     <div className="flex-1 bg-blue-light rounded-full h-4 overflow-hidden">
                       <div

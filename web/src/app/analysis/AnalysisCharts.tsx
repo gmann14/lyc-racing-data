@@ -425,12 +425,13 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
           <div className="space-y-1.5">
             {most_races.slice(0, 20).map((b, i) => {
               const pct = (b.races / most_races[0].races) * 100;
+              const displayName = b.boat_names && b.boat_names.length > 1 ? b.boat_names.join(" / ") : b.name;
               return (
                 <div key={b.id} className="flex items-center gap-2 text-xs">
                   <span className="w-5 text-right text-gray-400 font-mono">{i + 1}</span>
-                  <div className="w-24 truncate">
-                    <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold transition-colors font-medium">
-                      {b.name}
+                  <div className="w-28 truncate">
+                    <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold transition-colors font-medium" title={displayName}>
+                      {displayName}
                     </Link>
                   </div>
                   <div className="flex-1 bg-blue-light rounded-full h-5 overflow-hidden">
@@ -455,12 +456,13 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
             {longest_streaks.slice(0, 20).map((s, i) => {
               const maxStreak = longest_streaks[0].streak;
               const pct = (s.streak / maxStreak) * 100;
+              const displayName = s.boat_names && s.boat_names.length > 1 ? s.boat_names.join(" / ") : s.name;
               return (
                 <div key={s.id} className="flex items-center gap-2 text-xs">
                   <span className="w-5 text-right text-gray-400 font-mono">{i + 1}</span>
-                  <div className="w-24 truncate">
-                    <Link href={`/boats/#${s.id}`} className="text-navy-light hover:text-gold transition-colors font-medium">
-                      {s.name}
+                  <div className="w-28 truncate">
+                    <Link href={`/boats/#${s.id}`} className="text-navy-light hover:text-gold transition-colors font-medium" title={displayName}>
+                      {displayName}
                     </Link>
                   </div>
                   <div className="flex-1 bg-blue-light rounded-full h-5 overflow-hidden">
@@ -496,21 +498,25 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
               </tr>
             </thead>
             <tbody>
-              {most_races.map((b, i) => (
-                <tr key={b.id} className="border-b border-border/50 last:border-0">
-                  <td className="py-2 pr-3 text-gray-400 font-mono">{i + 1}</td>
-                  <td className="py-2 pr-3">
-                    <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold font-medium transition-colors">
-                      {b.name}
-                    </Link>
-                  </td>
-                  <td className="py-2 pr-3 text-gray-400">{b.class ?? "—"}</td>
-                  <td className="py-2 pr-3 text-right font-mono font-semibold text-navy">{b.races}</td>
-                  <td className="py-2 pr-3 text-right font-mono">{b.seasons}</td>
-                  <td className="py-2 pr-3 text-right font-mono">{b.wins}</td>
-                  <td className="py-2 text-right text-gray-400 font-mono text-xs">{b.first_year}&ndash;{b.last_year}</td>
-                </tr>
-              ))}
+              {most_races.map((b, i) => {
+                const displayName = b.boat_names && b.boat_names.length > 1 ? b.boat_names.join(" / ") : b.name;
+                const displayClass = b.classes && b.classes.length > 1 ? b.classes.join(" / ") : (b.class ?? "—");
+                return (
+                  <tr key={b.id} className="border-b border-border/50 last:border-0">
+                    <td className="py-2 pr-3 text-gray-400 font-mono">{i + 1}</td>
+                    <td className="py-2 pr-3">
+                      <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold font-medium transition-colors" title={displayName}>
+                        {displayName}
+                      </Link>
+                    </td>
+                    <td className="py-2 pr-3 text-gray-400" title={displayClass}>{displayClass}</td>
+                    <td className="py-2 pr-3 text-right font-mono font-semibold text-navy">{b.races}</td>
+                    <td className="py-2 pr-3 text-right font-mono">{b.seasons}</td>
+                    <td className="py-2 pr-3 text-right font-mono">{b.wins}</td>
+                    <td className="py-2 text-right text-gray-400 font-mono text-xs">{b.first_year}&ndash;{b.last_year}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
