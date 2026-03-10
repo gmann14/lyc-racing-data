@@ -57,16 +57,24 @@ def _load_weather_lookup(conn: sqlite3.Connection) -> dict[str, dict]:
 
 
 def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None) -> str | None:
-    """Parse mixed race date formats to ISO YYYY-MM-DD string."""
+    """Parse mixed race date formats to ISO YYYY-MM-DD string.
+
+    Handles DD/MM/YY, DD/MM/YYYY, DD-MM-YY, M/D/YY, M/D/YYYY and various
+    typos (e.g. 2020 instead of 2003). When event_year is provided and the
+    parsed year doesn't match, substitutes event_year.
+    """
     if not raw_date or not raw_date.strip():
         return None
     text = raw_date.strip()
     if text.lower() in ("pos", "position"):
         return None
     from datetime import datetime
+
     formats = ("%d/%m/%y", "%d/%m/%Y", "%d-%m-%y", "%d-%m-%Y")
-    alt_formats = ("%y-%m-%d", "%m-%d-%y", "%m/%d/%y")
-    for fmt in formats:
+    alt_formats = ("%y-%m-%d", "%m-%d-%y", "%m/%d/%y", "%m/%d/%Y")
+
+    # First pass: try all formats, accept if year matches event_year
+    for fmt in (*formats, *alt_formats):
         try:
             dt = datetime.strptime(text, fmt)
             if dt.year > 2025:
@@ -75,16 +83,21 @@ def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None)
                 return dt.strftime("%Y-%m-%d")
         except ValueError:
             continue
+
+    # Second pass: if year doesn't match, force event_year (fixes 2020 typos)
     if event_year is not None:
-        for fmt in alt_formats:
+        for fmt in (*formats, *alt_formats):
             try:
                 dt = datetime.strptime(text, fmt)
                 if dt.year > 2025:
                     dt = dt.replace(year=dt.year - 100)
-                if dt.year == event_year:
-                    return dt.strftime("%Y-%m-%d")
+                # Year mismatch — likely a typo; use event_year instead
+                dt = dt.replace(year=event_year)
+                return dt.strftime("%Y-%m-%d")
             except ValueError:
                 continue
+
+    # Final fallback without year validation
     for fmt in formats:
         try:
             dt = datetime.strptime(text, fmt)
@@ -2185,8 +2198,14 @@ def export_analysis(conn: sqlite3.Connection) -> None:
     longest_streaks = sorted(best_by_owner.values(), key=lambda x: -x["streak"])[:25]
 
     # --- TNS Deep Dive ---
-    # Use variant filter to avoid double-counting fleet+overall results
-    variant_where, variant_params = _variant_filter_sql(variant_ids)
+    # Use only the excluded-events filter (NOT variant filter) so we count
+    # race dates across all events in a canonical group. Legacy era stores
+    # each race as a separate event; variant filter would drop most of them.
+    # COUNT(DISTINCT b.id) naturally dedupes boats across fleet splits.
+    excl_only = set(excluded.keys())
+    tns_excl_ph = ",".join("?" for _ in excl_only) if excl_only else None
+    tns_excl_where = f"AND e.id NOT IN ({tns_excl_ph})" if tns_excl_ph else ""
+    tns_excl_params = tuple(excl_only) if excl_only else ()
     tns_by_year = conn.execute(f"""
         SELECT e.year, e.month,
                COUNT(DISTINCT r.date) as race_nights,
@@ -2198,10 +2217,10 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         JOIN races r ON res.race_id = r.id
         JOIN events e ON r.event_id = e.id
         WHERE e.event_type = 'tns'
-        {variant_where}
+        {tns_excl_where}
         GROUP BY e.year, e.month
         ORDER BY e.year, e.month
-    """, variant_params).fetchall()
+    """, tns_excl_params).fetchall()
 
     # --- Weather Summary ---
     weather_summary = conn.execute("""
