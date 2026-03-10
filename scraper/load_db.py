@@ -1764,6 +1764,19 @@ def main():
     loader.create_schema()
     loader.load_all_parsed(Path(args.parsed_dir))
     loader.close()
+
+    # Load enrichment data
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+    owners_csv = Path(__file__).resolve().parent.parent / "enrichment" / "boat_owners.csv"
+    if owners_csv.exists():
+        from load_owners import load_owners as _load_owners
+        _load_owners(db_path, owners_csv)
+
+    from backfill_weather import backfill_weather as _backfill_weather
+    _backfill_weather()
+
     print(f"\nDatabase: {db_path}")
 
 
