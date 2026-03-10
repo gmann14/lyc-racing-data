@@ -42,11 +42,17 @@ Thumbs.db
 # Tide model training data (regenerable from CHS API; caches are tracked instead)
 enrichment/tide_training_data.json
 
+# Build artifacts
+web/tsconfig.tsbuildinfo
+
 # Local archive/scratch artifacts
 racing1999_2013_original/
 .playwright-mcp/
-boat-detail.png
-boats-page.png
-homepage-full.png
-leaderboards.png
-seasons-detail.png
+
+# Reference PDFs (not source data)
+*.pdf
+
+# Screenshots
+*.png
+!web/public/**/*.png
+!racing*/**/*.png

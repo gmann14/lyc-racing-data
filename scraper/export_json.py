@@ -2060,7 +2060,11 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                     continue
 
                 secs = _elapsed_to_seconds(row["elapsed_time"])
-                if secs and 1200 < secs < 36000:  # 20min to 10hr
+                # Filter: 20min to 10hr, and no faster than 7.5 kts avg
+                # (catches years where a shorter course was used)
+                dist = course_info["distance_nm"] if course_info else None
+                min_secs = int(dist / 7.5 * 3600) if dist else 1200
+                if secs and max(1200, min_secs) < secs < 36000:
                     entry["finishers"] += 1
                     entry["elapsed_times"].append(secs)
                     if row["rank"] == 1 and entry["winner_elapsed_secs"] is None:
