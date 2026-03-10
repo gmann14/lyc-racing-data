@@ -1,0 +1,6092 @@
+{
+ "1999-05-23": {
+  "conditions": "Overcast",
+  "date": "1999-05-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.5,
+  "wind_direction_deg": 37,
+  "wind_gust_kmh": 14.0,
+  "wind_speed_kmh": 5.4
+ },
+ "1999-05-29": {
+  "conditions": "Mainly clear",
+  "date": "1999-05-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.4,
+  "wind_direction_deg": 178,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 10.8
+ },
+ "1999-06-03": {
+  "conditions": "Overcast",
+  "date": "1999-06-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 36.7,
+  "wind_speed_kmh": 21.6
+ },
+ "1999-06-06": {
+  "conditions": "Overcast",
+  "date": "1999-06-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 42.5,
+  "wind_speed_kmh": 26.3
+ },
+ "1999-06-10": {
+  "conditions": "Partly cloudy",
+  "date": "1999-06-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.7,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 18.0
+ },
+ "1999-06-13": {
+  "conditions": "Clear sky",
+  "date": "1999-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 223,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 14.8
+ },
+ "1999-06-17": {
+  "conditions": "Overcast",
+  "date": "1999-06-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 320,
+  "wind_gust_kmh": 16.9,
+  "wind_speed_kmh": 11.2
+ },
+ "1999-06-18": {
+  "conditions": "Overcast",
+  "date": "1999-06-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.2,
+  "wind_direction_deg": 21,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 10.8
+ },
+ "1999-06-20": {
+  "conditions": "Overcast",
+  "date": "1999-06-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.3,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 13.4
+ },
+ "1999-06-24": {
+  "conditions": "Overcast",
+  "date": "1999-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.6,
+  "wind_direction_deg": 207,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 11.3
+ },
+ "1999-06-27": {
+  "conditions": "Clear sky",
+  "date": "1999-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.7,
+  "wind_direction_deg": 301,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 16.8
+ },
+ "1999-07-01": {
+  "conditions": "Partly cloudy",
+  "date": "1999-07-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.9,
+  "wind_direction_deg": 181,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 14.4
+ },
+ "1999-07-08": {
+  "conditions": "Light drizzle",
+  "date": "1999-07-08",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 280,
+  "wind_gust_kmh": 38.2,
+  "wind_speed_kmh": 19.8
+ },
+ "1999-07-11": {
+  "conditions": "Partly cloudy",
+  "date": "1999-07-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 268,
+  "wind_gust_kmh": 36.0,
+  "wind_speed_kmh": 22.3
+ },
+ "1999-07-15": {
+  "conditions": "Overcast",
+  "date": "1999-07-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 18.4
+ },
+ "1999-07-16": {
+  "conditions": "Mainly clear",
+  "date": "1999-07-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.5,
+  "wind_direction_deg": 205,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 11.9
+ },
+ "1999-07-18": {
+  "conditions": "Clear sky",
+  "date": "1999-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.4,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 11.7
+ },
+ "1999-07-22": {
+  "conditions": "Partly cloudy",
+  "date": "1999-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.3,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 23.9
+ },
+ "1999-07-24": {
+  "conditions": "Overcast",
+  "date": "1999-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 155,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 13.5
+ },
+ "1999-07-29": {
+  "conditions": "Overcast",
+  "date": "1999-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 10.1
+ },
+ "1999-08-05": {
+  "conditions": "Overcast",
+  "date": "1999-08-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 127,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 16.2
+ },
+ "1999-08-06": {
+  "conditions": "Mainly clear",
+  "date": "1999-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 15.7
+ },
+ "1999-08-19": {
+  "conditions": "Partly cloudy",
+  "date": "1999-08-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 359,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 20.5
+ },
+ "1999-08-22": {
+  "conditions": "Light drizzle",
+  "date": "1999-08-22",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 64,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 14.0
+ },
+ "1999-08-26": {
+  "conditions": "Clear sky",
+  "date": "1999-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 14.9
+ },
+ "1999-09-02": {
+  "conditions": "Partly cloudy",
+  "date": "1999-09-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.4,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 18.4,
+  "wind_speed_kmh": 9.8
+ },
+ "1999-09-03": {
+  "conditions": "Clear sky",
+  "date": "1999-09-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.8,
+  "wind_direction_deg": 156,
+  "wind_gust_kmh": 12.2,
+  "wind_speed_kmh": 4.3
+ },
+ "1999-09-05": {
+  "conditions": "Mainly clear",
+  "date": "1999-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 146,
+  "wind_gust_kmh": 10.1,
+  "wind_speed_kmh": 2.6
+ },
+ "1999-09-09": {
+  "conditions": "Mainly clear",
+  "date": "1999-09-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.2,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 19.4
+ },
+ "1999-09-12": {
+  "conditions": "Clear sky",
+  "date": "1999-09-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.8,
+  "wind_direction_deg": 299,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 12.7
+ },
+ "1999-09-16": {
+  "conditions": "Overcast",
+  "date": "1999-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 26,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 18.0
+ },
+ "1999-09-20": {
+  "conditions": "Mainly clear",
+  "date": "1999-09-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.7,
+  "wind_direction_deg": 175,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 17.7
+ },
+ "1999-09-24": {
+  "conditions": "Clear sky",
+  "date": "1999-09-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.0,
+  "wind_direction_deg": 255,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 20.1
+ },
+ "2000-05-21": {
+  "conditions": "Partly cloudy",
+  "date": "2000-05-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.7,
+  "wind_direction_deg": 49,
+  "wind_gust_kmh": 10.8,
+  "wind_speed_kmh": 3.3
+ },
+ "2000-05-28": {
+  "conditions": "Overcast",
+  "date": "2000-05-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 10.5,
+  "wind_direction_deg": 342,
+  "wind_gust_kmh": 21.6,
+  "wind_speed_kmh": 15.1
+ },
+ "2000-06-07": {
+  "conditions": "Overcast",
+  "date": "2000-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 9.2,
+  "wind_direction_deg": 352,
+  "wind_gust_kmh": 48.2,
+  "wind_speed_kmh": 30.2
+ },
+ "2000-06-08": {
+  "conditions": "Partly cloudy",
+  "date": "2000-06-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.6,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 19.1
+ },
+ "2000-06-15": {
+  "conditions": "Overcast",
+  "date": "2000-06-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.8,
+  "wind_direction_deg": 181,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 18.4
+ },
+ "2000-06-18": {
+  "conditions": "Mainly clear",
+  "date": "2000-06-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 287,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 12.4
+ },
+ "2000-06-22": {
+  "conditions": "Overcast",
+  "date": "2000-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 216,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 16.5
+ },
+ "2000-06-25": {
+  "conditions": "Clear sky",
+  "date": "2000-06-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 19.5
+ },
+ "2000-06-29": {
+  "conditions": "Moderate drizzle",
+  "date": "2000-06-29",
+  "precipitation_mm": 0.5,
+  "source": "open-meteo",
+  "temp_c": 16.0,
+  "wind_direction_deg": 84,
+  "wind_gust_kmh": 14.0,
+  "wind_speed_kmh": 6.9
+ },
+ "2000-07-09": {
+  "conditions": "Mainly clear",
+  "date": "2000-07-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 214,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 16.9
+ },
+ "2000-07-13": {
+  "conditions": "Partly cloudy",
+  "date": "2000-07-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 12.3
+ },
+ "2000-07-16": {
+  "conditions": "Overcast",
+  "date": "2000-07-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 106,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 21.8
+ },
+ "2000-07-20": {
+  "conditions": "Partly cloudy",
+  "date": "2000-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.0,
+  "wind_direction_deg": 300,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 12.9
+ },
+ "2000-07-23": {
+  "conditions": "Mainly clear",
+  "date": "2000-07-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 224,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.5
+ },
+ "2000-07-27": {
+  "conditions": "Overcast",
+  "date": "2000-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 144,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 16.5
+ },
+ "2000-07-30": {
+  "conditions": "Moderate drizzle",
+  "date": "2000-07-30",
+  "precipitation_mm": 0.7,
+  "source": "open-meteo",
+  "temp_c": 17.0,
+  "wind_direction_deg": 19,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 22.4
+ },
+ "2000-08-06": {
+  "conditions": "Overcast",
+  "date": "2000-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.8
+ },
+ "2000-08-07": {
+  "conditions": "Overcast",
+  "date": "2000-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 17.4
+ },
+ "2000-08-19": {
+  "conditions": "Clear sky",
+  "date": "2000-08-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.6,
+  "wind_direction_deg": 9,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 15.7
+ },
+ "2000-08-24": {
+  "conditions": "Partly cloudy",
+  "date": "2000-08-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 210,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 21.3
+ },
+ "2000-08-26": {
+  "conditions": "Mainly clear",
+  "date": "2000-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 222,
+  "wind_gust_kmh": 14.4,
+  "wind_speed_kmh": 10.2
+ },
+ "2000-08-27": {
+  "conditions": "Clear sky",
+  "date": "2000-08-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 249,
+  "wind_gust_kmh": 15.1,
+  "wind_speed_kmh": 9.2
+ },
+ "2000-08-31": {
+  "conditions": "Overcast",
+  "date": "2000-08-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.7,
+  "wind_direction_deg": 317,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 9.4
+ },
+ "2000-09-07": {
+  "conditions": "Mainly clear",
+  "date": "2000-09-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.5,
+  "wind_direction_deg": 247,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 12.9
+ },
+ "2000-09-16": {
+  "conditions": "Clear sky",
+  "date": "2000-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.1,
+  "wind_direction_deg": 249,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 8.9
+ },
+ "2000-10-08": {
+  "conditions": "Mainly clear",
+  "date": "2000-10-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.2,
+  "wind_direction_deg": 240,
+  "wind_gust_kmh": 37.4,
+  "wind_speed_kmh": 21.3
+ },
+ "2000-10-09": {
+  "conditions": "Overcast",
+  "date": "2000-10-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 9.7,
+  "wind_direction_deg": 52,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 26.4
+ },
+ "2001-05-07": {
+  "conditions": "Clear sky",
+  "date": "2001-05-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 284,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 10.7
+ },
+ "2001-05-20": {
+  "conditions": "Clear sky",
+  "date": "2001-05-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.5,
+  "wind_direction_deg": 360,
+  "wind_gust_kmh": 11.2,
+  "wind_speed_kmh": 0.4
+ },
+ "2001-05-27": {
+  "conditions": "Overcast",
+  "date": "2001-05-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.2,
+  "wind_direction_deg": 175,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 15.5
+ },
+ "2001-06-09": {
+  "conditions": "Light rain",
+  "date": "2001-06-09",
+  "precipitation_mm": 1.3,
+  "source": "open-meteo",
+  "temp_c": 13.4,
+  "wind_direction_deg": 183,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 15.9
+ },
+ "2001-06-14": {
+  "conditions": "Overcast",
+  "date": "2001-06-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 218,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 4.1
+ },
+ "2001-06-17": {
+  "conditions": "Overcast",
+  "date": "2001-06-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 166,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.0
+ },
+ "2001-06-21": {
+  "conditions": "Overcast",
+  "date": "2001-06-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 204,
+  "wind_gust_kmh": 12.6,
+  "wind_speed_kmh": 4.3
+ },
+ "2001-06-22": {
+  "conditions": "Partly cloudy",
+  "date": "2001-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.7,
+  "wind_direction_deg": 140,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 16.1
+ },
+ "2001-06-24": {
+  "conditions": "Overcast",
+  "date": "2001-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 213,
+  "wind_gust_kmh": 34.6,
+  "wind_speed_kmh": 20.3
+ },
+ "2001-06-28": {
+  "conditions": "Clear sky",
+  "date": "2001-06-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 321,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 22.3
+ },
+ "2001-07-06": {
+  "conditions": "Partly cloudy",
+  "date": "2001-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 18.4
+ },
+ "2001-07-07": {
+  "conditions": "Partly cloudy",
+  "date": "2001-07-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 246,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 24.8
+ },
+ "2001-07-15": {
+  "conditions": "Mainly clear",
+  "date": "2001-07-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.1,
+  "wind_direction_deg": 149,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 11.8
+ },
+ "2001-07-19": {
+  "conditions": "Clear sky",
+  "date": "2001-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 183,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 12.3
+ },
+ "2001-07-22": {
+  "conditions": "Clear sky",
+  "date": "2001-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.4,
+  "wind_direction_deg": 205,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 20.3
+ },
+ "2001-07-26": {
+  "conditions": "Light drizzle",
+  "date": "2001-07-26",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 16.0,
+  "wind_direction_deg": 272,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 13.3
+ },
+ "2001-07-29": {
+  "conditions": "Mainly clear",
+  "date": "2001-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 239,
+  "wind_gust_kmh": 21.2,
+  "wind_speed_kmh": 11.8
+ },
+ "2001-08-07": {
+  "conditions": "Partly cloudy",
+  "date": "2001-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 213,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 19.0
+ },
+ "2001-08-23": {
+  "conditions": "Overcast",
+  "date": "2001-08-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 13.3
+ },
+ "2001-08-26": {
+  "conditions": "Mainly clear",
+  "date": "2001-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 32.8,
+  "wind_speed_kmh": 19.0
+ },
+ "2001-08-30": {
+  "conditions": "Clear sky",
+  "date": "2001-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 19.8
+ },
+ "2001-09-08": {
+  "conditions": "Clear sky",
+  "date": "2001-09-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.1,
+  "wind_direction_deg": 257,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 17.0
+ },
+ "2001-09-13": {
+  "conditions": "Overcast",
+  "date": "2001-09-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 173,
+  "wind_gust_kmh": 6.1,
+  "wind_speed_kmh": 2.9
+ },
+ "2001-09-15": {
+  "conditions": "Clear sky",
+  "date": "2001-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.2,
+  "wind_direction_deg": 320,
+  "wind_gust_kmh": 14.8,
+  "wind_speed_kmh": 5.6
+ },
+ "2001-09-20": {
+  "conditions": "Overcast",
+  "date": "2001-09-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.5,
+  "wind_direction_deg": 157,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 15.6
+ },
+ "2001-09-23": {
+  "conditions": "Overcast",
+  "date": "2001-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.0,
+  "wind_direction_deg": 227,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 8.9
+ },
+ "2001-09-27": {
+  "conditions": "Mainly clear",
+  "date": "2001-09-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.5,
+  "wind_direction_deg": 292,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 12.4
+ },
+ "2001-10-06": {
+  "conditions": "Overcast",
+  "date": "2001-10-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 60.1,
+  "wind_speed_kmh": 36.3
+ },
+ "2001-10-09": {
+  "conditions": "Clear sky",
+  "date": "2001-10-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 10.1,
+  "wind_direction_deg": 307,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 19.3
+ },
+ "2002-05-09": {
+  "conditions": "Mainly clear",
+  "date": "2002-05-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 7.9,
+  "wind_direction_deg": 154,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 17.6
+ },
+ "2002-05-26": {
+  "conditions": "Overcast",
+  "date": "2002-05-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 11.4,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 41.8,
+  "wind_speed_kmh": 25.7
+ },
+ "2002-05-30": {
+  "conditions": "Overcast",
+  "date": "2002-05-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.5,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 19.1
+ },
+ "2002-06-06": {
+  "conditions": "Overcast",
+  "date": "2002-06-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.3,
+  "wind_direction_deg": 358,
+  "wind_gust_kmh": 15.5,
+  "wind_speed_kmh": 10.1
+ },
+ "2002-06-13": {
+  "conditions": "Mainly clear",
+  "date": "2002-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.0,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 18.4
+ },
+ "2002-06-20": {
+  "conditions": "Partly cloudy",
+  "date": "2002-06-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.5,
+  "wind_direction_deg": 187,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 14.9
+ },
+ "2002-06-23": {
+  "conditions": "Overcast",
+  "date": "2002-06-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.9,
+  "wind_direction_deg": 153,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 14.5
+ },
+ "2002-06-27": {
+  "conditions": "Partly cloudy",
+  "date": "2002-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 217,
+  "wind_gust_kmh": 42.1,
+  "wind_speed_kmh": 26.0
+ },
+ "2002-06-30": {
+  "conditions": "Mainly clear",
+  "date": "2002-06-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.9,
+  "wind_direction_deg": 356,
+  "wind_gust_kmh": 14.0,
+  "wind_speed_kmh": 4.7
+ },
+ "2002-07-25": {
+  "conditions": "Clear sky",
+  "date": "2002-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 18,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 9.4
+ },
+ "2002-08-07": {
+  "conditions": "Light drizzle",
+  "date": "2002-08-07",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 15.7,
+  "wind_direction_deg": 284,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 16.3
+ },
+ "2002-08-08": {
+  "conditions": "Light drizzle",
+  "date": "2002-08-08",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 14.4
+ },
+ "2002-08-09": {
+  "conditions": "Mainly clear",
+  "date": "2002-08-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 346,
+  "wind_gust_kmh": 18.0,
+  "wind_speed_kmh": 10.7
+ },
+ "2002-08-17": {
+  "conditions": "Partly cloudy",
+  "date": "2002-08-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.2,
+  "wind_direction_deg": 209,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 9.0
+ },
+ "2002-08-22": {
+  "conditions": "Overcast",
+  "date": "2002-08-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 207,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 19.3
+ },
+ "2002-08-28": {
+  "conditions": "Overcast",
+  "date": "2002-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 15,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 14.1
+ },
+ "2002-09-06": {
+  "conditions": "Clear sky",
+  "date": "2002-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 316,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 17.1
+ },
+ "2002-09-15": {
+  "conditions": "Overcast",
+  "date": "2002-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 43.9,
+  "wind_speed_kmh": 27.7
+ },
+ "2002-09-22": {
+  "conditions": "Partly cloudy",
+  "date": "2002-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 189,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 14.6
+ },
+ "2003-06-06": {
+  "conditions": "Clear sky",
+  "date": "2003-06-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.3,
+  "wind_direction_deg": 305,
+  "wind_gust_kmh": 36.7,
+  "wind_speed_kmh": 19.4
+ },
+ "2003-06-08": {
+  "conditions": "Overcast",
+  "date": "2003-06-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.5,
+  "wind_direction_deg": 90,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 19.1
+ },
+ "2003-06-15": {
+  "conditions": "Overcast",
+  "date": "2003-06-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 10.2,
+  "wind_direction_deg": 21,
+  "wind_gust_kmh": 18.4,
+  "wind_speed_kmh": 8.9
+ },
+ "2003-06-19": {
+  "conditions": "Light rain",
+  "date": "2003-06-19",
+  "precipitation_mm": 1.4,
+  "source": "open-meteo",
+  "temp_c": 13.9,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 24.1
+ },
+ "2003-06-22": {
+  "conditions": "Mainly clear",
+  "date": "2003-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.4,
+  "wind_direction_deg": 135,
+  "wind_gust_kmh": 18.4,
+  "wind_speed_kmh": 11.2
+ },
+ "2003-06-27": {
+  "conditions": "Partly cloudy",
+  "date": "2003-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 167,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 18.1
+ },
+ "2003-06-29": {
+  "conditions": "Overcast",
+  "date": "2003-06-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.9,
+  "wind_direction_deg": 242,
+  "wind_gust_kmh": 11.5,
+  "wind_speed_kmh": 6.1
+ },
+ "2003-07-03": {
+  "conditions": "Clear sky",
+  "date": "2003-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 40.3,
+  "wind_speed_kmh": 24.5
+ },
+ "2003-07-06": {
+  "conditions": "Clear sky",
+  "date": "2003-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.5,
+  "wind_direction_deg": 277,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 17.1
+ },
+ "2003-07-10": {
+  "conditions": "Clear sky",
+  "date": "2003-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 9.8
+ },
+ "2003-07-17": {
+  "conditions": "Light drizzle",
+  "date": "2003-07-17",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 18.0
+ },
+ "2003-07-20": {
+  "conditions": "Overcast",
+  "date": "2003-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.0,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 11.9
+ },
+ "2003-07-24": {
+  "conditions": "Overcast",
+  "date": "2003-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 204,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 24.8
+ },
+ "2003-07-27": {
+  "conditions": "Mainly clear",
+  "date": "2003-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 211,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 21.5
+ },
+ "2003-07-31": {
+  "conditions": "Mainly clear",
+  "date": "2003-07-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 9.7
+ },
+ "2003-08-03": {
+  "conditions": "Overcast",
+  "date": "2003-08-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.8,
+  "wind_direction_deg": 130,
+  "wind_gust_kmh": 11.9,
+  "wind_speed_kmh": 8.4
+ },
+ "2003-08-07": {
+  "conditions": "Light drizzle",
+  "date": "2003-08-07",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 155,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 10.3
+ },
+ "2003-08-21": {
+  "conditions": "Mainly clear",
+  "date": "2003-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.4,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 13.0
+ },
+ "2003-08-28": {
+  "conditions": "Clear sky",
+  "date": "2003-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 290,
+  "wind_gust_kmh": 31.3,
+  "wind_speed_kmh": 18.3
+ },
+ "2003-08-31": {
+  "conditions": "Clear sky",
+  "date": "2003-08-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.9,
+  "wind_direction_deg": 342,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 10.2
+ },
+ "2003-09-04": {
+  "conditions": "Light rain",
+  "date": "2003-09-04",
+  "precipitation_mm": 1.3,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 203,
+  "wind_gust_kmh": 41.0,
+  "wind_speed_kmh": 22.7
+ },
+ "2003-09-07": {
+  "conditions": "Clear sky",
+  "date": "2003-09-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 263,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 11.3
+ },
+ "2003-09-11": {
+  "conditions": "Clear sky",
+  "date": "2003-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.4,
+  "wind_direction_deg": 355,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 11.9
+ },
+ "2003-09-14": {
+  "conditions": "Clear sky",
+  "date": "2003-09-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 263,
+  "wind_gust_kmh": 12.6,
+  "wind_speed_kmh": 6.2
+ },
+ "2003-09-18": {
+  "conditions": "Overcast",
+  "date": "2003-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 225,
+  "wind_gust_kmh": 10.1,
+  "wind_speed_kmh": 1.5
+ },
+ "2003-09-21": {
+  "conditions": "Light drizzle",
+  "date": "2003-09-21",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 270,
+  "wind_gust_kmh": 10.1,
+  "wind_speed_kmh": 5.8
+ },
+ "2003-09-30": {
+  "conditions": "Clear sky",
+  "date": "2003-09-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 207,
+  "wind_gust_kmh": 21.6,
+  "wind_speed_kmh": 12.9
+ },
+ "2004-06-06": {
+  "conditions": "Overcast",
+  "date": "2004-06-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 10.1,
+  "wind_direction_deg": 136,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 15.0
+ },
+ "2004-06-10": {
+  "conditions": "Clear sky",
+  "date": "2004-06-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.9,
+  "wind_direction_deg": 299,
+  "wind_gust_kmh": 32.4,
+  "wind_speed_kmh": 20.6
+ },
+ "2004-06-13": {
+  "conditions": "Overcast",
+  "date": "2004-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.1,
+  "wind_direction_deg": 274,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 10.8
+ },
+ "2004-06-24": {
+  "conditions": "Mainly clear",
+  "date": "2004-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.5,
+  "wind_direction_deg": 155,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 13.5
+ },
+ "2004-07-01": {
+  "conditions": "Partly cloudy",
+  "date": "2004-07-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 12.8
+ },
+ "2004-07-04": {
+  "conditions": "Overcast",
+  "date": "2004-07-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 81,
+  "wind_gust_kmh": 15.5,
+  "wind_speed_kmh": 10.9
+ },
+ "2004-07-08": {
+  "conditions": "Overcast",
+  "date": "2004-07-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 82,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 8.0
+ },
+ "2004-07-11": {
+  "conditions": "Overcast",
+  "date": "2004-07-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.4,
+  "wind_direction_deg": 345,
+  "wind_gust_kmh": 34.6,
+  "wind_speed_kmh": 21.6
+ },
+ "2004-07-15": {
+  "conditions": "Overcast",
+  "date": "2004-07-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 155,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 15.1
+ },
+ "2004-07-18": {
+  "conditions": "Mainly clear",
+  "date": "2004-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 166,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 14.5
+ },
+ "2004-07-22": {
+  "conditions": "Overcast",
+  "date": "2004-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 160,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 16.9
+ },
+ "2004-07-25": {
+  "conditions": "Overcast",
+  "date": "2004-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.6,
+  "wind_direction_deg": 48,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 15.0
+ },
+ "2004-07-28": {
+  "conditions": "Light drizzle",
+  "date": "2004-07-28",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 17.3,
+  "wind_speed_kmh": 10.5
+ },
+ "2004-08-05": {
+  "conditions": "Partly cloudy",
+  "date": "2004-08-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 252,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 10.6
+ },
+ "2004-08-19": {
+  "conditions": "Mainly clear",
+  "date": "2004-08-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 181,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 19.4
+ },
+ "2004-08-26": {
+  "conditions": "Overcast",
+  "date": "2004-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 16.6
+ },
+ "2004-09-02": {
+  "conditions": "Clear sky",
+  "date": "2004-09-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 322,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 14.1
+ },
+ "2004-09-05": {
+  "conditions": "Overcast",
+  "date": "2004-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.5,
+  "wind_direction_deg": 4,
+  "wind_gust_kmh": 35.6,
+  "wind_speed_kmh": 20.9
+ },
+ "2004-09-12": {
+  "conditions": "Clear sky",
+  "date": "2004-09-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 183,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 18.8
+ },
+ "2004-09-16": {
+  "conditions": "Partly cloudy",
+  "date": "2004-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 199,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 17.5
+ },
+ "2004-09-23": {
+  "conditions": "Mainly clear",
+  "date": "2004-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.1,
+  "wind_direction_deg": 360,
+  "wind_gust_kmh": 43.6,
+  "wind_speed_kmh": 25.9
+ },
+ "2004-09-26": {
+  "conditions": "Partly cloudy",
+  "date": "2004-09-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 331,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 13.2
+ },
+ "2005-06-02": {
+  "conditions": "Clear sky",
+  "date": "2005-06-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.9,
+  "wind_direction_deg": 237,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 15.9
+ },
+ "2005-06-05": {
+  "conditions": "Light drizzle",
+  "date": "2005-06-05",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 12.9,
+  "wind_direction_deg": 118,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 10.6
+ },
+ "2005-06-09": {
+  "conditions": "Overcast",
+  "date": "2005-06-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.7,
+  "wind_direction_deg": 165,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 12.7
+ },
+ "2005-06-12": {
+  "conditions": "Overcast",
+  "date": "2005-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.7,
+  "wind_direction_deg": 152,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 10.6
+ },
+ "2005-06-16": {
+  "conditions": "Light drizzle",
+  "date": "2005-06-16",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 10.8,
+  "wind_direction_deg": 87,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 23.4
+ },
+ "2005-06-19": {
+  "conditions": "Overcast",
+  "date": "2005-06-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.2,
+  "wind_direction_deg": 1,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 19.1
+ },
+ "2005-06-23": {
+  "conditions": "Clear sky",
+  "date": "2005-06-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 341,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 14.1
+ },
+ "2005-06-26": {
+  "conditions": "Partly cloudy",
+  "date": "2005-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.6,
+  "wind_direction_deg": 139,
+  "wind_gust_kmh": 14.8,
+  "wind_speed_kmh": 3.3
+ },
+ "2005-06-30": {
+  "conditions": "Overcast",
+  "date": "2005-06-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.6,
+  "wind_direction_deg": 94,
+  "wind_gust_kmh": 16.9,
+  "wind_speed_kmh": 10.8
+ },
+ "2005-07-03": {
+  "conditions": "Clear sky",
+  "date": "2005-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 360,
+  "wind_gust_kmh": 10.8,
+  "wind_speed_kmh": 1.4
+ },
+ "2005-07-07": {
+  "conditions": "Overcast",
+  "date": "2005-07-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 43,
+  "wind_gust_kmh": 15.8,
+  "wind_speed_kmh": 7.9
+ },
+ "2005-07-10": {
+  "conditions": "Overcast",
+  "date": "2005-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.7,
+  "wind_direction_deg": 185,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 13.4
+ },
+ "2005-07-14": {
+  "conditions": "Partly cloudy",
+  "date": "2005-07-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 36.7,
+  "wind_speed_kmh": 22.1
+ },
+ "2005-07-17": {
+  "conditions": "Clear sky",
+  "date": "2005-07-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.7,
+  "wind_direction_deg": 212,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 11.5
+ },
+ "2005-07-21": {
+  "conditions": "Overcast",
+  "date": "2005-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 178,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 11.9
+ },
+ "2005-07-24": {
+  "conditions": "Clear sky",
+  "date": "2005-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 319,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.8
+ },
+ "2005-07-29": {
+  "conditions": "Partly cloudy",
+  "date": "2005-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.0,
+  "wind_direction_deg": 302,
+  "wind_gust_kmh": 15.8,
+  "wind_speed_kmh": 8.9
+ },
+ "2005-07-31": {
+  "conditions": "Clear sky",
+  "date": "2005-07-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 333,
+  "wind_gust_kmh": 12.6,
+  "wind_speed_kmh": 1.6
+ },
+ "2005-08-04": {
+  "conditions": "Clear sky",
+  "date": "2005-08-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 360,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 12.6
+ },
+ "2005-08-18": {
+  "conditions": "Mainly clear",
+  "date": "2005-08-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.6,
+  "wind_direction_deg": 297,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 14.2
+ },
+ "2005-08-21": {
+  "conditions": "Light drizzle",
+  "date": "2005-08-21",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 101,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 7.3
+ },
+ "2005-08-25": {
+  "conditions": "Partly cloudy",
+  "date": "2005-08-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 332,
+  "wind_gust_kmh": 40.0,
+  "wind_speed_kmh": 24.5
+ },
+ "2005-09-01": {
+  "conditions": "Partly cloudy",
+  "date": "2005-09-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 233,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 14.9
+ },
+ "2005-09-04": {
+  "conditions": "Clear sky",
+  "date": "2005-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 307,
+  "wind_gust_kmh": 12.2,
+  "wind_speed_kmh": 5.4
+ },
+ "2005-09-08": {
+  "conditions": "Clear sky",
+  "date": "2005-09-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.9,
+  "wind_direction_deg": 216,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 10.3
+ },
+ "2005-09-11": {
+  "conditions": "Clear sky",
+  "date": "2005-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 334,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 19.2
+ },
+ "2005-09-15": {
+  "conditions": "Overcast",
+  "date": "2005-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 228,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 10.7
+ },
+ "2005-09-25": {
+  "conditions": "Partly cloudy",
+  "date": "2005-09-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.8,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 11.6
+ },
+ "2005-09-29": {
+  "conditions": "Partly cloudy",
+  "date": "2005-09-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 164,
+  "wind_gust_kmh": 60.1,
+  "wind_speed_kmh": 38.6
+ },
+ "2006-06-07": {
+  "conditions": "Overcast",
+  "date": "2006-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.2,
+  "wind_direction_deg": 74,
+  "wind_gust_kmh": 42.8,
+  "wind_speed_kmh": 26.7
+ },
+ "2006-06-08": {
+  "conditions": "Light drizzle",
+  "date": "2006-06-08",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 12.1,
+  "wind_direction_deg": 82,
+  "wind_gust_kmh": 45.4,
+  "wind_speed_kmh": 27.6
+ },
+ "2006-07-09": {
+  "conditions": "Overcast",
+  "date": "2006-07-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.7,
+  "wind_direction_deg": 243,
+  "wind_gust_kmh": 10.1,
+  "wind_speed_kmh": 4.8
+ },
+ "2006-08-06": {
+  "conditions": "Clear sky",
+  "date": "2006-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 221,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 11.0
+ },
+ "2006-08-07": {
+  "conditions": "Overcast",
+  "date": "2006-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 32.8,
+  "wind_speed_kmh": 19.4
+ },
+ "2006-09-07": {
+  "conditions": "Overcast",
+  "date": "2006-09-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.4,
+  "wind_direction_deg": 305,
+  "wind_gust_kmh": 11.2,
+  "wind_speed_kmh": 4.4
+ },
+ "2006-10-08": {
+  "conditions": "Clear sky",
+  "date": "2006-10-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.4,
+  "wind_direction_deg": 258,
+  "wind_gust_kmh": 15.5,
+  "wind_speed_kmh": 10.3
+ },
+ "2006-10-09": {
+  "conditions": "Clear sky",
+  "date": "2006-10-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 225,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 15.8
+ },
+ "2007-05-31": {
+  "conditions": "Overcast",
+  "date": "2007-05-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 11.3,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 9.9
+ },
+ "2007-06-03": {
+  "conditions": "Mainly clear",
+  "date": "2007-06-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 9.8,
+  "wind_direction_deg": 106,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 19.5
+ },
+ "2007-06-07": {
+  "conditions": "Clear sky",
+  "date": "2007-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.0,
+  "wind_direction_deg": 319,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 14.8
+ },
+ "2007-06-10": {
+  "conditions": "Light drizzle",
+  "date": "2007-06-10",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 16.5,
+  "wind_direction_deg": 68,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 17.9
+ },
+ "2007-06-14": {
+  "conditions": "Mainly clear",
+  "date": "2007-06-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.5,
+  "wind_direction_deg": 111,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 18.1
+ },
+ "2007-06-17": {
+  "conditions": "Partly cloudy",
+  "date": "2007-06-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.7,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 14.7
+ },
+ "2007-06-21": {
+  "conditions": "Partly cloudy",
+  "date": "2007-06-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.9,
+  "wind_direction_deg": 117,
+  "wind_gust_kmh": 16.2,
+  "wind_speed_kmh": 6.4
+ },
+ "2007-06-24": {
+  "conditions": "Partly cloudy",
+  "date": "2007-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.5,
+  "wind_direction_deg": 241,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 16.4
+ },
+ "2007-06-28": {
+  "conditions": "Light drizzle",
+  "date": "2007-06-28",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 26.3,
+  "wind_speed_kmh": 17.2
+ },
+ "2007-07-01": {
+  "conditions": "Mainly clear",
+  "date": "2007-07-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.0,
+  "wind_direction_deg": 264,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 13.0
+ },
+ "2007-07-06": {
+  "conditions": "Overcast",
+  "date": "2007-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.2,
+  "wind_direction_deg": 162,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 10.2
+ },
+ "2007-07-08": {
+  "conditions": "Overcast",
+  "date": "2007-07-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.7,
+  "wind_direction_deg": 239,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 13.9
+ },
+ "2007-07-12": {
+  "conditions": "Overcast",
+  "date": "2007-07-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 10.5
+ },
+ "2007-07-19": {
+  "conditions": "Overcast",
+  "date": "2007-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.6,
+  "wind_direction_deg": 176,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 16.2
+ },
+ "2007-07-23": {
+  "conditions": "Overcast",
+  "date": "2007-07-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 127,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 11.3
+ },
+ "2007-07-26": {
+  "conditions": "Partly cloudy",
+  "date": "2007-07-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.3,
+  "wind_direction_deg": 252,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 15.1
+ },
+ "2007-07-29": {
+  "conditions": "Overcast",
+  "date": "2007-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 188,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 16.0
+ },
+ "2007-08-02": {
+  "conditions": "Clear sky",
+  "date": "2007-08-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 31.3,
+  "wind_speed_kmh": 19.2
+ },
+ "2007-08-05": {
+  "conditions": "Clear sky",
+  "date": "2007-08-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 323,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 10.8
+ },
+ "2007-08-09": {
+  "conditions": "Mainly clear",
+  "date": "2007-08-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 324,
+  "wind_gust_kmh": 32.4,
+  "wind_speed_kmh": 17.8
+ },
+ "2007-08-23": {
+  "conditions": "Overcast",
+  "date": "2007-08-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.4,
+  "wind_direction_deg": 175,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.7
+ },
+ "2007-08-26": {
+  "conditions": "Partly cloudy",
+  "date": "2007-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.3,
+  "wind_direction_deg": 204,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 16.6
+ },
+ "2007-08-30": {
+  "conditions": "Partly cloudy",
+  "date": "2007-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 160,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 14.9
+ },
+ "2007-09-02": {
+  "conditions": "Clear sky",
+  "date": "2007-09-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 335,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 15.1
+ },
+ "2007-09-06": {
+  "conditions": "Overcast",
+  "date": "2007-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.1,
+  "wind_direction_deg": 188,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 20.0
+ },
+ "2007-09-09": {
+  "conditions": "Partly cloudy",
+  "date": "2007-09-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 25,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 13.9
+ },
+ "2007-09-13": {
+  "conditions": "Clear sky",
+  "date": "2007-09-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.1,
+  "wind_direction_deg": 288,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 16.3
+ },
+ "2007-09-16": {
+  "conditions": "Overcast",
+  "date": "2007-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.8,
+  "wind_direction_deg": 324,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 12.4
+ },
+ "2007-09-20": {
+  "conditions": "Clear sky",
+  "date": "2007-09-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 234,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 14.2
+ },
+ "2007-09-23": {
+  "conditions": "Overcast",
+  "date": "2007-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 257,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 14.4
+ },
+ "2007-09-27": {
+  "conditions": "Overcast",
+  "date": "2007-09-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.4,
+  "wind_direction_deg": 143,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 13.6
+ },
+ "2008-06-01": {
+  "conditions": "Overcast",
+  "date": "2008-06-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.4,
+  "wind_direction_deg": 205,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 18.2
+ },
+ "2008-06-05": {
+  "conditions": "Overcast",
+  "date": "2008-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.1,
+  "wind_direction_deg": 76,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 8.9
+ },
+ "2008-06-08": {
+  "conditions": "Overcast",
+  "date": "2008-06-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 9.8
+ },
+ "2008-06-12": {
+  "conditions": "Mainly clear",
+  "date": "2008-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.4,
+  "wind_direction_deg": 333,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 19.3
+ },
+ "2008-06-15": {
+  "conditions": "Overcast",
+  "date": "2008-06-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 337,
+  "wind_gust_kmh": 11.2,
+  "wind_speed_kmh": 9.0
+ },
+ "2008-06-19": {
+  "conditions": "Mainly clear",
+  "date": "2008-06-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.2,
+  "wind_direction_deg": 173,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.8
+ },
+ "2008-06-26": {
+  "conditions": "Partly cloudy",
+  "date": "2008-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 15.9
+ },
+ "2008-06-29": {
+  "conditions": "Light drizzle",
+  "date": "2008-06-29",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 14.2,
+  "wind_direction_deg": 115,
+  "wind_gust_kmh": 38.2,
+  "wind_speed_kmh": 25.1
+ },
+ "2008-07-03": {
+  "conditions": "Partly cloudy",
+  "date": "2008-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 25.0
+ },
+ "2008-07-07": {
+  "conditions": "Mainly clear",
+  "date": "2008-07-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.4,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 12.3
+ },
+ "2008-07-10": {
+  "conditions": "Overcast",
+  "date": "2008-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 17.3
+ },
+ "2008-07-13": {
+  "conditions": "Partly cloudy",
+  "date": "2008-07-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 26.3,
+  "wind_speed_kmh": 18.0
+ },
+ "2008-07-17": {
+  "conditions": "Overcast",
+  "date": "2008-07-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 167,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 15.9
+ },
+ "2008-07-20": {
+  "conditions": "Overcast",
+  "date": "2008-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.7,
+  "wind_direction_deg": 142,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 14.1
+ },
+ "2008-07-24": {
+  "conditions": "Overcast",
+  "date": "2008-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 159,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 17.0
+ },
+ "2008-07-27": {
+  "conditions": "Mainly clear",
+  "date": "2008-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.8,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 17.2
+ },
+ "2008-07-31": {
+  "conditions": "Mainly clear",
+  "date": "2008-07-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 164,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 14.2
+ },
+ "2008-08-03": {
+  "conditions": "Overcast",
+  "date": "2008-08-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 128,
+  "wind_gust_kmh": 21.2,
+  "wind_speed_kmh": 14.1
+ },
+ "2008-08-07": {
+  "conditions": "Overcast",
+  "date": "2008-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 18.0,
+  "wind_speed_kmh": 9.8
+ },
+ "2008-08-21": {
+  "conditions": "Clear sky",
+  "date": "2008-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 275,
+  "wind_gust_kmh": 21.6,
+  "wind_speed_kmh": 11.6
+ },
+ "2008-08-24": {
+  "conditions": "Mainly clear",
+  "date": "2008-08-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.9,
+  "wind_direction_deg": 177,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 13.0
+ },
+ "2008-08-28": {
+  "conditions": "Overcast",
+  "date": "2008-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.7,
+  "wind_direction_deg": 53,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 16.7
+ },
+ "2008-08-31": {
+  "conditions": "Light drizzle",
+  "date": "2008-08-31",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 281,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 11.0
+ },
+ "2008-09-04": {
+  "conditions": "Clear sky",
+  "date": "2008-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 225,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 16.8
+ },
+ "2008-09-11": {
+  "conditions": "Clear sky",
+  "date": "2008-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.5,
+  "wind_direction_deg": 194,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 12.2
+ },
+ "2008-09-14": {
+  "conditions": "Overcast",
+  "date": "2008-09-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.7,
+  "wind_direction_deg": 163,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 12.4
+ },
+ "2008-09-18": {
+  "conditions": "Overcast",
+  "date": "2008-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.9,
+  "wind_direction_deg": 353,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 20.0
+ },
+ "2008-09-25": {
+  "conditions": "Overcast",
+  "date": "2008-09-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.3,
+  "wind_direction_deg": 192,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 17.7
+ },
+ "2011-06-05": {
+  "conditions": "Overcast",
+  "date": "2011-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.0,
+  "wind_direction_deg": 24,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 17.4
+ },
+ "2011-06-09": {
+  "conditions": "Overcast",
+  "date": "2011-06-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.4,
+  "wind_direction_deg": 146,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 16.9
+ },
+ "2011-06-12": {
+  "conditions": "Overcast",
+  "date": "2011-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 11.7,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 21.2,
+  "wind_speed_kmh": 9.7
+ },
+ "2011-06-16": {
+  "conditions": "Clear sky",
+  "date": "2011-06-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 17,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.6
+ },
+ "2011-06-19": {
+  "conditions": "Clear sky",
+  "date": "2011-06-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.4,
+  "wind_direction_deg": 281,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 21.7
+ },
+ "2011-06-23": {
+  "conditions": "Overcast",
+  "date": "2011-06-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.9,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.0
+ },
+ "2011-06-26": {
+  "conditions": "Overcast",
+  "date": "2011-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 169,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 12.8
+ },
+ "2011-06-30": {
+  "conditions": "Light drizzle",
+  "date": "2011-06-30",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 14.6
+ },
+ "2011-07-03": {
+  "conditions": "Clear sky",
+  "date": "2011-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.6,
+  "wind_direction_deg": 181,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 23.8
+ },
+ "2011-07-07": {
+  "conditions": "Clear sky",
+  "date": "2011-07-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.0,
+  "wind_direction_deg": 232,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 12.8
+ },
+ "2011-07-10": {
+  "conditions": "Partly cloudy",
+  "date": "2011-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.8,
+  "wind_direction_deg": 292,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 12.4
+ },
+ "2011-07-14": {
+  "conditions": "Dense drizzle",
+  "date": "2011-07-14",
+  "precipitation_mm": 1.1,
+  "source": "open-meteo",
+  "temp_c": 14.1,
+  "wind_direction_deg": 20,
+  "wind_gust_kmh": 44.6,
+  "wind_speed_kmh": 27.9
+ },
+ "2011-07-17": {
+  "conditions": "Partly cloudy",
+  "date": "2011-07-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.9,
+  "wind_direction_deg": 217,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 16.7
+ },
+ "2011-07-21": {
+  "conditions": "Overcast",
+  "date": "2011-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 204,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 24.8
+ },
+ "2011-07-24": {
+  "conditions": "Partly cloudy",
+  "date": "2011-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 13,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 15.5
+ },
+ "2011-07-28": {
+  "conditions": "Overcast",
+  "date": "2011-07-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 347,
+  "wind_gust_kmh": 15.1,
+  "wind_speed_kmh": 10.0
+ },
+ "2011-07-31": {
+  "conditions": "Clear sky",
+  "date": "2011-07-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.6,
+  "wind_direction_deg": 264,
+  "wind_gust_kmh": 13.0,
+  "wind_speed_kmh": 3.6
+ },
+ "2011-08-04": {
+  "conditions": "Overcast",
+  "date": "2011-08-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 62,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 14.7
+ },
+ "2011-08-18": {
+  "conditions": "Mainly clear",
+  "date": "2011-08-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 33.8,
+  "wind_speed_kmh": 21.7
+ },
+ "2011-09-01": {
+  "conditions": "Partly cloudy",
+  "date": "2011-09-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.5,
+  "wind_direction_deg": 138,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 11.2
+ },
+ "2011-09-04": {
+  "conditions": "Clear sky",
+  "date": "2011-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.9,
+  "wind_direction_deg": 176,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 19.1
+ },
+ "2011-09-08": {
+  "conditions": "Overcast",
+  "date": "2011-09-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 270,
+  "wind_gust_kmh": 7.6,
+  "wind_speed_kmh": 2.2
+ },
+ "2011-09-11": {
+  "conditions": "Mainly clear",
+  "date": "2011-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 189,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 21.5
+ },
+ "2011-09-15": {
+  "conditions": "Moderate drizzle",
+  "date": "2011-09-15",
+  "precipitation_mm": 0.9,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 158,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 17.9
+ },
+ "2011-09-18": {
+  "conditions": "Overcast",
+  "date": "2011-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.7,
+  "wind_direction_deg": 149,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 11.8
+ },
+ "2011-09-26": {
+  "conditions": "Clear sky",
+  "date": "2011-09-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 299,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 13.2
+ },
+ "2011-09-29": {
+  "conditions": "Light rain",
+  "date": "2011-09-29",
+  "precipitation_mm": 2.4,
+  "source": "open-meteo",
+  "temp_c": 15.5,
+  "wind_direction_deg": 122,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 18.6
+ },
+ "2012-06-07": {
+  "conditions": "Overcast",
+  "date": "2012-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.4,
+  "wind_direction_deg": 294,
+  "wind_gust_kmh": 21.2,
+  "wind_speed_kmh": 10.6
+ },
+ "2012-06-10": {
+  "conditions": "Partly cloudy",
+  "date": "2012-06-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.7,
+  "wind_direction_deg": 78,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 10.7
+ },
+ "2012-06-14": {
+  "conditions": "Overcast",
+  "date": "2012-06-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 349,
+  "wind_gust_kmh": 34.9,
+  "wind_speed_kmh": 21.7
+ },
+ "2012-06-17": {
+  "conditions": "Clear sky",
+  "date": "2012-06-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.0,
+  "wind_direction_deg": 138,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 15.0
+ },
+ "2012-06-21": {
+  "conditions": "Partly cloudy",
+  "date": "2012-06-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.8,
+  "wind_direction_deg": 11,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 16.5
+ },
+ "2012-06-24": {
+  "conditions": "Light drizzle",
+  "date": "2012-06-24",
+  "precipitation_mm": 0.4,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 246,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 9.8
+ },
+ "2012-06-28": {
+  "conditions": "Moderate drizzle",
+  "date": "2012-06-28",
+  "precipitation_mm": 0.5,
+  "source": "open-meteo",
+  "temp_c": 18.6,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 17.4
+ },
+ "2012-07-05": {
+  "conditions": "Overcast",
+  "date": "2012-07-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 145,
+  "wind_gust_kmh": 12.6,
+  "wind_speed_kmh": 7.5
+ },
+ "2012-07-08": {
+  "conditions": "Mainly clear",
+  "date": "2012-07-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.6,
+  "wind_direction_deg": 293,
+  "wind_gust_kmh": 33.8,
+  "wind_speed_kmh": 20.3
+ },
+ "2012-07-12": {
+  "conditions": "Partly cloudy",
+  "date": "2012-07-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 178,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 16.6
+ },
+ "2012-07-15": {
+  "conditions": "Clear sky",
+  "date": "2012-07-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 13.9
+ },
+ "2012-07-19": {
+  "conditions": "Mainly clear",
+  "date": "2012-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 306,
+  "wind_gust_kmh": 33.8,
+  "wind_speed_kmh": 20.9
+ },
+ "2012-07-22": {
+  "conditions": "Mainly clear",
+  "date": "2012-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 19.4
+ },
+ "2012-07-26": {
+  "conditions": "Overcast",
+  "date": "2012-07-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 223,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 14.8
+ },
+ "2012-07-29": {
+  "conditions": "Overcast",
+  "date": "2012-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 89,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 15.1
+ },
+ "2012-08-02": {
+  "conditions": "Light drizzle",
+  "date": "2012-08-02",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 67,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 5.5
+ },
+ "2012-08-05": {
+  "conditions": "Partly cloudy",
+  "date": "2012-08-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 159,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 16.2
+ },
+ "2012-08-09": {
+  "conditions": "Clear sky",
+  "date": "2012-08-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 16.2
+ },
+ "2012-08-23": {
+  "conditions": "Overcast",
+  "date": "2012-08-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 188,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 17.1
+ },
+ "2012-08-26": {
+  "conditions": "Clear sky",
+  "date": "2012-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.3,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 14.8
+ },
+ "2012-08-30": {
+  "conditions": "Partly cloudy",
+  "date": "2012-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 249,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 24.7
+ },
+ "2012-09-02": {
+  "conditions": "Mainly clear",
+  "date": "2012-09-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.9,
+  "wind_direction_deg": 153,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 13.7
+ },
+ "2012-09-06": {
+  "conditions": "Overcast",
+  "date": "2012-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 295,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 18.7
+ },
+ "2012-09-08": {
+  "conditions": "Clear sky",
+  "date": "2012-09-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.6,
+  "wind_direction_deg": 164,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 21.8
+ },
+ "2012-09-13": {
+  "conditions": "Clear sky",
+  "date": "2012-09-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 194,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 16.7
+ },
+ "2012-09-16": {
+  "conditions": "Clear sky",
+  "date": "2012-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.7,
+  "wind_direction_deg": 288,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 18.9
+ },
+ "2012-09-21": {
+  "conditions": "Overcast",
+  "date": "2012-09-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.7,
+  "wind_direction_deg": 140,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 14.1
+ },
+ "2012-09-23": {
+  "conditions": "Overcast",
+  "date": "2012-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 26.3,
+  "wind_speed_kmh": 15.8
+ },
+ "2012-09-27": {
+  "conditions": "Clear sky",
+  "date": "2012-09-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.8,
+  "wind_direction_deg": 331,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 14.8
+ },
+ "2013-06-05": {
+  "conditions": "Clear sky",
+  "date": "2013-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.7,
+  "wind_direction_deg": 274,
+  "wind_gust_kmh": 21.6,
+  "wind_speed_kmh": 10.5
+ },
+ "2013-06-13": {
+  "conditions": "Overcast",
+  "date": "2013-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.7,
+  "wind_direction_deg": 351,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 17.5
+ },
+ "2013-06-16": {
+  "conditions": "Mainly clear",
+  "date": "2013-06-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.0,
+  "wind_direction_deg": 192,
+  "wind_gust_kmh": 34.6,
+  "wind_speed_kmh": 22.1
+ },
+ "2013-06-20": {
+  "conditions": "Partly cloudy",
+  "date": "2013-06-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 15.3
+ },
+ "2013-06-22": {
+  "conditions": "Overcast",
+  "date": "2013-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 230,
+  "wind_gust_kmh": 18.4,
+  "wind_speed_kmh": 12.3
+ },
+ "2013-06-27": {
+  "conditions": "Overcast",
+  "date": "2013-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.3,
+  "wind_direction_deg": 181,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 16.9
+ },
+ "2013-06-30": {
+  "conditions": "Light drizzle",
+  "date": "2013-06-30",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 208,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 22.9
+ },
+ "2013-07-04": {
+  "conditions": "Mainly clear",
+  "date": "2013-07-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.6,
+  "wind_direction_deg": 284,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.7
+ },
+ "2013-07-08": {
+  "conditions": "Light rain",
+  "date": "2013-07-08",
+  "precipitation_mm": 1.5,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 29,
+  "wind_gust_kmh": 16.9,
+  "wind_speed_kmh": 9.0
+ },
+ "2013-07-11": {
+  "conditions": "Overcast",
+  "date": "2013-07-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 13.2
+ },
+ "2013-07-14": {
+  "conditions": "Mainly clear",
+  "date": "2013-07-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.5,
+  "wind_direction_deg": 225,
+  "wind_gust_kmh": 17.3,
+  "wind_speed_kmh": 8.7
+ },
+ "2013-07-18": {
+  "conditions": "Overcast",
+  "date": "2013-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.5,
+  "wind_direction_deg": 308,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 12.8
+ },
+ "2013-07-21": {
+  "conditions": "Clear sky",
+  "date": "2013-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 304,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 10.4
+ },
+ "2013-07-25": {
+  "conditions": "Overcast",
+  "date": "2013-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 88,
+  "wind_gust_kmh": 11.2,
+  "wind_speed_kmh": 8.6
+ },
+ "2013-07-26": {
+  "conditions": "Overcast",
+  "date": "2013-07-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 153,
+  "wind_gust_kmh": 39.6,
+  "wind_speed_kmh": 23.8
+ },
+ "2013-07-28": {
+  "conditions": "Overcast",
+  "date": "2013-07-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.6,
+  "wind_direction_deg": 234,
+  "wind_gust_kmh": 15.8,
+  "wind_speed_kmh": 3.1
+ },
+ "2013-08-01": {
+  "conditions": "Overcast",
+  "date": "2013-08-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.0,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 14.8
+ },
+ "2013-08-04": {
+  "conditions": "Partly cloudy",
+  "date": "2013-08-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 211,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 13.4
+ },
+ "2013-08-08": {
+  "conditions": "Clear sky",
+  "date": "2013-08-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 184,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 18.4
+ },
+ "2013-08-22": {
+  "conditions": "Overcast",
+  "date": "2013-08-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.3,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 20.0
+ },
+ "2013-08-25": {
+  "conditions": "Clear sky",
+  "date": "2013-08-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 247,
+  "wind_gust_kmh": 11.2,
+  "wind_speed_kmh": 2.7
+ },
+ "2013-08-29": {
+  "conditions": "Light drizzle",
+  "date": "2013-08-29",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 7,
+  "wind_gust_kmh": 47.9,
+  "wind_speed_kmh": 30.1
+ },
+ "2013-09-01": {
+  "conditions": "Light drizzle",
+  "date": "2013-09-01",
+  "precipitation_mm": 0.4,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 204,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 22.9
+ },
+ "2013-09-05": {
+  "conditions": "Overcast",
+  "date": "2013-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.5,
+  "wind_direction_deg": 9,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 13.8
+ },
+ "2013-09-08": {
+  "conditions": "Moderate drizzle",
+  "date": "2013-09-08",
+  "precipitation_mm": 0.7,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 224,
+  "wind_gust_kmh": 42.8,
+  "wind_speed_kmh": 21.9
+ },
+ "2013-09-12": {
+  "conditions": "Mainly clear",
+  "date": "2013-09-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 21.3
+ },
+ "2013-09-15": {
+  "conditions": "Partly cloudy",
+  "date": "2013-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.1,
+  "wind_direction_deg": 275,
+  "wind_gust_kmh": 21.2,
+  "wind_speed_kmh": 13.0
+ },
+ "2013-09-19": {
+  "conditions": "Clear sky",
+  "date": "2013-09-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 275,
+  "wind_gust_kmh": 14.0,
+  "wind_speed_kmh": 8.7
+ },
+ "2013-09-22": {
+  "conditions": "Overcast",
+  "date": "2013-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 167,
+  "wind_gust_kmh": 49.0,
+  "wind_speed_kmh": 29.5
+ },
+ "2013-09-26": {
+  "conditions": "Overcast",
+  "date": "2013-09-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.6,
+  "wind_direction_deg": 347,
+  "wind_gust_kmh": 44.6,
+  "wind_speed_kmh": 26.3
+ },
+ "2013-09-29": {
+  "conditions": "Clear sky",
+  "date": "2013-09-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 193,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 10.0
+ },
+ "2013-10-06": {
+  "conditions": "Partly cloudy",
+  "date": "2013-10-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.6,
+  "wind_direction_deg": 339,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 10.0
+ },
+ "2014-06-05": {
+  "conditions": "Overcast",
+  "date": "2014-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.5,
+  "wind_direction_deg": 146,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 10.9
+ },
+ "2014-06-08": {
+  "conditions": "Clear sky",
+  "date": "2014-06-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.6,
+  "wind_direction_deg": 340,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 10.7
+ },
+ "2014-06-12": {
+  "conditions": "Overcast",
+  "date": "2014-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.1,
+  "wind_direction_deg": 155,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 14.7
+ },
+ "2014-06-15": {
+  "conditions": "Light drizzle",
+  "date": "2014-06-15",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 319,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 10.0
+ },
+ "2014-06-19": {
+  "conditions": "Mainly clear",
+  "date": "2014-06-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 288,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 19.4
+ },
+ "2014-06-22": {
+  "conditions": "Partly cloudy",
+  "date": "2014-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 170,
+  "wind_gust_kmh": 14.8,
+  "wind_speed_kmh": 8.4
+ },
+ "2014-06-26": {
+  "conditions": "Dense drizzle",
+  "date": "2014-06-26",
+  "precipitation_mm": 1.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 106,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 6.7
+ },
+ "2014-06-29": {
+  "conditions": "Clear sky",
+  "date": "2014-06-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 144,
+  "wind_gust_kmh": 16.9,
+  "wind_speed_kmh": 9.8
+ },
+ "2014-07-03": {
+  "conditions": "Partly cloudy",
+  "date": "2014-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 17.5
+ },
+ "2014-07-06": {
+  "conditions": "Clear sky",
+  "date": "2014-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.1,
+  "wind_direction_deg": 253,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 21.1
+ },
+ "2014-07-10": {
+  "conditions": "Mainly clear",
+  "date": "2014-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 18.3
+ },
+ "2014-07-13": {
+  "conditions": "Partly cloudy",
+  "date": "2014-07-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 17.4
+ },
+ "2014-07-17": {
+  "conditions": "Dense drizzle",
+  "date": "2014-07-17",
+  "precipitation_mm": 1.2,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 12.8
+ },
+ "2014-07-20": {
+  "conditions": "Overcast",
+  "date": "2014-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 121,
+  "wind_gust_kmh": 16.9,
+  "wind_speed_kmh": 9.7
+ },
+ "2014-07-24": {
+  "conditions": "Light drizzle",
+  "date": "2014-07-24",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 220,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 10.7
+ },
+ "2014-07-27": {
+  "conditions": "Clear sky",
+  "date": "2014-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 21.8
+ },
+ "2014-07-31": {
+  "conditions": "Partly cloudy",
+  "date": "2014-07-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.3,
+  "wind_direction_deg": 167,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.3
+ },
+ "2014-08-03": {
+  "conditions": "Overcast",
+  "date": "2014-08-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 157,
+  "wind_gust_kmh": 10.8,
+  "wind_speed_kmh": 4.7
+ },
+ "2014-08-07": {
+  "conditions": "Clear sky",
+  "date": "2014-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 283,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 9.6
+ },
+ "2014-08-14": {
+  "conditions": "Overcast",
+  "date": "2014-08-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 119,
+  "wind_gust_kmh": 44.6,
+  "wind_speed_kmh": 26.4
+ },
+ "2014-08-21": {
+  "conditions": "Overcast",
+  "date": "2014-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 349,
+  "wind_gust_kmh": 12.6,
+  "wind_speed_kmh": 5.5
+ },
+ "2014-08-28": {
+  "conditions": "Clear sky",
+  "date": "2014-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 277,
+  "wind_gust_kmh": 13.3,
+  "wind_speed_kmh": 5.8
+ },
+ "2014-08-31": {
+  "conditions": "Overcast",
+  "date": "2014-08-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.1,
+  "wind_direction_deg": 219,
+  "wind_gust_kmh": 34.6,
+  "wind_speed_kmh": 21.3
+ },
+ "2014-09-04": {
+  "conditions": "Clear sky",
+  "date": "2014-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.6,
+  "wind_direction_deg": 243,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 10.9
+ },
+ "2014-09-07": {
+  "conditions": "Overcast",
+  "date": "2014-09-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 314,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 13.0
+ },
+ "2014-09-11": {
+  "conditions": "Overcast",
+  "date": "2014-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 160,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 21.9
+ },
+ "2014-09-14": {
+  "conditions": "Overcast",
+  "date": "2014-09-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 325,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 15.0
+ },
+ "2014-09-18": {
+  "conditions": "Mainly clear",
+  "date": "2014-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 12.4
+ },
+ "2014-09-21": {
+  "conditions": "Mainly clear",
+  "date": "2014-09-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 22.0
+ },
+ "2014-09-25": {
+  "conditions": "Overcast",
+  "date": "2014-09-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.0,
+  "wind_direction_deg": 216,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 17.0
+ },
+ "2014-09-28": {
+  "conditions": "Clear sky",
+  "date": "2014-09-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 220,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 16.1
+ },
+ "2015-06-04": {
+  "conditions": "Overcast",
+  "date": "2015-06-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.2,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 16.6
+ },
+ "2015-06-07": {
+  "conditions": "Clear sky",
+  "date": "2015-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.7,
+  "wind_direction_deg": 349,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 18.7
+ },
+ "2015-06-11": {
+  "conditions": "Partly cloudy",
+  "date": "2015-06-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.9,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 23.7
+ },
+ "2015-06-14": {
+  "conditions": "Mainly clear",
+  "date": "2015-06-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.4,
+  "wind_direction_deg": 357,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 23.8
+ },
+ "2015-06-18": {
+  "conditions": "Mainly clear",
+  "date": "2015-06-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.2,
+  "wind_direction_deg": 168,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 18.0
+ },
+ "2015-06-28": {
+  "conditions": "Overcast",
+  "date": "2015-06-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.8,
+  "wind_direction_deg": 130,
+  "wind_gust_kmh": 32.4,
+  "wind_speed_kmh": 21.7
+ },
+ "2015-07-02": {
+  "conditions": "Clear sky",
+  "date": "2015-07-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 203,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 19.5
+ },
+ "2015-07-05": {
+  "conditions": "Clear sky",
+  "date": "2015-07-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 255,
+  "wind_gust_kmh": 15.5,
+  "wind_speed_kmh": 8.2
+ },
+ "2015-07-09": {
+  "conditions": "Overcast",
+  "date": "2015-07-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 169,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 14.7
+ },
+ "2015-07-12": {
+  "conditions": "Clear sky",
+  "date": "2015-07-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 21.9
+ },
+ "2015-07-16": {
+  "conditions": "Partly cloudy",
+  "date": "2015-07-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 346,
+  "wind_gust_kmh": 19.4,
+  "wind_speed_kmh": 11.9
+ },
+ "2015-07-19": {
+  "conditions": "Moderate drizzle",
+  "date": "2015-07-19",
+  "precipitation_mm": 0.9,
+  "source": "open-meteo",
+  "temp_c": 18.0,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 38.2,
+  "wind_speed_kmh": 19.7
+ },
+ "2015-07-23": {
+  "conditions": "Partly cloudy",
+  "date": "2015-07-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 287,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 17.0
+ },
+ "2015-07-26": {
+  "conditions": "Overcast",
+  "date": "2015-07-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.9,
+  "wind_direction_deg": 151,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 16.9
+ },
+ "2015-07-30": {
+  "conditions": "Overcast",
+  "date": "2015-07-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 173,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 18.1
+ },
+ "2015-08-02": {
+  "conditions": "Mainly clear",
+  "date": "2015-08-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.3,
+  "wind_direction_deg": 247,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 14.5
+ },
+ "2015-08-06": {
+  "conditions": "Clear sky",
+  "date": "2015-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.7,
+  "wind_direction_deg": 267,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 19.1
+ },
+ "2015-08-20": {
+  "conditions": "Overcast",
+  "date": "2015-08-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 125,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 12.7
+ },
+ "2015-08-23": {
+  "conditions": "Light drizzle",
+  "date": "2015-08-23",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 113,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 9.0
+ },
+ "2015-08-27": {
+  "conditions": "Light drizzle",
+  "date": "2015-08-27",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 229,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 12.0
+ },
+ "2015-08-30": {
+  "conditions": "Overcast",
+  "date": "2015-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 233,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 16.2
+ },
+ "2015-09-03": {
+  "conditions": "Overcast",
+  "date": "2015-09-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.9,
+  "wind_direction_deg": 299,
+  "wind_gust_kmh": 15.5,
+  "wind_speed_kmh": 8.2
+ },
+ "2015-09-06": {
+  "conditions": "Clear sky",
+  "date": "2015-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.2,
+  "wind_direction_deg": 254,
+  "wind_gust_kmh": 15.8,
+  "wind_speed_kmh": 9.3
+ },
+ "2015-09-10": {
+  "conditions": "Light drizzle",
+  "date": "2015-09-10",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 14.8
+ },
+ "2015-09-13": {
+  "conditions": "Light rain",
+  "date": "2015-09-13",
+  "precipitation_mm": 1.8,
+  "source": "open-meteo",
+  "temp_c": 16.1,
+  "wind_direction_deg": 86,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 10.8
+ },
+ "2015-09-17": {
+  "conditions": "Clear sky",
+  "date": "2015-09-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.5,
+  "wind_direction_deg": 234,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 19.6
+ },
+ "2015-09-20": {
+  "conditions": "Overcast",
+  "date": "2015-09-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 210,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 16.6
+ },
+ "2015-09-24": {
+  "conditions": "Clear sky",
+  "date": "2015-09-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.3,
+  "wind_direction_deg": 351,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 13.8
+ },
+ "2015-09-27": {
+  "conditions": "Clear sky",
+  "date": "2015-09-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.3,
+  "wind_direction_deg": 247,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 18.7
+ },
+ "2016-06-12": {
+  "conditions": "Overcast",
+  "date": "2016-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.0,
+  "wind_direction_deg": 143,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 9.0
+ },
+ "2016-06-26": {
+  "conditions": "Clear sky",
+  "date": "2016-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 122,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 8.9
+ },
+ "2016-07-05": {
+  "conditions": "Overcast",
+  "date": "2016-07-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 199,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 20.2
+ },
+ "2016-07-07": {
+  "conditions": "Dense drizzle",
+  "date": "2016-07-07",
+  "precipitation_mm": 1.2,
+  "source": "open-meteo",
+  "temp_c": 14.0,
+  "wind_direction_deg": 113,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 17.6
+ },
+ "2016-07-10": {
+  "conditions": "Light drizzle",
+  "date": "2016-07-10",
+  "precipitation_mm": 0.4,
+  "source": "open-meteo",
+  "temp_c": 14.8,
+  "wind_direction_deg": 80,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 14.6
+ },
+ "2016-07-14": {
+  "conditions": "Clear sky",
+  "date": "2016-07-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 40.3,
+  "wind_speed_kmh": 25.6
+ },
+ "2016-07-19": {
+  "conditions": "Overcast",
+  "date": "2016-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 297,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 15.3
+ },
+ "2016-07-21": {
+  "conditions": "Mainly clear",
+  "date": "2016-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.2,
+  "wind_direction_deg": 233,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 13.1
+ },
+ "2016-07-24": {
+  "conditions": "Partly cloudy",
+  "date": "2016-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.2,
+  "wind_direction_deg": 175,
+  "wind_gust_kmh": 14.4,
+  "wind_speed_kmh": 8.0
+ },
+ "2016-07-28": {
+  "conditions": "Overcast",
+  "date": "2016-07-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 173,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 17.4
+ },
+ "2016-08-04": {
+  "conditions": "Mainly clear",
+  "date": "2016-08-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 194,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 22.6
+ },
+ "2016-08-07": {
+  "conditions": "Clear sky",
+  "date": "2016-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.2,
+  "wind_direction_deg": 281,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 11.0
+ },
+ "2016-08-16": {
+  "conditions": "Overcast",
+  "date": "2016-08-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 17.2
+ },
+ "2016-08-18": {
+  "conditions": "Mainly clear",
+  "date": "2016-08-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.7,
+  "wind_direction_deg": 265,
+  "wind_gust_kmh": 24.1,
+  "wind_speed_kmh": 15.2
+ },
+ "2016-08-21": {
+  "conditions": "Partly cloudy",
+  "date": "2016-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 146,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 14.8
+ },
+ "2016-08-25": {
+  "conditions": "Partly cloudy",
+  "date": "2016-08-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 36.7,
+  "wind_speed_kmh": 23.5
+ },
+ "2016-08-30": {
+  "conditions": "Mainly clear",
+  "date": "2016-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.2,
+  "wind_direction_deg": 275,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 4.3
+ },
+ "2016-09-01": {
+  "conditions": "Light drizzle",
+  "date": "2016-09-01",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 226,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 14.0
+ },
+ "2016-09-04": {
+  "conditions": "Clear sky",
+  "date": "2016-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.6,
+  "wind_direction_deg": 98,
+  "wind_gust_kmh": 20.9,
+  "wind_speed_kmh": 9.8
+ },
+ "2016-09-08": {
+  "conditions": "Light drizzle",
+  "date": "2016-09-08",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 184,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 15.9
+ },
+ "2016-09-15": {
+  "conditions": "Clear sky",
+  "date": "2016-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.8,
+  "wind_direction_deg": 359,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 18.0
+ },
+ "2016-09-18": {
+  "conditions": "Overcast",
+  "date": "2016-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 205,
+  "wind_gust_kmh": 46.1,
+  "wind_speed_kmh": 25.0
+ },
+ "2016-09-22": {
+  "conditions": "Mainly clear",
+  "date": "2016-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 310,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 15.6
+ },
+ "2016-09-29": {
+  "conditions": "Overcast",
+  "date": "2016-09-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.7,
+  "wind_direction_deg": 10,
+  "wind_gust_kmh": 41.0,
+  "wind_speed_kmh": 23.8
+ },
+ "2016-10-02": {
+  "conditions": "Light rain",
+  "date": "2016-10-02",
+  "precipitation_mm": 1.8,
+  "source": "open-meteo",
+  "temp_c": 12.9,
+  "wind_direction_deg": 53,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 15.7
+ },
+ "2017-06-11": {
+  "conditions": "Mainly clear",
+  "date": "2017-06-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.5,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 42.5,
+  "wind_speed_kmh": 18.8
+ },
+ "2017-06-22": {
+  "conditions": "Clear sky",
+  "date": "2017-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 267,
+  "wind_gust_kmh": 46.8,
+  "wind_speed_kmh": 19.5
+ },
+ "2017-06-25": {
+  "conditions": "Clear sky",
+  "date": "2017-06-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.9,
+  "wind_direction_deg": 265,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 15.2
+ },
+ "2017-06-29": {
+  "conditions": "Mainly clear",
+  "date": "2017-06-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 219,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 11.5
+ },
+ "2017-07-02": {
+  "conditions": "Overcast",
+  "date": "2017-07-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 211,
+  "wind_gust_kmh": 41.8,
+  "wind_speed_kmh": 19.7
+ },
+ "2017-07-06": {
+  "conditions": "Partly cloudy",
+  "date": "2017-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.2,
+  "wind_direction_deg": 194,
+  "wind_gust_kmh": 47.2,
+  "wind_speed_kmh": 19.3
+ },
+ "2017-07-16": {
+  "conditions": "Overcast",
+  "date": "2017-07-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 178,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 10.8
+ },
+ "2017-07-27": {
+  "conditions": "Overcast",
+  "date": "2017-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 199,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 13.0
+ },
+ "2017-07-30": {
+  "conditions": "Clear sky",
+  "date": "2017-07-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 24,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 15.0
+ },
+ "2017-08-03": {
+  "conditions": "Overcast",
+  "date": "2017-08-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 153,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 12.6
+ },
+ "2017-08-10": {
+  "conditions": "Mainly clear",
+  "date": "2017-08-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.2,
+  "wind_direction_deg": 213,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 10.7
+ },
+ "2017-08-13": {
+  "conditions": "Overcast",
+  "date": "2017-08-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 214,
+  "wind_gust_kmh": 37.8,
+  "wind_speed_kmh": 15.3
+ },
+ "2017-08-27": {
+  "conditions": "Mainly clear",
+  "date": "2017-08-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 86,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 5.1
+ },
+ "2017-08-28": {
+  "conditions": "Clear sky",
+  "date": "2017-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 158,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 8.6
+ },
+ "2017-08-31": {
+  "conditions": "Clear sky",
+  "date": "2017-08-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 272,
+  "wind_gust_kmh": 37.4,
+  "wind_speed_kmh": 13.7
+ },
+ "2017-09-03": {
+  "conditions": "Overcast",
+  "date": "2017-09-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.9,
+  "wind_direction_deg": 139,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 11.5
+ },
+ "2017-09-14": {
+  "conditions": "Overcast",
+  "date": "2017-09-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.5,
+  "wind_direction_deg": 237,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 12.0
+ },
+ "2017-09-22": {
+  "conditions": "Overcast",
+  "date": "2017-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.7,
+  "wind_direction_deg": 73,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 11.3
+ },
+ "2017-09-24": {
+  "conditions": "Mainly clear",
+  "date": "2017-09-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 125,
+  "wind_gust_kmh": 16.6,
+  "wind_speed_kmh": 4.4
+ },
+ "2017-09-28": {
+  "conditions": "Light rain",
+  "date": "2017-09-28",
+  "precipitation_mm": 1.5,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 308,
+  "wind_gust_kmh": 26.3,
+  "wind_speed_kmh": 8.2
+ },
+ "2017-10-01": {
+  "conditions": "Clear sky",
+  "date": "2017-10-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.1,
+  "wind_direction_deg": 250,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 10.4
+ },
+ "2018-06-07": {
+  "conditions": "Overcast",
+  "date": "2018-06-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.9,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 43.6,
+  "wind_speed_kmh": 19.1
+ },
+ "2018-06-10": {
+  "conditions": "Overcast",
+  "date": "2018-06-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.8,
+  "wind_direction_deg": 311,
+  "wind_gust_kmh": 42.8,
+  "wind_speed_kmh": 17.1
+ },
+ "2018-06-14": {
+  "conditions": "Overcast",
+  "date": "2018-06-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 9.1,
+  "wind_direction_deg": 78,
+  "wind_gust_kmh": 44.3,
+  "wind_speed_kmh": 19.1
+ },
+ "2018-06-21": {
+  "conditions": "Overcast",
+  "date": "2018-06-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 238,
+  "wind_gust_kmh": 14.0,
+  "wind_speed_kmh": 4.7
+ },
+ "2018-06-24": {
+  "conditions": "Overcast",
+  "date": "2018-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 274,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 11.5
+ },
+ "2018-06-28": {
+  "conditions": "Light drizzle",
+  "date": "2018-06-28",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 15.8,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 43.2,
+  "wind_speed_kmh": 21.3
+ },
+ "2018-07-05": {
+  "conditions": "Clear sky",
+  "date": "2018-07-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.4,
+  "wind_direction_deg": 206,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 9.2
+ },
+ "2018-07-12": {
+  "conditions": "Light drizzle",
+  "date": "2018-07-12",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 9.7
+ },
+ "2018-07-15": {
+  "conditions": "Partly cloudy",
+  "date": "2018-07-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 113,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 11.8
+ },
+ "2018-07-19": {
+  "conditions": "Clear sky",
+  "date": "2018-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.3,
+  "wind_direction_deg": 146,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 9.1
+ },
+ "2018-07-22": {
+  "conditions": "Partly cloudy",
+  "date": "2018-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.5,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 37.4,
+  "wind_speed_kmh": 16.5
+ },
+ "2018-07-26": {
+  "conditions": "Light drizzle",
+  "date": "2018-07-26",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 54.7,
+  "wind_speed_kmh": 24.0
+ },
+ "2018-08-06": {
+  "conditions": "Clear sky",
+  "date": "2018-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.5,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 10.2
+ },
+ "2018-08-11": {
+  "conditions": "Overcast",
+  "date": "2018-08-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.5,
+  "wind_direction_deg": 215,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 7.5
+ },
+ "2018-08-26": {
+  "conditions": "Overcast",
+  "date": "2018-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 40.0,
+  "wind_speed_kmh": 12.8
+ },
+ "2018-09-02": {
+  "conditions": "Mainly clear",
+  "date": "2018-09-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 10.4
+ },
+ "2018-09-06": {
+  "conditions": "Clear sky",
+  "date": "2018-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.8,
+  "wind_direction_deg": 261,
+  "wind_gust_kmh": 41.4,
+  "wind_speed_kmh": 16.0
+ },
+ "2018-09-13": {
+  "conditions": "Clear sky",
+  "date": "2018-09-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 10.5
+ },
+ "2018-09-20": {
+  "conditions": "Overcast",
+  "date": "2018-09-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.8,
+  "wind_direction_deg": 8,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 10.9
+ },
+ "2018-09-23": {
+  "conditions": "Clear sky",
+  "date": "2018-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 185,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 8.7
+ },
+ "2018-09-27": {
+  "conditions": "Partly cloudy",
+  "date": "2018-09-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.1,
+  "wind_direction_deg": 63,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 10.5
+ },
+ "2019-06-06": {
+  "conditions": "Dense drizzle",
+  "date": "2019-06-06",
+  "precipitation_mm": 1.2,
+  "source": "open-meteo",
+  "temp_c": 15.0,
+  "wind_direction_deg": 234,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 8.5
+ },
+ "2019-06-09": {
+  "conditions": "Clear sky",
+  "date": "2019-06-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 240,
+  "wind_gust_kmh": 19.8,
+  "wind_speed_kmh": 5.0
+ },
+ "2019-06-13": {
+  "conditions": "Overcast",
+  "date": "2019-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 12.6,
+  "wind_direction_deg": 133,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 9.4
+ },
+ "2019-06-20": {
+  "conditions": "Overcast",
+  "date": "2019-06-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.5,
+  "wind_direction_deg": 96,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 6.5
+ },
+ "2019-06-23": {
+  "conditions": "Mainly clear",
+  "date": "2019-06-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 307,
+  "wind_gust_kmh": 46.1,
+  "wind_speed_kmh": 18.0
+ },
+ "2019-06-27": {
+  "conditions": "Overcast",
+  "date": "2019-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.8,
+  "wind_direction_deg": 104,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 12.2
+ },
+ "2019-07-04": {
+  "conditions": "Clear sky",
+  "date": "2019-07-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.0,
+  "wind_direction_deg": 256,
+  "wind_gust_kmh": 13.0,
+  "wind_speed_kmh": 4.5
+ },
+ "2019-07-09": {
+  "conditions": "Clear sky",
+  "date": "2019-07-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.5,
+  "wind_direction_deg": 292,
+  "wind_gust_kmh": 51.5,
+  "wind_speed_kmh": 22.6
+ },
+ "2019-07-11": {
+  "conditions": "Partly cloudy",
+  "date": "2019-07-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.8,
+  "wind_direction_deg": 192,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 15.8
+ },
+ "2019-07-18": {
+  "conditions": "Overcast",
+  "date": "2019-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 188,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 14.9
+ },
+ "2019-07-21": {
+  "conditions": "Overcast",
+  "date": "2019-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.9,
+  "wind_direction_deg": 153,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 11.3
+ },
+ "2019-07-25": {
+  "conditions": "Overcast",
+  "date": "2019-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 24.5,
+  "wind_speed_kmh": 9.4
+ },
+ "2019-08-01": {
+  "conditions": "Light drizzle",
+  "date": "2019-08-01",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 25.3,
+  "wind_direction_deg": 261,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 4.7
+ },
+ "2019-08-08": {
+  "conditions": "Moderate drizzle",
+  "date": "2019-08-08",
+  "precipitation_mm": 0.6,
+  "source": "open-meteo",
+  "temp_c": 18.0,
+  "wind_direction_deg": 123,
+  "wind_gust_kmh": 41.4,
+  "wind_speed_kmh": 20.6
+ },
+ "2019-08-11": {
+  "conditions": "Light drizzle",
+  "date": "2019-08-11",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 276,
+  "wind_gust_kmh": 41.8,
+  "wind_speed_kmh": 17.7
+ },
+ "2019-08-22": {
+  "conditions": "Partly cloudy",
+  "date": "2019-08-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.8,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 12.8
+ },
+ "2019-08-25": {
+  "conditions": "Clear sky",
+  "date": "2019-08-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.6,
+  "wind_direction_deg": 73,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 13.6
+ },
+ "2019-08-29": {
+  "conditions": "Moderate drizzle",
+  "date": "2019-08-29",
+  "precipitation_mm": 0.8,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 43.9,
+  "wind_speed_kmh": 20.8
+ },
+ "2019-09-01": {
+  "conditions": "Clear sky",
+  "date": "2019-09-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.9,
+  "wind_direction_deg": 3,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 7.9
+ },
+ "2019-09-05": {
+  "conditions": "Clear sky",
+  "date": "2019-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 319,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 10.0
+ },
+ "2019-09-12": {
+  "conditions": "Overcast",
+  "date": "2019-09-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.7,
+  "wind_direction_deg": 10,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 12.4
+ },
+ "2019-09-15": {
+  "conditions": "Light drizzle",
+  "date": "2019-09-15",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 247,
+  "wind_gust_kmh": 43.2,
+  "wind_speed_kmh": 19.5
+ },
+ "2019-09-19": {
+  "conditions": "Overcast",
+  "date": "2019-09-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 13.7,
+  "wind_direction_deg": 165,
+  "wind_gust_kmh": 23.8,
+  "wind_speed_kmh": 9.7
+ },
+ "2019-09-22": {
+  "conditions": "Overcast",
+  "date": "2019-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.4,
+  "wind_direction_deg": 224,
+  "wind_gust_kmh": 32.8,
+  "wind_speed_kmh": 13.5
+ },
+ "2019-09-26": {
+  "conditions": "Partly cloudy",
+  "date": "2019-09-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 168,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 8.8
+ },
+ "2019-09-29": {
+  "conditions": "Mainly clear",
+  "date": "2019-09-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.0,
+  "wind_direction_deg": 322,
+  "wind_gust_kmh": 43.9,
+  "wind_speed_kmh": 18.7
+ },
+ "2020-06-05": {
+  "conditions": "Overcast",
+  "date": "2020-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 14.8,
+  "wind_direction_deg": 228,
+  "wind_gust_kmh": 25.6,
+  "wind_speed_kmh": 13.5
+ },
+ "2020-06-12": {
+  "conditions": "Partly cloudy",
+  "date": "2020-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.0,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 42.5,
+  "wind_speed_kmh": 17.0
+ },
+ "2020-06-17": {
+  "conditions": "Clear sky",
+  "date": "2020-06-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.3,
+  "wind_direction_deg": 194,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 16.3
+ },
+ "2020-06-25": {
+  "conditions": "Partly cloudy",
+  "date": "2020-06-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.5,
+  "wind_direction_deg": 240,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 12.4
+ },
+ "2020-06-27": {
+  "conditions": "Overcast",
+  "date": "2020-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.0,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 13.4
+ },
+ "2020-07-01": {
+  "conditions": "Clear sky",
+  "date": "2020-07-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 34.9,
+  "wind_speed_kmh": 13.2
+ },
+ "2020-07-02": {
+  "conditions": "Clear sky",
+  "date": "2020-07-02",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.2,
+  "wind_direction_deg": 221,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 18.1
+ },
+ "2020-07-05": {
+  "conditions": "Overcast",
+  "date": "2020-07-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.4,
+  "wind_direction_deg": 137,
+  "wind_gust_kmh": 29.2,
+  "wind_speed_kmh": 11.7
+ },
+ "2020-07-09": {
+  "conditions": "Partly cloudy",
+  "date": "2020-07-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.8,
+  "wind_direction_deg": 173,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 12.0
+ },
+ "2020-07-13": {
+  "conditions": "Overcast",
+  "date": "2020-07-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.6,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 15.2
+ },
+ "2020-07-16": {
+  "conditions": "Overcast",
+  "date": "2020-07-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 172,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 10.9
+ },
+ "2020-07-19": {
+  "conditions": "Overcast",
+  "date": "2020-07-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.5,
+  "wind_direction_deg": 167,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 9.6
+ },
+ "2020-07-20": {
+  "conditions": "Partly cloudy",
+  "date": "2020-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.9,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 44.3,
+  "wind_speed_kmh": 18.1
+ },
+ "2020-07-23": {
+  "conditions": "Light drizzle",
+  "date": "2020-07-23",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 175,
+  "wind_gust_kmh": 17.3,
+  "wind_speed_kmh": 4.0
+ },
+ "2020-07-26": {
+  "conditions": "Overcast",
+  "date": "2020-07-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.6,
+  "wind_direction_deg": 274,
+  "wind_gust_kmh": 38.5,
+  "wind_speed_kmh": 16.6
+ },
+ "2020-07-27": {
+  "conditions": "Light rain",
+  "date": "2020-07-27",
+  "precipitation_mm": 1.5,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 105,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 7.1
+ },
+ "2020-07-30": {
+  "conditions": "Overcast",
+  "date": "2020-07-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.2,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 11.2
+ },
+ "2020-08-06": {
+  "conditions": "Overcast",
+  "date": "2020-08-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.4,
+  "wind_direction_deg": 260,
+  "wind_gust_kmh": 47.9,
+  "wind_speed_kmh": 20.5
+ },
+ "2020-08-09": {
+  "conditions": "Mainly clear",
+  "date": "2020-08-09",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 28.3,
+  "wind_direction_deg": 229,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 11.0
+ },
+ "2020-08-13": {
+  "conditions": "Overcast",
+  "date": "2020-08-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.9,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 8.3
+ },
+ "2020-08-16": {
+  "conditions": "Overcast",
+  "date": "2020-08-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 101,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 11.4
+ },
+ "2020-08-24": {
+  "conditions": "Overcast",
+  "date": "2020-08-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.2,
+  "wind_direction_deg": 138,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 4.3
+ },
+ "2020-08-28": {
+  "conditions": "Clear sky",
+  "date": "2020-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 291,
+  "wind_gust_kmh": 42.8,
+  "wind_speed_kmh": 18.5
+ },
+ "2020-08-30": {
+  "conditions": "Overcast",
+  "date": "2020-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 245,
+  "wind_gust_kmh": 43.2,
+  "wind_speed_kmh": 18.2
+ },
+ "2020-09-03": {
+  "conditions": "Partly cloudy",
+  "date": "2020-09-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.2,
+  "wind_direction_deg": 184,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 15.5
+ },
+ "2020-09-06": {
+  "conditions": "Clear sky",
+  "date": "2020-09-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 187,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 8.4
+ },
+ "2020-09-10": {
+  "conditions": "Light drizzle",
+  "date": "2020-09-10",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 22.7,
+  "wind_direction_deg": 217,
+  "wind_gust_kmh": 31.3,
+  "wind_speed_kmh": 13.6
+ },
+ "2020-09-13": {
+  "conditions": "Overcast",
+  "date": "2020-09-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.9,
+  "wind_direction_deg": 166,
+  "wind_gust_kmh": 39.2,
+  "wind_speed_kmh": 16.0
+ },
+ "2020-09-15": {
+  "conditions": "Clear sky",
+  "date": "2020-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.0,
+  "wind_direction_deg": 320,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 12.3
+ },
+ "2020-09-17": {
+  "conditions": "Light drizzle",
+  "date": "2020-09-17",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 227,
+  "wind_gust_kmh": 41.4,
+  "wind_speed_kmh": 17.3
+ },
+ "2020-09-24": {
+  "conditions": "Overcast",
+  "date": "2020-09-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 269,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 14.8
+ },
+ "2021-06-24": {
+  "conditions": "Overcast",
+  "date": "2021-06-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.8,
+  "wind_direction_deg": 190,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 16.8
+ },
+ "2021-07-01": {
+  "conditions": "Mainly clear",
+  "date": "2021-07-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 27.0,
+  "wind_direction_deg": 287,
+  "wind_gust_kmh": 42.1,
+  "wind_speed_kmh": 18.1
+ },
+ "2021-07-08": {
+  "conditions": "Overcast",
+  "date": "2021-07-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.8,
+  "wind_direction_deg": 132,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 10.7
+ },
+ "2021-07-15": {
+  "conditions": "Light drizzle",
+  "date": "2021-07-15",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 14.6
+ },
+ "2021-07-18": {
+  "conditions": "Clear sky",
+  "date": "2021-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.8,
+  "wind_direction_deg": 148,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 12.3
+ },
+ "2021-07-25": {
+  "conditions": "Clear sky",
+  "date": "2021-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.0,
+  "wind_direction_deg": 176,
+  "wind_gust_kmh": 38.9,
+  "wind_speed_kmh": 15.9
+ },
+ "2021-07-29": {
+  "conditions": "Partly cloudy",
+  "date": "2021-07-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 192,
+  "wind_gust_kmh": 44.6,
+  "wind_speed_kmh": 16.2
+ },
+ "2021-08-05": {
+  "conditions": "Overcast",
+  "date": "2021-08-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 42.5,
+  "wind_speed_kmh": 18.1
+ },
+ "2021-08-12": {
+  "conditions": "Clear sky",
+  "date": "2021-08-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.9,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 28.1,
+  "wind_speed_kmh": 11.5
+ },
+ "2021-08-19": {
+  "conditions": "Partly cloudy",
+  "date": "2021-08-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.0,
+  "wind_direction_deg": 237,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 12.5
+ },
+ "2021-08-26": {
+  "conditions": "Clear sky",
+  "date": "2021-08-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 26.0,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 28.8,
+  "wind_speed_kmh": 13.2
+ },
+ "2021-08-29": {
+  "conditions": "Overcast",
+  "date": "2021-08-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 150,
+  "wind_gust_kmh": 17.6,
+  "wind_speed_kmh": 5.0
+ },
+ "2021-09-05": {
+  "conditions": "Overcast",
+  "date": "2021-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 216,
+  "wind_gust_kmh": 14.8,
+  "wind_speed_kmh": 3.1
+ },
+ "2021-09-16": {
+  "conditions": "Overcast",
+  "date": "2021-09-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 360,
+  "wind_gust_kmh": 7.2,
+  "wind_speed_kmh": 0.7
+ },
+ "2021-09-23": {
+  "conditions": "Clear sky",
+  "date": "2021-09-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 32.8,
+  "wind_speed_kmh": 12.7
+ },
+ "2021-09-30": {
+  "conditions": "Light drizzle",
+  "date": "2021-09-30",
+  "precipitation_mm": 0.2,
+  "source": "open-meteo",
+  "temp_c": 13.9,
+  "wind_direction_deg": 235,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 10.6
+ },
+ "2022-06-12": {
+  "conditions": "Overcast",
+  "date": "2022-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.0,
+  "wind_direction_deg": 211,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 8.4
+ },
+ "2022-06-16": {
+  "conditions": "Mainly clear",
+  "date": "2022-06-16",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 203,
+  "wind_gust_kmh": 36.0,
+  "wind_speed_kmh": 14.8
+ },
+ "2022-06-23": {
+  "conditions": "Overcast",
+  "date": "2022-06-23",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.6,
+  "wind_direction_deg": 125,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 7.5
+ },
+ "2022-06-26": {
+  "conditions": "Partly cloudy",
+  "date": "2022-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.9,
+  "wind_direction_deg": 133,
+  "wind_gust_kmh": 23.0,
+  "wind_speed_kmh": 8.4
+ },
+ "2022-06-30": {
+  "conditions": "Light drizzle",
+  "date": "2022-06-30",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 329,
+  "wind_gust_kmh": 22.3,
+  "wind_speed_kmh": 7.6
+ },
+ "2022-07-07": {
+  "conditions": "Overcast",
+  "date": "2022-07-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.1,
+  "wind_direction_deg": 300,
+  "wind_gust_kmh": 25.9,
+  "wind_speed_kmh": 11.6
+ },
+ "2022-07-10": {
+  "conditions": "Clear sky",
+  "date": "2022-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.5,
+  "wind_direction_deg": 306,
+  "wind_gust_kmh": 31.7,
+  "wind_speed_kmh": 9.3
+ },
+ "2022-07-14": {
+  "conditions": "Overcast",
+  "date": "2022-07-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 149,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 8.4
+ },
+ "2022-07-21": {
+  "conditions": "Overcast",
+  "date": "2022-07-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.9,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 18.7
+ },
+ "2022-07-22": {
+  "conditions": "Clear sky",
+  "date": "2022-07-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 28.0,
+  "wind_direction_deg": 223,
+  "wind_gust_kmh": 26.3,
+  "wind_speed_kmh": 11.7
+ },
+ "2022-07-24": {
+  "conditions": "Mainly clear",
+  "date": "2022-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 29.0,
+  "wind_direction_deg": 193,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 13.3
+ },
+ "2022-07-28": {
+  "conditions": "Mainly clear",
+  "date": "2022-07-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.7,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 37.1,
+  "wind_speed_kmh": 15.4
+ },
+ "2022-08-04": {
+  "conditions": "Clear sky",
+  "date": "2022-08-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.9,
+  "wind_direction_deg": 189,
+  "wind_gust_kmh": 36.0,
+  "wind_speed_kmh": 15.3
+ },
+ "2022-08-07": {
+  "conditions": "Mainly clear",
+  "date": "2022-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 29.3,
+  "wind_direction_deg": 242,
+  "wind_gust_kmh": 50.8,
+  "wind_speed_kmh": 22.4
+ },
+ "2022-08-08": {
+  "conditions": "Moderate drizzle",
+  "date": "2022-08-08",
+  "precipitation_mm": 0.6,
+  "source": "open-meteo",
+  "temp_c": 20.4,
+  "wind_direction_deg": 137,
+  "wind_gust_kmh": 22.7,
+  "wind_speed_kmh": 9.4
+ },
+ "2022-08-21": {
+  "conditions": "Overcast",
+  "date": "2022-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.9,
+  "wind_direction_deg": 168,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 10.7
+ },
+ "2022-08-25": {
+  "conditions": "Clear sky",
+  "date": "2022-08-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 25.9,
+  "wind_direction_deg": 222,
+  "wind_gust_kmh": 13.3,
+  "wind_speed_kmh": 4.3
+ },
+ "2022-09-01": {
+  "conditions": "Clear sky",
+  "date": "2022-09-01",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.8,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 30.2,
+  "wind_speed_kmh": 14.9
+ },
+ "2022-09-04": {
+  "conditions": "Mainly clear",
+  "date": "2022-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.1,
+  "wind_direction_deg": 208,
+  "wind_gust_kmh": 18.7,
+  "wind_speed_kmh": 6.1
+ },
+ "2022-09-08": {
+  "conditions": "Partly cloudy",
+  "date": "2022-09-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.4,
+  "wind_direction_deg": 144,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 8.0
+ },
+ "2022-09-15": {
+  "conditions": "Overcast",
+  "date": "2022-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 16.8,
+  "wind_direction_deg": 287,
+  "wind_gust_kmh": 54.0,
+  "wind_speed_kmh": 24.1
+ },
+ "2022-09-22": {
+  "conditions": "Overcast",
+  "date": "2022-09-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.2,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 53.6,
+  "wind_speed_kmh": 20.5
+ },
+ "2023-06-11": {
+  "conditions": "Overcast",
+  "date": "2023-06-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.5,
+  "wind_direction_deg": 317,
+  "wind_gust_kmh": 35.3,
+  "wind_speed_kmh": 12.7
+ },
+ "2023-06-15": {
+  "conditions": "Overcast",
+  "date": "2023-06-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 15.1,
+  "wind_direction_deg": 118,
+  "wind_gust_kmh": 27.4,
+  "wind_speed_kmh": 11.4
+ },
+ "2023-06-22": {
+  "conditions": "Clear sky",
+  "date": "2023-06-22",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 207,
+  "wind_gust_kmh": 29.5,
+  "wind_speed_kmh": 12.6
+ },
+ "2023-06-29": {
+  "conditions": "Overcast",
+  "date": "2023-06-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 185,
+  "wind_gust_kmh": 34.9,
+  "wind_speed_kmh": 13.4
+ },
+ "2023-07-06": {
+  "conditions": "Mainly clear",
+  "date": "2023-07-06",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.6,
+  "wind_direction_deg": 201,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 10.8
+ },
+ "2023-07-13": {
+  "conditions": "Mainly clear",
+  "date": "2023-07-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.1,
+  "wind_direction_deg": 139,
+  "wind_gust_kmh": 23.4,
+  "wind_speed_kmh": 8.2
+ },
+ "2023-07-20": {
+  "conditions": "Light drizzle",
+  "date": "2023-07-20",
+  "precipitation_mm": 0.3,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 197,
+  "wind_gust_kmh": 20.2,
+  "wind_speed_kmh": 3.8
+ },
+ "2023-07-27": {
+  "conditions": "Overcast",
+  "date": "2023-07-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.8,
+  "wind_direction_deg": 203,
+  "wind_gust_kmh": 29.9,
+  "wind_speed_kmh": 13.7
+ },
+ "2023-08-03": {
+  "conditions": "Clear sky",
+  "date": "2023-08-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.7,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 36.0,
+  "wind_speed_kmh": 13.7
+ },
+ "2023-08-10": {
+  "conditions": "Overcast",
+  "date": "2023-08-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.4,
+  "wind_direction_deg": 283,
+  "wind_gust_kmh": 37.4,
+  "wind_speed_kmh": 15.9
+ },
+ "2023-08-24": {
+  "conditions": "Mainly clear",
+  "date": "2023-08-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.3,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 10.9
+ },
+ "2023-08-31": {
+  "conditions": "Clear sky",
+  "date": "2023-08-31",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.0,
+  "wind_direction_deg": 338,
+  "wind_gust_kmh": 42.8,
+  "wind_speed_kmh": 20.2
+ },
+ "2023-09-07": {
+  "conditions": "Mainly clear",
+  "date": "2023-09-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.6,
+  "wind_direction_deg": 312,
+  "wind_gust_kmh": 26.6,
+  "wind_speed_kmh": 9.7
+ },
+ "2023-09-21": {
+  "conditions": "Overcast",
+  "date": "2023-09-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.0,
+  "wind_direction_deg": 336,
+  "wind_gust_kmh": 37.4,
+  "wind_speed_kmh": 12.2
+ },
+ "2024-06-13": {
+  "conditions": "Overcast",
+  "date": "2024-06-13",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 15.7
+ },
+ "2024-06-20": {
+  "conditions": "Light drizzle",
+  "date": "2024-06-20",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 32.0,
+  "wind_direction_deg": 262,
+  "wind_gust_kmh": 31.3,
+  "wind_speed_kmh": 16.3
+ },
+ "2024-06-27": {
+  "conditions": "Overcast",
+  "date": "2024-06-27",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 227,
+  "wind_gust_kmh": 33.8,
+  "wind_speed_kmh": 14.3
+ },
+ "2024-07-04": {
+  "conditions": "Overcast",
+  "date": "2024-07-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 159,
+  "wind_gust_kmh": 28.4,
+  "wind_speed_kmh": 10.8
+ },
+ "2024-07-11": {
+  "conditions": "Overcast",
+  "date": "2024-07-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 24.8,
+  "wind_direction_deg": 218,
+  "wind_gust_kmh": 50.8,
+  "wind_speed_kmh": 22.3
+ },
+ "2024-07-18": {
+  "conditions": "Overcast",
+  "date": "2024-07-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.0,
+  "wind_direction_deg": 207,
+  "wind_gust_kmh": 36.4,
+  "wind_speed_kmh": 14.5
+ },
+ "2024-07-25": {
+  "conditions": "Overcast",
+  "date": "2024-07-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.1,
+  "wind_direction_deg": 144,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 10.3
+ },
+ "2024-08-04": {
+  "conditions": "Light drizzle",
+  "date": "2024-08-04",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 28.2,
+  "wind_direction_deg": 202,
+  "wind_gust_kmh": 31.0,
+  "wind_speed_kmh": 9.7
+ },
+ "2024-08-08": {
+  "conditions": "Overcast",
+  "date": "2024-08-08",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.4,
+  "wind_direction_deg": 189,
+  "wind_gust_kmh": 32.4,
+  "wind_speed_kmh": 12.0
+ },
+ "2024-08-29": {
+  "conditions": "Clear sky",
+  "date": "2024-08-29",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.8,
+  "wind_direction_deg": 357,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 12.3
+ },
+ "2024-09-05": {
+  "conditions": "Clear sky",
+  "date": "2024-09-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.5,
+  "wind_direction_deg": 198,
+  "wind_gust_kmh": 33.8,
+  "wind_speed_kmh": 14.8
+ },
+ "2024-09-12": {
+  "conditions": "Mainly clear",
+  "date": "2024-09-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.8,
+  "wind_direction_deg": 200,
+  "wind_gust_kmh": 19.1,
+  "wind_speed_kmh": 5.4
+ },
+ "2024-09-15": {
+  "conditions": "Clear sky",
+  "date": "2024-09-15",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.0,
+  "wind_direction_deg": 148,
+  "wind_gust_kmh": 15.8,
+  "wind_speed_kmh": 4.7
+ },
+ "2024-09-26": {
+  "conditions": "Light drizzle",
+  "date": "2024-09-26",
+  "precipitation_mm": 0.1,
+  "source": "open-meteo",
+  "temp_c": 15.6,
+  "wind_direction_deg": 144,
+  "wind_gust_kmh": 27.0,
+  "wind_speed_kmh": 10.3
+ },
+ "2025-06-05": {
+  "conditions": "Overcast",
+  "date": "2025-06-05",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.0,
+  "wind_direction_deg": 183,
+  "wind_gust_kmh": 36.0,
+  "wind_speed_kmh": 15.0
+ },
+ "2025-06-12": {
+  "conditions": "Clear sky",
+  "date": "2025-06-12",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 23.8,
+  "wind_direction_deg": 281,
+  "wind_gust_kmh": 50.8,
+  "wind_speed_kmh": 23.6
+ },
+ "2025-06-19": {
+  "conditions": "Overcast",
+  "date": "2025-06-19",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.5,
+  "wind_direction_deg": 133,
+  "wind_gust_kmh": 20.5,
+  "wind_speed_kmh": 8.1
+ },
+ "2025-06-26": {
+  "conditions": "Overcast",
+  "date": "2025-06-26",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.2,
+  "wind_direction_deg": 313,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 9.8
+ },
+ "2025-07-03": {
+  "conditions": "Mainly clear",
+  "date": "2025-07-03",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.6,
+  "wind_direction_deg": 186,
+  "wind_gust_kmh": 33.5,
+  "wind_speed_kmh": 14.5
+ },
+ "2025-07-10": {
+  "conditions": "Overcast",
+  "date": "2025-07-10",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.3,
+  "wind_direction_deg": 91,
+  "wind_gust_kmh": 24.8,
+  "wind_speed_kmh": 10.4
+ },
+ "2025-07-17": {
+  "conditions": "Mainly clear",
+  "date": "2025-07-17",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 22.9,
+  "wind_direction_deg": 191,
+  "wind_gust_kmh": 38.5,
+  "wind_speed_kmh": 17.6
+ },
+ "2025-07-20": {
+  "conditions": "Overcast",
+  "date": "2025-07-20",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.6,
+  "wind_direction_deg": 179,
+  "wind_gust_kmh": 34.2,
+  "wind_speed_kmh": 14.9
+ },
+ "2025-07-24": {
+  "conditions": "Overcast",
+  "date": "2025-07-24",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 196,
+  "wind_gust_kmh": 46.1,
+  "wind_speed_kmh": 21.0
+ },
+ "2025-08-07": {
+  "conditions": "Partly cloudy",
+  "date": "2025-08-07",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 180,
+  "wind_gust_kmh": 30.6,
+  "wind_speed_kmh": 12.6
+ },
+ "2025-08-21": {
+  "conditions": "Overcast",
+  "date": "2025-08-21",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.7,
+  "wind_direction_deg": 178,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 10.8
+ },
+ "2025-08-28": {
+  "conditions": "Mainly clear",
+  "date": "2025-08-28",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.9,
+  "wind_direction_deg": 184,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 9.4
+ },
+ "2025-08-30": {
+  "conditions": "Partly cloudy",
+  "date": "2025-08-30",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 18.7,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 22.0,
+  "wind_speed_kmh": 8.7
+ },
+ "2025-09-04": {
+  "conditions": "Clear sky",
+  "date": "2025-09-04",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.8,
+  "wind_direction_deg": 185,
+  "wind_gust_kmh": 27.7,
+  "wind_speed_kmh": 11.4
+ },
+ "2025-09-11": {
+  "conditions": "Clear sky",
+  "date": "2025-09-11",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 21.5,
+  "wind_direction_deg": 332,
+  "wind_gust_kmh": 33.1,
+  "wind_speed_kmh": 14.7
+ },
+ "2025-09-14": {
+  "conditions": "Clear sky",
+  "date": "2025-09-14",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 19.0,
+  "wind_direction_deg": 182,
+  "wind_gust_kmh": 32.4,
+  "wind_speed_kmh": 15.1
+ },
+ "2025-09-18": {
+  "conditions": "Partly cloudy",
+  "date": "2025-09-18",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 20.2,
+  "wind_direction_deg": 195,
+  "wind_gust_kmh": 25.2,
+  "wind_speed_kmh": 10.3
+ },
+ "2025-09-25": {
+  "conditions": "Overcast",
+  "date": "2025-09-25",
+  "precipitation_mm": 0.0,
+  "source": "open-meteo",
+  "temp_c": 17.2,
+  "wind_direction_deg": 174,
+  "wind_gust_kmh": 32.0,
+  "wind_speed_kmh": 13.6
+ }
+}

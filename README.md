@@ -96,6 +96,9 @@ cd web && npx tsc --noEmit
 # Backfill weather data for race dates
 .venv/bin/python -m scraper.backfill_weather
 
+# Backfill tide predictions for race dates
+.venv/bin/python -m scraper.backfill_tides
+
 # Export JSON for frontend
 .venv/bin/python -m scraper.export_json
 ```

@@ -1,0 +1,190 @@
+{
+  "station": "Lunenburg (CHS 00455)",
+  "latitude": 44.375468,
+  "longitude": -64.307098,
+  "fitted_from": "2024-05-01",
+  "fitted_to": "2024-09-30",
+  "training_points": 14688,
+  "constituents": [
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffad790>",
+      "amplitude": 0.9807860838779956,
+      "phase": 0.0
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbaaf0>",
+      "amplitude": 0.6334015318519256,
+      "phase": 350.18853198387296
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbac70>",
+      "amplitude": 0.13531742121453272,
+      "phase": 17.62081731077228
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbaa30>",
+      "amplitude": 0.147319107199445,
+      "phase": 328.5897916153933
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba790>",
+      "amplitude": 0.11097229119928481,
+      "phase": 127.85647323103706
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0160>",
+      "amplitude": 0.03295135531343519,
+      "phase": 275.76225365088675
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba730>",
+      "amplitude": 0.060867239845840235,
+      "phase": 112.99189230369723
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0280>",
+      "amplitude": 0.0009390898170637256,
+      "phase": 15.637315255503198
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc00a0>",
+      "amplitude": 0.0019648186453862532,
+      "phase": 64.98733410949731
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0220>",
+      "amplitude": 0.0009437652314258964,
+      "phase": 39.66838609888883
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0100>",
+      "amplitude": 0.016983479139200112,
+      "phase": 227.1270560293287
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbaa90>",
+      "amplitude": 0.031893329036182715,
+      "phase": 328.75998813138085
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc02e0>",
+      "amplitude": 1.210059368444832e-05,
+      "phase": 292.12558994980685
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffbaf40>",
+      "amplitude": 0.025410981823825608,
+      "phase": 308.9807089107681
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba9d0>",
+      "amplitude": 0.0006074585913060142,
+      "phase": 275.63673740644947
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba970>",
+      "amplitude": 0.00016497879880527643,
+      "phase": 103.61885188382357
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbab50>",
+      "amplitude": 0.00021074363880642627,
+      "phase": 238.55597942630723
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba910>",
+      "amplitude": 0.0023471414277668272,
+      "phase": 140.37313489831985
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba850>",
+      "amplitude": 0.0064528003366477755,
+      "phase": 285.1300845371422
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba7f0>",
+      "amplitude": 0.0008892855420389774,
+      "phase": 216.5147454243166
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba610>",
+      "amplitude": 0.058288299626280404,
+      "phase": 307.9085505635458
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffbadf0>",
+      "amplitude": 0.04774988030791059,
+      "phase": 293.16481847646673
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba670>",
+      "amplitude": 5.861118072492767e-05,
+      "phase": 87.6255444645469
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffbaee0>",
+      "amplitude": 0.001322255174450815,
+      "phase": 222.32283023933914
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba6d0>",
+      "amplitude": 0.01677982226350624,
+      "phase": 82.65547867775742
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbac10>",
+      "amplitude": 5.25798223080446e-05,
+      "phase": 57.14714985059646
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbacd0>",
+      "amplitude": 0.0009692717599713784,
+      "phase": 303.92759626063753
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffbae80>",
+      "amplitude": 0.004334104787083656,
+      "phase": 297.9585781473952
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffba8b0>",
+      "amplitude": 0.027267081324046566,
+      "phase": 135.99424785772536
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffbafa0>",
+      "amplitude": 0.0010577407577891122,
+      "phase": 237.88297293871875
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbad90>",
+      "amplitude": 0.0009859285179537713,
+      "phase": 41.90282370606666
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbabb0>",
+      "amplitude": 0.018966486203480012,
+      "phase": 45.62738871012027
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0040>",
+      "amplitude": 0.003905303731288424,
+      "phase": 244.19663021309628
+    },
+    {
+      "name": "<tidepredict.constituent.BaseConstituent object at 0x11ffbad30>",
+      "amplitude": 0.03740846409074015,
+      "phase": 11.914793214556331
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc0340>",
+      "amplitude": 0.0019984177691861203,
+      "phase": 194.20314034348752
+    },
+    {
+      "name": "<tidepredict.constituent.CompoundConstituent object at 0x11ffc01c0>",
+      "amplitude": 0.014085224019326334,
+      "phase": 38.250056719104705
+    }
+  ]
+}

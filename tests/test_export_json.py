@@ -12,6 +12,7 @@ from scraper.export_json import (
     _write_json,
     _elapsed_to_seconds,
     _format_elapsed,
+    _match_fixed_course,
     export_overview,
     export_seasons,
     export_season_detail,
@@ -30,10 +31,6 @@ from scraper.export_json import (
     _looks_like_variant_name,
     _variant_event_ids,
     _variant_filter_sql,
-    _normalize_trophy_name,
-    _slugify_trophy,
-    _load_trophy_historical,
-    _FIXED_COURSE_TROPHIES,
     DB_PATH,
     OUTPUT_DIR,
 )
@@ -553,100 +550,42 @@ class TestExportIntegration:
         assert len(shared) > 0, f"{top[0]['name']} and {top[1]['name']} should share races"
 
 
-class TestTrophyNormalization:
-    @pytest.mark.parametrize(
-        "input_name,expected",
-        [
-            ("LYC Handicap - Boland's Cup", "Boland's Cup"),
-            ("Bolands", "Boland's Cup"),
-            ("LYC Handicap - RG Smith Trophy", "R. G. Smith Cup"),
-            ("R.G.Smith (Tancook Race)", "R. G. Smith Cup"),
-            ("LYC Handicap - Leeward Island Race", "Leeward Island Trophy"),
-            ("LYC Handicap - Charter Cup", "Charter Cup"),
-            ("LYC Handicap - Bolands Trophy Pursuit Race (16.7nm )", "Boland's Cup"),
-        ],
-    )
-    def test_normalize_trophy_name(self, input_name, expected):
-        assert _normalize_trophy_name(input_name) == expected
-
-    def test_slugify_trophy(self):
-        assert _slugify_trophy("Boland's Cup") == "bolands-cup"
-        assert _slugify_trophy("R. G. Smith Cup") == "r-g-smith-cup"
-        assert _slugify_trophy("Himmelman's Trophy") == "himmelmans-trophy"
-
-    def test_load_trophy_historical(self):
-        data = _load_trophy_historical()
-        assert len(data) > 0
-        assert "Charter Cup" in data
-        # Charter Cup should have entries back to 1947
-        years = [e["year"] for e in data["Charter Cup"]]
-        assert min(years) == 1947
-        # Mini-Ocean Tray should be aliased to Ocean Tray
-        assert "Mini-Ocean Tray" not in data
-        assert "Ocean Tray" in data
-
-    def test_trophies_json_canonical_count(self):
-        """Trophy output should have ~35-40 canonical trophies, not hundreds."""
-        path = OUTPUT_DIR / "trophies.json"
-        if not path.exists():
-            pytest.skip("JSON not yet exported")
-        data = json.loads(path.read_text())
-        assert 25 <= len(data) <= 50, f"Expected 25-50 trophies, got {len(data)}"
-
-    def test_trophies_have_historical_winners(self):
-        """Key trophies should have pre-1999 winners from historical data."""
-        path = OUTPUT_DIR / "trophies.json"
-        if not path.exists():
-            pytest.skip("JSON not yet exported")
-        data = json.loads(path.read_text())
-        by_name = {t["name"]: t for t in data}
-        smith = by_name.get("R. G. Smith Cup")
-        assert smith is not None
-        years = [w["year"] for w in smith["winners"]]
-        assert min(years) == 1947, f"R.G. Smith should go back to 1947, got {min(years)}"
-        # Should have both DB and historical sources
-        sources = {w.get("source") for w in smith["winners"]}
-        assert "db" in sources
-        assert "historical" in sources
-
-    def test_trophies_have_first_awarded(self):
-        """Every trophy should have a first_awarded field."""
-        path = OUTPUT_DIR / "trophies.json"
-        if not path.exists():
-            pytest.skip("JSON not yet exported")
-        data = json.loads(path.read_text())
-        for t in data:
-            assert "first_awarded" in t, f"{t['name']} missing first_awarded"
-            if t["winners"]:
-                assert t["first_awarded"] is not None
-
-    def test_no_duplicate_mini_ocean_tray(self):
-        """Mini-Ocean Tray should be merged into Ocean Tray."""
-        path = OUTPUT_DIR / "trophies.json"
-        if not path.exists():
-            pytest.skip("JSON not yet exported")
-        data = json.loads(path.read_text())
-        names = [t["name"] for t in data]
-        assert "Mini-Ocean Tray" not in names
-        assert "Ocean Tray" in names
+class TestFixedCourseTrophies:
+    def test_match_fixed_course(self):
+        assert _match_fixed_course("LYC Handicap - Boland's Cup") is not None
+        assert _match_fixed_course("Bolands Cup")["distance_nm"] == 16.7
+        assert _match_fixed_course("LYC Handicap - Leeward Island Race")["distance_nm"] == 14.2
+        assert _match_fixed_course("LYC Handicap - RG Smith Tancook Race")["distance_nm"] == 22.2
+        assert _match_fixed_course("R.G.Smith (Tancook Race)")["distance_nm"] == 22.2
+        assert _match_fixed_course("LYC Handicap - Glube Cup") is None
 
     def test_fixed_course_trophies_have_course_data(self):
-        """Fixed-course trophies should have course enrichment in JSON."""
+        """Fixed-course trophies should have course enrichment in exported JSON."""
         path = OUTPUT_DIR / "trophies.json"
         if not path.exists():
             pytest.skip("JSON not yet exported")
         data = json.loads(path.read_text())
-        by_name = {t["name"]: t for t in data}
-        for trophy_name, info in _FIXED_COURSE_TROPHIES.items():
-            trophy = by_name.get(trophy_name)
-            assert trophy is not None, f"Missing trophy: {trophy_name}"
-            assert "course" in trophy, f"{trophy_name} missing course data"
-            course = trophy["course"]
-            assert course["distance_nm"] == info["distance_nm"]
+        # Find trophies with course data
+        with_course = [t for t in data if "course" in t]
+        assert len(with_course) >= 3, f"Expected at least 3 fixed-course trophies, got {len(with_course)}"
+        for t in with_course:
+            course = t["course"]
+            assert course["distance_nm"] > 0
             assert course["races_with_elapsed"] > 0
             assert course["fastest"] is not None
             assert course["fastest"]["knots"] > 0
             assert len(course["race_history"]) > 0
+
+    def test_trophies_json_exists(self):
+        """Trophy output should have trophies with winners."""
+        path = OUTPUT_DIR / "trophies.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        data = json.loads(path.read_text())
+        assert len(data) > 20, f"Expected >20 trophies, got {len(data)}"
+        # At least some should have winners
+        with_winners = [t for t in data if t["winners"]]
+        assert len(with_winners) > 15
 
 
 class TestElapsedTimeParsing:

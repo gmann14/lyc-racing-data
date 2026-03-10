@@ -39,6 +39,9 @@ Thumbs.db
 .env
 .env.local
 
+# Tide model training data (regenerable from CHS API; caches are tracked instead)
+enrichment/tide_training_data.json
+
 # Local archive/scratch artifacts
 racing1999_2013_original/
 .playwright-mcp/
