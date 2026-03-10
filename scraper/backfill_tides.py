@@ -25,7 +25,10 @@ import requests
 from tidepredict.tide import Tide
 from tidepredict.constituent import BaseConstituent, CompoundConstituent
 
-from backfill_weather import get_unique_race_dates
+try:
+    from scraper.backfill_weather import get_unique_race_dates
+except ImportError:
+    from backfill_weather import get_unique_race_dates
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
