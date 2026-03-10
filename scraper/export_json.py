@@ -2517,12 +2517,28 @@ def export_search_index(conn: sqlite3.Connection) -> int:
     return len(entries)
 
 
-def export_all() -> None:
+VALID_ONLY_TARGETS = frozenset({
+    "overview", "seasons", "events", "boats", "leaderboards",
+    "trophies", "analysis", "search",
+})
+
+
+def export_all(only: set[str] | None = None) -> None:
     """Run the full export pipeline.
 
     Uses file locking to prevent concurrent exports and write-in-place
     with orphan cleanup instead of destructive rmtree.
+
+    Pass ``only`` as a set of target names to export a subset:
+    overview, seasons, events, boats, leaderboards, trophies, analysis, search.
     """
+    if only:
+        unknown = only - VALID_ONLY_TARGETS
+        if unknown:
+            print(f"ERROR: Unknown --only targets: {', '.join(sorted(unknown))}")
+            print(f"  Valid targets: {', '.join(sorted(VALID_ONLY_TARGETS))}")
+            return
+
     # Acquire exclusive lock to prevent concurrent exports
     lock_file = open(LOCK_PATH, "w")
     try:
@@ -2532,91 +2548,122 @@ def export_all() -> None:
         lock_file.close()
         return
     try:
-        _export_all_locked()
+        _export_all_locked(only=only)
     finally:
         fcntl.flock(lock_file, fcntl.LOCK_UN)
         lock_file.close()
         LOCK_PATH.unlink(missing_ok=True)
 
 
-def _export_all_locked() -> None:
-    """Inner export logic, called while holding the lock."""
+def _export_all_locked(only: set[str] | None = None) -> None:
+    """Inner export logic, called while holding the lock.
+
+    When ``only`` is provided, only the named targets are exported.
+    When ``None``, everything is exported.
+    """
     conn = _connect()
 
-    print("Exporting overview...")
-    stats = export_overview(conn)
-    print(f"  {stats['total_seasons']} seasons, {stats['total_events']} events, "
-          f"{stats['total_results']} results, {stats['total_boats']} boats")
+    def _should(target: str) -> bool:
+        return only is None or target in only
 
-    print("Exporting seasons list...")
-    export_seasons(conn)
+    if only:
+        print(f"Incremental export: {', '.join(sorted(only))}\n")
 
-    print("Exporting season details...")
-    season_dir = OUTPUT_DIR / "seasons"
-    season_dir.mkdir(parents=True, exist_ok=True)
-    years = [r["year"] for r in conn.execute("SELECT year FROM seasons ORDER BY year").fetchall()]
-    season_files: set[Path] = set()
-    for year in years:
-        export_season_detail(conn, year)
-        season_files.add(season_dir / f"{year}.json")
-    orphans = _clean_orphans(season_dir, season_files)
-    print(f"  {len(years)} seasons exported" + (f" ({orphans} orphans removed)" if orphans else ""))
+    if _should("overview"):
+        print("Exporting overview...")
+        stats = export_overview(conn)
+        print(f"  {stats['total_seasons']} seasons, {stats['total_events']} events, "
+              f"{stats['total_results']} results, {stats['total_boats']} boats")
 
-    print("Exporting event details...")
-    event_dir = OUTPUT_DIR / "events"
-    event_dir.mkdir(parents=True, exist_ok=True)
-    weather_lookup = _load_weather_lookup(conn)
-    event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
-    event_files: set[Path] = set()
-    for eid in event_ids:
-        export_event_detail(conn, eid, weather_lookup=weather_lookup)
-        event_files.add(event_dir / f"{eid}.json")
-    orphans = _clean_orphans(event_dir, event_files)
-    print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)"
-          + (f" ({orphans} orphans removed)" if orphans else ""))
+    if _should("seasons"):
+        print("Exporting seasons list...")
+        export_seasons(conn)
 
-    print("Exporting boats list...")
-    export_boats(conn)
+        print("Exporting season details...")
+        season_dir = OUTPUT_DIR / "seasons"
+        season_dir.mkdir(parents=True, exist_ok=True)
+        years = [r["year"] for r in conn.execute("SELECT year FROM seasons ORDER BY year").fetchall()]
+        season_files: set[Path] = set()
+        for year in years:
+            export_season_detail(conn, year)
+            season_files.add(season_dir / f"{year}.json")
+        orphans = _clean_orphans(season_dir, season_files)
+        print(f"  {len(years)} seasons exported" + (f" ({orphans} orphans removed)" if orphans else ""))
 
-    print("Exporting boat details...")
-    boat_dir = OUTPUT_DIR / "boats"
-    boat_dir.mkdir(parents=True, exist_ok=True)
-    boat_ids = [r["id"] for r in conn.execute("SELECT id FROM boats ORDER BY id").fetchall()]
-    boat_files: set[Path] = set()
-    for bid in boat_ids:
-        export_boat_detail(conn, bid)
-        boat_files.add(boat_dir / f"{bid}.json")
-    print(f"  {len(boat_ids)} boats exported")
+    if _should("events"):
+        print("Exporting event details...")
+        event_dir = OUTPUT_DIR / "events"
+        event_dir.mkdir(parents=True, exist_ok=True)
+        weather_lookup = _load_weather_lookup(conn)
+        event_ids = [r["id"] for r in conn.execute("SELECT id FROM events ORDER BY id").fetchall()]
+        event_files: set[Path] = set()
+        for eid in event_ids:
+            export_event_detail(conn, eid, weather_lookup=weather_lookup)
+            event_files.add(event_dir / f"{eid}.json")
+        orphans = _clean_orphans(event_dir, event_files)
+        print(f"  {len(event_ids)} events exported ({len(weather_lookup)} weather dates loaded)"
+              + (f" ({orphans} orphans removed)" if orphans else ""))
 
-    print("Exporting boat race logs...")
-    excluded = _excluded_event_map(conn)
-    event_meta_all, _ = _canonical_event_groups(conn)
-    variant_ids_all = _variant_event_ids(event_meta_all)
-    skip_all = set(excluded.keys()) | variant_ids_all
-    race_total = 0
-    for bid in boat_ids:
-        race_total += export_boat_races(conn, bid, skip_ids=skip_all)
-        boat_files.add(boat_dir / f"{bid}-races.json")
-    orphans = _clean_orphans(boat_dir, boat_files)
-    print(f"  {race_total} race entries across {len(boat_ids)} boats"
-          + (f" ({orphans} orphans removed)" if orphans else ""))
+    if _should("boats"):
+        print("Exporting boats list...")
+        export_boats(conn)
 
-    print("Exporting leaderboards...")
-    export_leaderboards(conn)
+        print("Exporting boat details...")
+        boat_dir = OUTPUT_DIR / "boats"
+        boat_dir.mkdir(parents=True, exist_ok=True)
+        boat_ids = [r["id"] for r in conn.execute("SELECT id FROM boats ORDER BY id").fetchall()]
+        boat_files: set[Path] = set()
+        for bid in boat_ids:
+            export_boat_detail(conn, bid)
+            boat_files.add(boat_dir / f"{bid}.json")
+        print(f"  {len(boat_ids)} boats exported")
 
-    print("Exporting trophy history...")
-    export_trophy_history(conn)
+        print("Exporting boat race logs...")
+        excluded = _excluded_event_map(conn)
+        event_meta_all, _ = _canonical_event_groups(conn)
+        variant_ids_all = _variant_event_ids(event_meta_all)
+        skip_all = set(excluded.keys()) | variant_ids_all
+        race_total = 0
+        for bid in boat_ids:
+            race_total += export_boat_races(conn, bid, skip_ids=skip_all)
+            boat_files.add(boat_dir / f"{bid}-races.json")
+        orphans = _clean_orphans(boat_dir, boat_files)
+        print(f"  {race_total} race entries across {len(boat_ids)} boats"
+              + (f" ({orphans} orphans removed)" if orphans else ""))
 
-    print("Exporting analysis data...")
-    export_analysis(conn)
+    if _should("leaderboards"):
+        print("Exporting leaderboards...")
+        export_leaderboards(conn)
 
-    print("Exporting search index...")
-    search_count = export_search_index(conn)
-    print(f"  {search_count} search entries")
+    if _should("trophies"):
+        print("Exporting trophy history...")
+        export_trophy_history(conn)
+
+    if _should("analysis"):
+        print("Exporting analysis data...")
+        export_analysis(conn)
+
+    if _should("search"):
+        print("Exporting search index...")
+        search_count = export_search_index(conn)
+        print(f"  {search_count} search entries")
 
     conn.close()
     print(f"\nDone! JSON files written to {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":
-    export_all()
+    import sys
+
+    only_targets: set[str] | None = None
+    args = sys.argv[1:]
+    if "--only" in args:
+        idx = args.index("--only")
+        targets = args[idx + 1:]
+        if not targets:
+            print("ERROR: --only requires at least one target")
+            print(f"  Valid targets: {', '.join(sorted(VALID_ONLY_TARGETS))}")
+            sys.exit(1)
+        only_targets = set(targets)
+
+    export_all(only=only_targets)
