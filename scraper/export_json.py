@@ -980,8 +980,16 @@ def export_boat_races(conn: sqlite3.Connection, boat_id: int,
     return len(data)
 
 
-def _build_owner_map(conn: sqlite3.Connection) -> tuple[dict[int, str], dict[str, dict]]:
+def _build_owner_map(
+    conn: sqlite3.Connection,
+    by_owner_only: bool = False,
+) -> tuple[dict[int, str], dict[str, dict]]:
     """Build boat_id→owner_key map and owner_key→info from boat_ownership.
+
+    Args:
+        by_owner_only: If True, group ALL boats by the same owner into one key.
+            If False (default), group by owner+boat_name (merges same boat
+            with different sail numbers, e.g. Ping 415/754).
 
     Returns (boat_to_owner, owner_info) where owner_info has:
       primary_id, display_name, owner_name, boat_ids
@@ -997,7 +1005,10 @@ def _build_owner_map(conn: sqlite3.Connection) -> tuple[dict[int, str], dict[str
     boat_to_owner: dict[int, str] = {}
     owner_groups: dict[str, list[dict]] = {}
     for row in rows:
-        key = f"{row['owner_name']}|{row['name']}"
+        if by_owner_only:
+            key = row["owner_name"]
+        else:
+            key = f"{row['owner_name']}|{row['name']}"
         boat_to_owner[row["boat_id"]] = key
         owner_groups.setdefault(key, []).append(dict(row))
     owner_info: dict[str, dict] = {}
@@ -2031,9 +2042,13 @@ def export_analysis(conn: sqlite3.Connection) -> None:
             "sample_size": len(times),
         })
 
-    # --- Participation & Consistency ---
-    # Most races sailed (all-time) — deduplicate per race
-    most_races = conn.execute(f"""
+    # --- Participation & Consistency (with owner merging) ---
+    # Use by_owner_only=True so different boats by same owner merge
+    # (e.g. Mojo + Sly Fox → James Mosher combined entry)
+    boat_to_owner, owner_info = _build_owner_map(conn, by_owner_only=True)
+
+    # Most races sailed (all-time) — deduplicate per race, no LIMIT (merge first)
+    most_races_raw = conn.execute(f"""
         SELECT b.id, b.name, b.class, b.sail_number,
                COUNT(*) as races,
                COUNT(DISTINCT year) as seasons,
@@ -2051,10 +2066,67 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         ORDER BY races DESC
-        LIMIT 30
     """, excl_params).fetchall()
 
-    # Longest active streaks
+    # Merge most_races by owner
+    mr_groups: dict[str, dict] = {}
+    for row in most_races_raw:
+        row = dict(row)
+        owner_key = boat_to_owner.get(row["id"])
+        gkey = owner_key if owner_key else f"boat:{row['id']}"
+        if gkey not in mr_groups:
+            if owner_key:
+                info = owner_info[owner_key]
+                mr_groups[gkey] = {
+                    "id": info["primary_id"],
+                    "name": info["display_name"],
+                    "class": info.get("class") or row.get("class"),
+                    "sail_number": info.get("sail_number") or row.get("sail_number"),
+                    "races": 0, "wins": 0,
+                    "first_year": row["first_year"], "last_year": row["last_year"],
+                    "_years": set(),
+                    "owner": info["owner_name"],
+                    "boat_ids": info["boat_ids"],
+                }
+            else:
+                mr_groups[gkey] = {
+                    **row, "races": 0, "wins": 0,
+                    "first_year": row["first_year"], "last_year": row["last_year"],
+                    "_years": set(),
+                    "owner": None, "boat_ids": [row["id"]],
+                }
+        g = mr_groups[gkey]
+        g["races"] += row["races"]
+        g["wins"] += row["wins"]
+        g["first_year"] = min(g["first_year"], row["first_year"])
+        g["last_year"] = max(g["last_year"], row["last_year"])
+    # Compute seasons from actual year data per owner group
+    # We need per-boat year sets, so query them
+    boat_year_sets: dict[int, set[int]] = {}
+    for row in most_races_raw:
+        boat_year_sets[row["id"]] = set()
+    for row in conn.execute(f"""
+        SELECT DISTINCT p.boat_id, e.year
+        FROM results res
+        JOIN participants p ON res.participant_id = p.id
+        JOIN races r ON res.race_id = r.id
+        JOIN events e ON r.event_id = e.id
+        WHERE p.boat_id IS NOT NULL {excl_where}
+    """, excl_params).fetchall():
+        if row["boat_id"] in boat_year_sets:
+            boat_year_sets[row["boat_id"]].add(row["year"])
+    for gkey, g in mr_groups.items():
+        years: set[int] = set()
+        for bid in g["boat_ids"]:
+            years |= boat_year_sets.get(bid, set())
+        g["seasons"] = len(years)
+        g["_years"] = years
+    # Clean up internal fields and sort
+    for g in mr_groups.values():
+        del g["_years"]
+    most_races = sorted(mr_groups.values(), key=lambda x: -x["races"])[:30]
+
+    # Longest active streaks — merge years by owner before computing
     all_boat_years = conn.execute(f"""
         SELECT b.id, b.name, e.year
         FROM results res
@@ -2067,46 +2139,50 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         ORDER BY b.id, e.year
     """, excl_params).fetchall()
 
-    current_boat = None
-    current_name = ""
-    current_streak = 0
-    streak_start = 0
-    prev_year = 0
-    best_by_boat: dict[int, dict] = {}
+    # Group years by owner (or by boat if no owner)
+    owner_years: dict[str, set[int]] = {}
+    owner_display: dict[str, dict] = {}
     for row in all_boat_years:
-        if row["id"] != current_boat:
-            # Save previous boat's streak
-            if current_boat is not None and current_streak >= 3:
-                if current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]:
-                    best_by_boat[current_boat] = {
-                        "id": current_boat, "name": current_name,
-                        "streak": current_streak, "start": streak_start, "end": prev_year,
-                    }
-            current_boat = row["id"]
-            current_name = row["name"]
-            current_streak = 1
-            streak_start = row["year"]
-            prev_year = row["year"]
-            continue
-        if row["year"] == prev_year + 1:
-            current_streak += 1
-        else:
-            if current_streak >= 3 and (current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]):
-                best_by_boat[current_boat] = {
-                    "id": current_boat, "name": current_name,
-                    "streak": current_streak, "start": streak_start, "end": prev_year,
-                }
-            current_streak = 1
-            streak_start = row["year"]
-        prev_year = row["year"]
-    # Final boat
-    if current_boat is not None and current_streak >= 3:
-        if current_boat not in best_by_boat or current_streak > best_by_boat[current_boat]["streak"]:
-            best_by_boat[current_boat] = {
-                "id": current_boat, "name": current_name,
-                "streak": current_streak, "start": streak_start, "end": prev_year,
+        owner_key = boat_to_owner.get(row["id"])
+        gkey = owner_key if owner_key else f"boat:{row['id']}"
+        owner_years.setdefault(gkey, set()).add(row["year"])
+        if gkey not in owner_display:
+            if owner_key:
+                info = owner_info[owner_key]
+                owner_display[gkey] = {"id": info["primary_id"], "name": info["display_name"]}
+            else:
+                owner_display[gkey] = {"id": row["id"], "name": row["name"]}
+
+    # Compute longest consecutive streak per owner group
+    best_by_owner: dict[str, dict] = {}
+    for gkey, years in owner_years.items():
+        sorted_years = sorted(years)
+        best_streak = 0
+        best_start = 0
+        best_end = 0
+        cur_streak = 1
+        cur_start = sorted_years[0]
+        for i in range(1, len(sorted_years)):
+            if sorted_years[i] == sorted_years[i - 1] + 1:
+                cur_streak += 1
+            else:
+                if cur_streak > best_streak:
+                    best_streak = cur_streak
+                    best_start = cur_start
+                    best_end = sorted_years[i - 1]
+                cur_streak = 1
+                cur_start = sorted_years[i]
+        if cur_streak > best_streak:
+            best_streak = cur_streak
+            best_start = cur_start
+            best_end = sorted_years[-1]
+        if best_streak >= 3:
+            disp = owner_display[gkey]
+            best_by_owner[gkey] = {
+                "id": disp["id"], "name": disp["name"],
+                "streak": best_streak, "start": best_start, "end": best_end,
             }
-    longest_streaks = sorted(best_by_boat.values(), key=lambda x: -x["streak"])[:25]
+    longest_streaks = sorted(best_by_owner.values(), key=lambda x: -x["streak"])[:25]
 
     # --- TNS Deep Dive ---
     # Use variant filter to avoid double-counting fleet+overall results
