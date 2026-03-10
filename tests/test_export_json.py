@@ -16,6 +16,7 @@ from scraper.export_json import (
     export_event_detail,
     export_boats,
     export_boat_detail,
+    export_boat_races,
     export_leaderboards,
     export_trophy_history,
     export_all,
@@ -504,3 +505,43 @@ class TestExportIntegration:
         owners = detail.get("owners", [])
         assert len(owners) >= 1
         assert owners[0]["owner_name"] == "Colin Mann"
+
+    def test_boat_race_log_exists(self):
+        """Boats should have a race log JSON for head-to-head comparisons."""
+        path = OUTPUT_DIR / "boats.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        boats = json.loads(path.read_text())
+        # Check a high-activity boat
+        pooh = next((b for b in boats if b["name"] == "Poohsticks"), None)
+        if not pooh:
+            pytest.skip("Poohsticks not found")
+        race_log_path = OUTPUT_DIR / "boats" / f"{pooh['id']}-races.json"
+        assert race_log_path.exists(), "Race log JSON should exist"
+        races = json.loads(race_log_path.read_text())
+        assert len(races) > 50, "Poohsticks should have 50+ race entries"
+        # Check structure
+        entry = races[0]
+        assert "r" in entry  # race_id
+        assert "e" in entry  # event_id
+        assert "n" in entry  # event_name
+        assert "y" in entry  # year
+        assert "k" in entry  # rank
+        assert "c" in entry  # entries
+
+    def test_boat_race_log_shared_races(self):
+        """Two boats that raced together should have overlapping race_ids."""
+        path = OUTPUT_DIR / "boats.json"
+        if not path.exists():
+            pytest.skip("JSON not yet exported")
+        boats = json.loads(path.read_text())
+        # Find two boats with many results
+        top = sorted(boats, key=lambda b: b["total_results"], reverse=True)[:2]
+        if len(top) < 2:
+            pytest.skip("Need at least 2 boats")
+        log_a = json.loads((OUTPUT_DIR / "boats" / f"{top[0]['id']}-races.json").read_text())
+        log_b = json.loads((OUTPUT_DIR / "boats" / f"{top[1]['id']}-races.json").read_text())
+        ids_a = {r["r"] for r in log_a}
+        ids_b = {r["r"] for r in log_b}
+        shared = ids_a & ids_b
+        assert len(shared) > 0, f"{top[0]['name']} and {top[1]['name']} should share races"

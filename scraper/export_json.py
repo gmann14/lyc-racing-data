@@ -884,6 +884,54 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
     _write_json(OUTPUT_DIR / "boats" / f"{boat_id}.json", data)
 
 
+def export_boat_races(conn: sqlite3.Connection, boat_id: int,
+                      skip_ids: set[int] | None = None) -> int:
+    """Export per-boat race log for head-to-head comparisons.
+
+    Returns the number of race entries written.
+    """
+    if skip_ids is None:
+        excluded = _excluded_event_map(conn)
+        event_meta, _ = _canonical_event_groups(conn)
+        variant_ids = _variant_event_ids(event_meta)
+        skip_ids = set(excluded.keys()) | variant_ids
+
+    placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
+    where = f"AND e.id NOT IN ({placeholders})" if placeholders else ""
+
+    rows = conn.execute("""
+        SELECT res.race_id, rc.event_id, e.name as event_name, e.year,
+               MIN(res.rank) as rank, res.status,
+               (SELECT COUNT(DISTINCT r2.participant_id)
+                FROM results r2 WHERE r2.race_id = res.race_id) as entries
+        FROM results res
+        JOIN participants p ON p.id = res.participant_id
+        JOIN races rc ON rc.id = res.race_id
+        JOIN events e ON e.id = rc.event_id
+        WHERE p.boat_id = ?
+        {where}
+        GROUP BY res.race_id
+        ORDER BY e.year, rc.event_id, rc.race_number, rc.id
+    """.format(where=where), (boat_id, *skip_ids)).fetchall()
+
+    # Compact format: r=race_id, e=event_id, n=event_name, y=year,
+    # k=rank, s=status, c=entries(count)
+    data = [
+        {
+            "r": row["race_id"],
+            "e": row["event_id"],
+            "n": row["event_name"],
+            "y": row["year"],
+            "k": row["rank"],
+            "s": row["status"],
+            "c": row["entries"],
+        }
+        for row in rows
+    ]
+    _write_json(OUTPUT_DIR / "boats" / f"{boat_id}-races.json", data)
+    return len(data)
+
+
 def export_leaderboards(conn: sqlite3.Connection) -> None:
     """Export precomputed leaderboard data."""
     excluded = _excluded_event_map(conn)
@@ -1566,6 +1614,16 @@ def export_all() -> None:
     for bid in boat_ids:
         export_boat_detail(conn, bid)
     print(f"  {len(boat_ids)} boats exported")
+
+    print("Exporting boat race logs...")
+    excluded = _excluded_event_map(conn)
+    event_meta_all, _ = _canonical_event_groups(conn)
+    variant_ids_all = _variant_event_ids(event_meta_all)
+    skip_all = set(excluded.keys()) | variant_ids_all
+    race_total = 0
+    for bid in boat_ids:
+        race_total += export_boat_races(conn, bid, skip_ids=skip_all)
+    print(f"  {race_total} race entries across {len(boat_ids)} boats")
 
     print("Exporting leaderboards...")
     export_leaderboards(conn)

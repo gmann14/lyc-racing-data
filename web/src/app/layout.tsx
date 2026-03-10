@@ -41,6 +41,7 @@ const NAV_LINKS = [
   { href: "/leaderboards/", label: "Leaderboards" },
   { href: "/trophies/", label: "Trophies" },
   { href: "/analysis/", label: "Analysis" },
+  { href: "/compare/", label: "Compare" },
   { href: "/methodology/", label: "Methodology" },
 ];
 

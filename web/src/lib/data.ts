@@ -383,6 +383,23 @@ export interface AnalysisData {
   };
 }
 
+export interface BoatRaceEntry {
+  /** race_id */
+  r: number;
+  /** event_id */
+  e: number;
+  /** event_name */
+  n: string;
+  /** year */
+  y: number;
+  /** rank */
+  k: number | null;
+  /** status */
+  s: string | null;
+  /** entries (fleet size) */
+  c: number;
+}
+
 export function getAnalysis(): AnalysisData {
   return readJson<AnalysisData>("analysis.json");
 }
