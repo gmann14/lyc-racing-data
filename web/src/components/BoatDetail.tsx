@@ -5,6 +5,64 @@ import { useRef, useEffect } from "react";
 import { useHashParam, useJsonData } from "@/lib/use-data";
 import type { BoatDetail } from "@/lib/data";
 
+function WinRateSparkline({
+  seasons,
+}: {
+  seasons: Array<{ year: number; races: number; wins: number }>;
+}) {
+  if (seasons.length < 2) return null;
+  const rates = seasons.map((s) => ({
+    year: s.year,
+    rate: s.races > 0 ? s.wins / s.races : 0,
+  }));
+  const maxRate = Math.max(...rates.map((r) => r.rate), 0.01);
+  const w = 200;
+  const h = 40;
+  const pad = 2;
+  const step = (w - pad * 2) / (rates.length - 1);
+
+  const points = rates
+    .map((r, i) => {
+      const x = pad + i * step;
+      const y = h - pad - ((h - pad * 2) * r.rate) / maxRate;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <div className="mt-3">
+      <div className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+        Win Rate by Season
+      </div>
+      <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-[200px] h-10">
+        <polyline
+          points={points}
+          fill="none"
+          stroke="var(--gold)"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        {rates.map((r, i) => {
+          const x = pad + i * step;
+          const y = h - pad - ((h - pad * 2) * r.rate) / maxRate;
+          return (
+            <circle key={r.year} cx={x} cy={y} r="2.5" fill="var(--navy)">
+              <title>
+                {r.year}: {Math.round(r.rate * 100)}%
+              </title>
+            </circle>
+          );
+        })}
+      </svg>
+      <div className="flex justify-between text-[10px] text-gray-300 max-w-[200px]">
+        <span>{rates[0]?.year}</span>
+        <span>{rates[rates.length - 1]?.year}</span>
+      </div>
+    </div>
+  );
+}
+
 function shortenTrophyName(name: string): string {
   return name
     .replace(/^LYC\s+(Handicap|TNS Handicap|Thursday Night)\s*(Series\s*)?[-\s]*/i, "")
@@ -157,12 +215,26 @@ export default function BoatDetailPanel() {
         </div>
       )}
 
-      {boat.stats.avg_finish !== null && (
-        <div className="mt-4 text-xs text-gray-400 border-t border-border pt-3">
-          Career avg finish: {boat.stats.avg_finish} &middot; Active{" "}
-          {boat.stats.first_year}&ndash;{boat.stats.last_year}
+      {boat.seasons.length >= 2 && (
+        <div className="mt-4 border-t border-border pt-3">
+          <WinRateSparkline seasons={boat.seasons} />
         </div>
       )}
+
+      <div className="mt-4 text-xs text-gray-400 border-t border-border pt-3 flex items-center justify-between">
+        <span>
+          {boat.stats.avg_finish !== null && (
+            <>Career avg finish: {boat.stats.avg_finish} &middot; </>
+          )}
+          Active {boat.stats.first_year}&ndash;{boat.stats.last_year}
+        </span>
+        <Link
+          href={`/compare/`}
+          className="text-navy-light hover:text-gold transition-colors font-medium"
+        >
+          Compare &rarr;
+        </Link>
+      </div>
     </div>
   );
 }
