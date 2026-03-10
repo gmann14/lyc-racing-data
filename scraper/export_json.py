@@ -96,6 +96,32 @@ def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None)
     return None
 
 
+def _elapsed_to_seconds(t: str | None) -> int | None:
+    """Parse elapsed time string (H:MM:SS or 00 H:MM:SS) to total seconds."""
+    if not t or not t.strip():
+        return None
+    text = t.strip()
+    # Strip leading "00 " day prefix from legacy format
+    text = re.sub(r"^00\s+", "", text)
+    parts = text.split(":")
+    try:
+        if len(parts) == 3:
+            return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
+        if len(parts) == 2:
+            return int(parts[0]) * 60 + int(parts[1])
+    except ValueError:
+        return None
+    return None
+
+
+def _format_elapsed(seconds: int | float) -> str:
+    """Format seconds as H:MM:SS."""
+    total = int(seconds)
+    h, remainder = divmod(total, 3600)
+    m, s = divmod(remainder, 60)
+    return f"{h}:{m:02d}:{s:02d}"
+
+
 # Fixed-course trophies with known distances from LYC Course Card.
 # Keys are substrings to match against canonical event names (case-insensitive).
 _FIXED_COURSE_TROPHIES: dict[str, dict] = {
@@ -954,6 +980,233 @@ def export_boat_races(conn: sqlite3.Connection, boat_id: int,
     return len(data)
 
 
+def _build_owner_map(conn: sqlite3.Connection) -> tuple[dict[int, str], dict[str, dict]]:
+    """Build boat_id→owner_key map and owner_key→info from boat_ownership.
+
+    Returns (boat_to_owner, owner_info) where owner_info has:
+      primary_id, display_name, owner_name, boat_ids
+    """
+    rows = conn.execute("""
+        SELECT bo.boat_id, b.name, b.sail_number, b.class,
+               s.name as owner_name,
+               (SELECT COUNT(*) FROM participants p WHERE p.boat_id = bo.boat_id) as result_count
+        FROM boat_ownership bo
+        JOIN boats b ON bo.boat_id = b.id
+        JOIN skippers s ON bo.skipper_id = s.id
+    """).fetchall()
+    boat_to_owner: dict[int, str] = {}
+    owner_groups: dict[str, list[dict]] = {}
+    for row in rows:
+        key = f"{row['owner_name']}|{row['name']}"
+        boat_to_owner[row["boat_id"]] = key
+        owner_groups.setdefault(key, []).append(dict(row))
+    owner_info: dict[str, dict] = {}
+    for key, boats in owner_groups.items():
+        # Pick the boat with the most results as primary
+        primary = max(boats, key=lambda b: b.get("result_count", 0))
+        owner_info[key] = {
+            "primary_id": primary["boat_id"],
+            "display_name": primary["name"],
+            "owner_name": primary["owner_name"],
+            "boat_ids": [b["boat_id"] for b in boats],
+            "class": primary["class"],
+            "sail_number": primary["sail_number"],
+        }
+    return boat_to_owner, owner_info
+
+
+def _merge_leaderboard_simple(
+    rows: list[dict],
+    boat_to_owner: dict[int, str],
+    owner_info: dict[str, dict],
+    sort_key: str,
+    sort_reverse: bool = True,
+    limit: int = 25,
+) -> list[dict]:
+    """Merge leaderboard rows by owner, summing wins/total_races."""
+    groups: dict[str, dict] = {}
+    for row in rows:
+        row = dict(row)
+        owner_key = boat_to_owner.get(row["id"])
+        gkey = owner_key if owner_key else f"boat:{row['id']}"
+        if gkey not in groups:
+            if owner_key:
+                info = owner_info[owner_key]
+                groups[gkey] = {
+                    "id": info["primary_id"],
+                    "name": info["display_name"],
+                    "class": info.get("class") or row.get("class"),
+                    "sail_number": info.get("sail_number") or row.get("sail_number"),
+                    "wins": 0,
+                    "total_races": 0,
+                    "owner": info["owner_name"],
+                    "boat_ids": info["boat_ids"],
+                }
+            else:
+                groups[gkey] = {
+                    **row, "wins": 0, "total_races": 0,
+                    "owner": None, "boat_ids": [row["id"]],
+                }
+        g = groups[gkey]
+        g["wins"] += row.get("wins") or 0
+        g["total_races"] += row.get("total_races") or 0
+    # Recalculate win_pct
+    for g in groups.values():
+        if g["total_races"] > 0:
+            g["win_pct"] = round(100.0 * g["wins"] / g["total_races"], 1)
+        else:
+            g["win_pct"] = 0.0
+    result = sorted(groups.values(), key=lambda x: x.get(sort_key, 0), reverse=sort_reverse)
+    return result[:limit]
+
+
+def _merge_leaderboard_avg_finish(
+    rows: list[dict],
+    boat_to_owner: dict[int, str],
+    owner_info: dict[str, dict],
+    limit: int = 25,
+) -> list[dict]:
+    """Merge best-avg-finish leaderboard rows by owner (weighted avg)."""
+    groups: dict[str, dict] = {}
+    for row in rows:
+        row = dict(row)
+        owner_key = boat_to_owner.get(row["id"])
+        gkey = owner_key if owner_key else f"boat:{row['id']}"
+        if gkey not in groups:
+            if owner_key:
+                info = owner_info[owner_key]
+                groups[gkey] = {
+                    "id": info["primary_id"],
+                    "name": info["display_name"],
+                    "class": info.get("class") or row.get("class"),
+                    "sail_number": info.get("sail_number") or row.get("sail_number"),
+                    "total_races": 0,
+                    "wins": 0,
+                    "_weighted_finish_pct": 0.0,
+                    "_weighted_finish": 0.0,
+                    "owner": info["owner_name"],
+                    "boat_ids": info["boat_ids"],
+                }
+            else:
+                groups[gkey] = {
+                    **row,
+                    "total_races": 0,
+                    "wins": 0,
+                    "_weighted_finish_pct": 0.0,
+                    "_weighted_finish": 0.0,
+                    "owner": None,
+                    "boat_ids": [row["id"]],
+                }
+        n = row["total_races"]
+        groups[gkey]["total_races"] += n
+        groups[gkey]["wins"] += row.get("wins") or 0
+        groups[gkey]["_weighted_finish_pct"] += row["avg_finish_pct"] * n
+        groups[gkey]["_weighted_finish"] += row["avg_finish"] * n
+    for g in groups.values():
+        n = g["total_races"]
+        g["avg_finish_pct"] = round(g["_weighted_finish_pct"] / n, 1) if n else 0
+        g["avg_finish"] = round(g["_weighted_finish"] / n, 1) if n else 0
+        del g["_weighted_finish_pct"]
+        del g["_weighted_finish"]
+    return sorted(groups.values(), key=lambda x: x["avg_finish_pct"])[:limit]
+
+
+def _merge_leaderboard_seasons(
+    rows: list[dict],
+    boat_to_owner: dict[int, str],
+    owner_info: dict[str, dict],
+    conn: sqlite3.Connection,
+    skip_ids: set[int],
+    limit: int = 25,
+) -> list[dict]:
+    """Merge most-seasons leaderboard by owner, recalculating from raw data."""
+    groups: dict[str, dict] = {}
+    for row in rows:
+        row = dict(row)
+        owner_key = boat_to_owner.get(row["id"])
+        gkey = owner_key if owner_key else f"boat:{row['id']}"
+        if gkey not in groups:
+            if owner_key:
+                info = owner_info[owner_key]
+                groups[gkey] = {
+                    "id": info["primary_id"],
+                    "name": info["display_name"],
+                    "class": info.get("class") or row.get("class"),
+                    "sail_number": info.get("sail_number") or row.get("sail_number"),
+                    "owner": info["owner_name"],
+                    "boat_ids": info["boat_ids"],
+                    "_years": set(),
+                }
+            else:
+                groups[gkey] = {
+                    **row,
+                    "owner": None,
+                    "boat_ids": [row["id"]],
+                    "_years": set(),
+                }
+        for y in range(row.get("first_year", 0), row.get("last_year", 0) + 1):
+            groups[gkey]["_years"].add(y)
+    # Recalculate from actual year data for merged boats
+    for gkey, g in groups.items():
+        if len(g["boat_ids"]) > 1:
+            placeholders_b = ",".join("?" for _ in g["boat_ids"])
+            placeholders_e = ",".join("?" for _ in skip_ids) if skip_ids else None
+            where_e = f"AND e.id NOT IN ({placeholders_e})" if placeholders_e else ""
+            year_rows = conn.execute(f"""
+                SELECT DISTINCT e.year
+                FROM participants p
+                JOIN results res ON res.participant_id = p.id
+                JOIN races rc ON res.race_id = rc.id
+                JOIN events e ON rc.event_id = e.id
+                WHERE p.boat_id IN ({placeholders_b})
+                {where_e}
+            """, (*g["boat_ids"], *skip_ids)).fetchall()
+            g["_years"] = {r["year"] for r in year_rows}
+        g["seasons"] = len(g["_years"])
+        g["first_year"] = min(g["_years"]) if g["_years"] else None
+        g["last_year"] = max(g["_years"]) if g["_years"] else None
+        del g["_years"]
+    return sorted(groups.values(), key=lambda x: -x["seasons"])[:limit]
+
+
+def _merge_leaderboard_trophies(
+    rows: list[dict],
+    boat_to_owner: dict[int, str],
+    owner_info: dict[str, dict],
+    limit: int = 25,
+) -> list[dict]:
+    """Merge trophy leaderboard rows by owner."""
+    groups: dict[str, dict] = {}
+    for row in rows:
+        if isinstance(row, dict):
+            r = row
+        else:
+            r = dict(row)
+        owner_key = boat_to_owner.get(r["id"])
+        gkey = owner_key if owner_key else f"boat:{r['id']}"
+        if gkey not in groups:
+            if owner_key:
+                info = owner_info[owner_key]
+                groups[gkey] = {
+                    "id": info["primary_id"],
+                    "name": info["display_name"],
+                    "class": info.get("class") or r.get("class"),
+                    "sail_number": info.get("sail_number") or r.get("sail_number"),
+                    "trophy_wins": 0,
+                    "owner": info["owner_name"],
+                    "boat_ids": info["boat_ids"],
+                }
+            else:
+                groups[gkey] = {
+                    **r,
+                    "trophy_wins": 0,
+                    "owner": None,
+                    "boat_ids": [r["id"]],
+                }
+        groups[gkey]["trophy_wins"] += r.get("trophy_wins", 0)
+    return sorted(groups.values(), key=lambda x: (-x["trophy_wins"], x["name"]))[:limit]
+
+
 def export_leaderboards(conn: sqlite3.Connection) -> None:
     """Export precomputed leaderboard data."""
     excluded = _excluded_event_map(conn)
@@ -962,6 +1215,9 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
     skip_ids = set(excluded.keys()) | variant_ids
     placeholders = ",".join("?" for _ in skip_ids) if skip_ids else None
     where = f"WHERE e.id NOT IN ({placeholders})" if placeholders else ""
+
+    boat_to_owner, owner_info = _build_owner_map(conn)
+
     # Most race wins (individual races) — deduplicate per race
     most_wins = conn.execute("""
         SELECT b.id, b.name, b.class, b.sail_number,
@@ -1103,12 +1359,66 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         ORDER BY e.year
     """.format(where=where), tuple(skip_ids)).fetchall()
 
+    # Owner-merge all leaderboards
+    merged_wins = _merge_leaderboard_simple(
+        most_wins, boat_to_owner, owner_info, sort_key="wins", limit=25,
+    )
+    merged_seasons = _merge_leaderboard_seasons(
+        most_seasons, boat_to_owner, owner_info, conn, skip_ids, limit=25,
+    )
+    merged_trophies = _merge_leaderboard_trophies(
+        most_trophies, boat_to_owner, owner_info, limit=25,
+    )
+    merged_win_pct = _merge_leaderboard_simple(
+        best_pct, boat_to_owner, owner_info, sort_key="win_pct", limit=25,
+    )
+    # For avg finish: fetch more raw rows, merge, then filter min 20 races
+    best_avg_raw = conn.execute("""
+        SELECT b.id, b.name, b.class, b.sail_number,
+               COUNT(*) as total_races,
+               ROUND(AVG(CAST(best_rank AS REAL) / field_size) * 100, 1) as avg_finish_pct,
+               ROUND(AVG(best_rank), 1) as avg_finish,
+               SUM(CASE WHEN best_rank = 1 THEN 1 ELSE 0 END) as wins
+        FROM boats b
+        JOIN (
+            SELECT p.boat_id, res.race_id, MIN(res.rank) as best_rank
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            {where}
+            AND res.rank IS NOT NULL
+            AND (res.status IS NULL OR res.status = '')
+            GROUP BY p.boat_id, res.race_id
+        ) deduped ON deduped.boat_id = b.id
+        JOIN (
+            SELECT r2.race_id, COUNT(*) as field_size
+            FROM results r2
+            JOIN participants p2 ON r2.participant_id = p2.id
+            JOIN races rc2 ON r2.race_id = rc2.id
+            JOIN events e2 ON rc2.event_id = e2.id
+            WHERE p2.boat_id IS NOT NULL AND r2.rank IS NOT NULL
+              AND (r2.status IS NULL OR r2.status = '')
+              {variant_filter}
+            GROUP BY r2.race_id
+        ) race_sizes ON race_sizes.race_id = deduped.race_id
+        GROUP BY b.id
+        ORDER BY avg_finish_pct ASC
+    """.format(
+        where=where if where else "WHERE 1=1",
+        variant_filter=f"AND e2.id NOT IN ({placeholders})" if placeholders else "",
+    ), (*skip_ids, *skip_ids)).fetchall()
+    merged_avg_all = _merge_leaderboard_avg_finish(
+        best_avg_raw, boat_to_owner, owner_info, limit=999,
+    )
+    merged_avg_finish = [r for r in merged_avg_all if r["total_races"] >= 20][:25]
+
     data = {
-        "most_wins": most_wins,
-        "most_seasons": most_seasons,
-        "most_trophies": most_trophies,
-        "best_win_pct": best_pct,
-        "best_avg_finish_pct": best_avg_finish_pct,
+        "most_wins": merged_wins,
+        "most_seasons": merged_seasons,
+        "most_trophies": merged_trophies,
+        "best_win_pct": merged_win_pct,
+        "best_avg_finish_pct": merged_avg_finish,
         "fleet_by_year": fleet_by_year,
         "excluded_event_count": len(excluded),
     }
@@ -1116,9 +1426,11 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
 
 
 def export_trophy_history(conn: sqlite3.Connection) -> None:
-    """Export winner history for each trophy/event name."""
+    """Export winner history for each trophy/event name, with pace stats for fixed courses."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
+    weather_lookup = _load_weather_lookup(conn)
+
     # Get distinct trophy events
     unique_trophies = []
     for primary_id, group in groups_by_primary.items():
@@ -1127,7 +1439,10 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
             continue
         canonical_name = event_meta[primary_id]["canonical_name"]
         slug = primary["slug"]
-        unique_trophies.append({"id": primary_id, "name": canonical_name, "slug": slug, "event_type": primary["event_type"]})
+        unique_trophies.append({
+            "id": primary_id, "name": canonical_name, "slug": slug,
+            "event_type": primary["event_type"],
+        })
 
     trophy_list = []
     for trophy in unique_trophies:
@@ -1175,19 +1490,248 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 WHERE e.id IN ({placeholders}) AND res.rank = 1
                 ORDER BY e.year, res.points
             """, tuple(group_ids)).fetchall()
-            # Dedup: one winner per year (lowest points = best)
             for row in fallback_rows:
                 if row["year"] in seen_years:
                     continue
                 seen_years.add(row["year"])
                 winners.append(row)
 
-        trophy_list.append({
+        # Check if this is a fixed-course trophy
+        course_info = _match_fixed_course(trophy["name"])
+        course_data = None
+
+        if course_info:
+            # Query all finishers with elapsed times for pace analysis
+            perf_rows = conn.execute(f"""
+                SELECT e.year, e.id as event_id, rc.date,
+                       res.elapsed_time, res.rank,
+                       b.name as boat_name, p.display_name, res.status
+                FROM results res
+                JOIN races rc ON res.race_id = rc.id
+                JOIN events e ON rc.event_id = e.id
+                JOIN participants p ON res.participant_id = p.id
+                LEFT JOIN boats b ON p.boat_id = b.id
+                WHERE e.id IN ({placeholders})
+                ORDER BY e.year, res.rank
+            """, tuple(group_ids)).fetchall()
+
+            yearly_data: dict[int, dict] = {}
+            for row in perf_rows:
+                year = row["year"]
+                if year not in yearly_data:
+                    iso_date = _parse_race_date_to_iso(row["date"], year)
+                    weather = weather_lookup.get(iso_date) if iso_date else None
+                    yearly_data[year] = {
+                        "year": year,
+                        "event_id": row["event_id"],
+                        "date": iso_date,
+                        "finishers": 0,
+                        "dnf_count": 0,
+                        "elapsed_times": [],
+                        "winner_elapsed_secs": None,
+                        "winner_boat": None,
+                        "weather": {
+                            "temp_c": weather["temp_c"],
+                            "wind_speed_kmh": weather["wind_speed_kmh"],
+                            "wind_direction_deg": weather["wind_direction_deg"],
+                            "wind_gust_kmh": weather["wind_gust_kmh"],
+                            "precipitation_mm": weather["precipitation_mm"],
+                            "conditions": weather["conditions"],
+                        } if weather else None,
+                    }
+
+                entry = yearly_data[year]
+                status = row["status"]
+                if status and status.upper() in (
+                    "DNF", "DNS", "OCS", "DSQ", "RAF", "DNC", "RET",
+                ):
+                    entry["dnf_count"] += 1
+                    continue
+
+                secs = _elapsed_to_seconds(row["elapsed_time"])
+                if secs and 1200 < secs < 36000:  # 20min to 10hr
+                    entry["finishers"] += 1
+                    entry["elapsed_times"].append(secs)
+                    if row["rank"] == 1 and entry["winner_elapsed_secs"] is None:
+                        entry["winner_elapsed_secs"] = secs
+                        entry["winner_boat"] = row["boat_name"]
+
+            race_perf = list(yearly_data.values())
+            winner_times = [r for r in race_perf if r["winner_elapsed_secs"] is not None]
+            fastest = min(winner_times, key=lambda r: r["winner_elapsed_secs"]) if winner_times else None
+            slowest = max(winner_times, key=lambda r: r["winner_elapsed_secs"]) if winner_times else None
+
+            # Wind correlation
+            light_times: list[int] = []
+            moderate_times: list[int] = []
+            heavy_times: list[int] = []
+            for rd in race_perf:
+                w = rd.get("weather")
+                if not w or w.get("wind_speed_kmh") is None:
+                    continue
+                ws = w["wind_speed_kmh"]
+                wsecs = rd.get("winner_elapsed_secs")
+                if wsecs is None:
+                    continue
+                if ws < 15:
+                    light_times.append(wsecs)
+                elif ws <= 25:
+                    moderate_times.append(wsecs)
+                else:
+                    heavy_times.append(wsecs)
+
+            def _avg_or_none(lst: list[int]) -> str | None:
+                return _format_elapsed(int(sum(lst) / len(lst))) if lst else None
+
+            dist = course_info["distance_nm"]
+            course_data = {
+                "course_name": course_info["course"],
+                "distance_nm": dist,
+                "races_with_elapsed": len(winner_times),
+                "fastest": {
+                    "elapsed": _format_elapsed(fastest["winner_elapsed_secs"]),
+                    "elapsed_secs": fastest["winner_elapsed_secs"],
+                    "year": fastest["year"],
+                    "boat": fastest["winner_boat"],
+                    "knots": round(dist / (fastest["winner_elapsed_secs"] / 3600), 2),
+                } if fastest else None,
+                "slowest": {
+                    "elapsed": _format_elapsed(slowest["winner_elapsed_secs"]),
+                    "elapsed_secs": slowest["winner_elapsed_secs"],
+                    "year": slowest["year"],
+                    "boat": slowest["winner_boat"],
+                } if slowest else None,
+                "median_winner_elapsed": _format_elapsed(
+                    sorted(t["winner_elapsed_secs"] for t in winner_times)[len(winner_times) // 2]
+                ) if winner_times else None,
+                "avg_finishers": round(
+                    sum(rd["finishers"] for rd in race_perf) / len(race_perf), 1
+                ) if race_perf else None,
+                "wind_correlation": {
+                    "light_avg": _avg_or_none(light_times),
+                    "light_count": len(light_times),
+                    "moderate_avg": _avg_or_none(moderate_times),
+                    "moderate_count": len(moderate_times),
+                    "heavy_avg": _avg_or_none(heavy_times),
+                    "heavy_count": len(heavy_times),
+                } if any([light_times, moderate_times, heavy_times]) else None,
+                "race_history": [
+                    {
+                        "year": rd["year"],
+                        "winner_elapsed": _format_elapsed(rd["winner_elapsed_secs"]) if rd["winner_elapsed_secs"] else None,
+                        "winner_elapsed_secs": rd["winner_elapsed_secs"],
+                        "winner_boat": rd["winner_boat"],
+                        "finishers": rd["finishers"],
+                        "dnf_count": rd["dnf_count"],
+                        "wind_speed_kmh": rd["weather"]["wind_speed_kmh"] if rd.get("weather") else None,
+                        "wind_gust_kmh": rd["weather"]["wind_gust_kmh"] if rd.get("weather") else None,
+                        "conditions": rd["weather"]["conditions"] if rd.get("weather") else None,
+                        "temp_c": rd["weather"]["temp_c"] if rd.get("weather") else None,
+                    }
+                    for rd in sorted(race_perf, key=lambda r: r["year"])
+                ],
+            }
+
+        trophy_entry: dict = {
             "name": trophy["name"],
             "slug": trophy["slug"],
             "event_type": trophy["event_type"],
             "winners": winners,
-        })
+        }
+        if course_data:
+            trophy_entry["course"] = course_data
+
+        trophy_list.append(trophy_entry)
+
+    # Aggregate course data: merge all per-event course data into one per fixed course
+    # Group trophies by their course label to collect all yearly data
+    course_groups: dict[str, dict] = {}  # course_name -> aggregated info
+    for t in trophy_list:
+        if "course" not in t:
+            continue
+        cname = t["course"]["course_name"]
+        if cname not in course_groups:
+            course_groups[cname] = {
+                "course_name": cname,
+                "distance_nm": t["course"]["distance_nm"],
+                "all_history": [],
+            }
+        course_groups[cname]["all_history"].extend(t["course"]["race_history"])
+
+    # Build aggregate stats for each fixed course
+    agg_course_data: dict[str, dict] = {}
+    for cname, cg in course_groups.items():
+        # Dedup by year (same year may appear from variant events)
+        seen_years: set[int] = set()
+        deduped: list[dict] = []
+        for rh in sorted(cg["all_history"], key=lambda r: r["year"]):
+            if rh["year"] not in seen_years:
+                seen_years.add(rh["year"])
+                deduped.append(rh)
+
+        dist = cg["distance_nm"]
+        winner_times = [r for r in deduped if r.get("winner_elapsed_secs")]
+        fastest = min(winner_times, key=lambda r: r["winner_elapsed_secs"]) if winner_times else None
+        slowest = max(winner_times, key=lambda r: r["winner_elapsed_secs"]) if winner_times else None
+
+        # Wind correlation
+        light: list[int] = []
+        moderate: list[int] = []
+        heavy: list[int] = []
+        for rd in deduped:
+            ws = rd.get("wind_speed_kmh")
+            wsecs = rd.get("winner_elapsed_secs")
+            if ws is None or wsecs is None:
+                continue
+            if ws < 15:
+                light.append(wsecs)
+            elif ws <= 25:
+                moderate.append(wsecs)
+            else:
+                heavy.append(wsecs)
+
+        def _avg_or_none(lst: list[int]) -> str | None:
+            return _format_elapsed(int(sum(lst) / len(lst))) if lst else None
+
+        agg_course_data[cname] = {
+            "course_name": cname,
+            "distance_nm": dist,
+            "races_with_elapsed": len(winner_times),
+            "fastest": {
+                "elapsed": _format_elapsed(fastest["winner_elapsed_secs"]),
+                "elapsed_secs": fastest["winner_elapsed_secs"],
+                "year": fastest["year"],
+                "boat": fastest["winner_boat"],
+                "knots": round(dist / (fastest["winner_elapsed_secs"] / 3600), 2),
+            } if fastest else None,
+            "slowest": {
+                "elapsed": _format_elapsed(slowest["winner_elapsed_secs"]),
+                "elapsed_secs": slowest["winner_elapsed_secs"],
+                "year": slowest["year"],
+                "boat": slowest["winner_boat"],
+            } if slowest else None,
+            "median_winner_elapsed": _format_elapsed(
+                sorted(t["winner_elapsed_secs"] for t in winner_times)[len(winner_times) // 2]
+            ) if winner_times else None,
+            "avg_finishers": round(
+                sum(rd["finishers"] for rd in deduped) / len(deduped), 1
+            ) if deduped else None,
+            "wind_correlation": {
+                "light_avg": _avg_or_none(light),
+                "light_count": len(light),
+                "moderate_avg": _avg_or_none(moderate),
+                "moderate_count": len(moderate),
+                "heavy_avg": _avg_or_none(heavy),
+                "heavy_count": len(heavy),
+            } if any([light, moderate, heavy]) else None,
+            "race_history": deduped,
+        }
+
+    # Replace per-event course data with aggregated data
+    for t in trophy_list:
+        if "course" in t:
+            cname = t["course"]["course_name"]
+            t["course"] = agg_course_data[cname]
 
     _write_json(OUTPUT_DIR / "trophies.json", trophy_list)
 
@@ -1314,32 +1858,16 @@ def export_analysis(conn: sqlite3.Connection) -> None:
     """, excl_params).fetchall()
 
     # Parse elapsed times to seconds and compute averages
-    def _time_to_seconds(t: str) -> int | None:
-        parts = t.strip().split(":")
-        try:
-            if len(parts) == 3:
-                return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            if len(parts) == 2:
-                return int(parts[0]) * 60 + int(parts[1])
-        except ValueError:
-            return None
-        return None
-
     elapsed_by_year_type: dict[tuple[int, str], list[int]] = defaultdict(list)
     corrected_by_year_type: dict[tuple[int, str], list[int]] = defaultdict(list)
     for row in race_lengths:
-        secs = _time_to_seconds(row["elapsed_time"])
+        secs = _elapsed_to_seconds(row["elapsed_time"])
         if secs and 600 < secs < 18000:  # 10min to 5hr reasonable range
             elapsed_by_year_type[(row["year"], row["event_type"])].append(secs)
         if row["corrected_time"]:
-            csecs = _time_to_seconds(row["corrected_time"])
+            csecs = _elapsed_to_seconds(row["corrected_time"])
             if csecs and 600 < csecs < 18000:
                 corrected_by_year_type[(row["year"], row["event_type"])].append(csecs)
-
-    def _fmt_time(secs: float) -> str:
-        h, m = divmod(int(secs), 3600)
-        m, s = divmod(m, 60)
-        return f"{h}:{m:02d}:{s:02d}"
 
     avg_race_lengths = []
     for (year, etype), times in sorted(elapsed_by_year_type.items()):
@@ -1351,9 +1879,9 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         avg_race_lengths.append({
             "year": year,
             "event_type": etype,
-            "avg_elapsed": _fmt_time(avg_e),
+            "avg_elapsed": _format_elapsed(avg_e),
             "avg_elapsed_seconds": round(avg_e),
-            "avg_corrected": _fmt_time(avg_c) if avg_c else None,
+            "avg_corrected": _format_elapsed(avg_c) if avg_c else None,
             "avg_corrected_seconds": round(avg_c) if avg_c else None,
             "sample_size": len(times),
         })

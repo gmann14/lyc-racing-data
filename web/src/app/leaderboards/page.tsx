@@ -113,14 +113,14 @@ function LeaderboardTable({
         {title}
       </h2>
       <div className="overflow-x-auto overflow-y-visible">
-      <table className="w-full text-sm min-w-[520px]">
+      <table className="w-full text-sm">
         <thead>
           <tr className="bg-cream text-left">
-            <th className="px-3 py-2 text-center w-8">#</th>
+            <th className="px-1.5 py-2 text-center w-6">#</th>
             {columns.map((c) => (
               <th
                 key={c.key}
-                className={`px-3 py-2 whitespace-nowrap ${
+                className={`px-2 py-2 whitespace-nowrap ${
                   c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : ""
                 }`}
               >
@@ -146,7 +146,7 @@ function LeaderboardTable({
                 key={`${row.id}-${row.name}`}
                 className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
               >
-                <td className="px-3 py-2 text-center text-gray-400 font-mono text-xs">
+                <td className="px-1.5 py-2 text-center text-gray-400 font-mono text-xs">
                   {i + 1}
                 </td>
                 {columns.map((c) => {
@@ -158,11 +158,11 @@ function LeaderboardTable({
                         : "";
                   const noWrap = !c.link && !c.align ? "whitespace-nowrap" : "";
                   return (
-                    <td key={c.key} className={`px-3 py-2 ${alignCls} ${noWrap}`}>
+                    <td key={c.key} className={`px-2 py-2 ${alignCls} ${noWrap}`}>
                       {c.link ? (
                         <Link
                           href={`/boats/#${row.id}`}
-                          className="text-navy-light hover:text-gold font-medium transition-colors inline-block max-w-[180px] truncate align-bottom"
+                          className="text-navy-light hover:text-gold font-medium transition-colors inline-block max-w-[150px] truncate align-bottom"
                           title={row.owner ? `${row.name} (${row.owner})` : row.name}
                         >
                           {String(val(c.key, c) ?? "\u2014")}
