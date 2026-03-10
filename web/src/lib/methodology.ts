@@ -94,7 +94,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
     ],
   },
   {
-    title: "Data Quality",
+    title: "Owner & Boat Identity",
     items: [
       {
         term: "Canonical Boat",
@@ -104,11 +104,84 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
           "The archive automatically merges high-confidence aliases such as case differences, formatting variants, and a small set of reviewed manual mappings. Ambiguous cases still stay in the review queue until there is enough evidence.",
       },
       {
+        term: "Owner Merging",
+        shortLabel: "owner merge",
+        summary: "Multiple boats by the same owner can be combined in participation charts.",
+        detail:
+          "When an owner is known (from boat_owners.csv enrichment data), boats owned by the same person are combined in participation and longevity charts. For example, if a skipper sailed Boat A in 2010-2015 and Boat B in 2016-2020, their combined participation is shown as one entry. Leaderboard rankings use a more conservative merge that only combines the same boat under different sail numbers.",
+      },
+      {
         term: "Helm / Skipper Data",
         shortLabel: "helm data",
         summary: "Participant records for helm-driven results; owner history is still incomplete.",
         detail:
-          "Helm names are preserved when they appear in the source files. Some future skipper and owner analytics will remain provisional until manual enrichment fills in missing ownership history and resolves ambiguous person aliases.",
+          "Helm names are preserved when they appear in the source files. Of the 273 boats in the archive, 145 have confirmed owners via manual enrichment. The remaining 128 are either club boats (Sonars, IODs) with rotating skippers, or boats where ownership could not be confirmed from available records.",
+      },
+      {
+        term: "Club Boats (Sonar / IOD)",
+        shortLabel: "club boats",
+        summary: "Club-owned boats where sail numbers and names change with skippers.",
+        detail:
+          "Sonar and IOD one-design fleets use club-owned boats. Sail numbers change when boats are reassigned, and boat names change with skippers. For example, Sonar 415 was 'Ping' until 2014, then became 'Pi' from 2015 onwards under a different skipper. A few Sonars (Scamp, Barbarian) are privately owned and tracked like regular boats.",
+      },
+    ],
+  },
+  {
+    title: "Trophy & Series Data",
+    items: [
+      {
+        term: "Trophy Consolidation",
+        shortLabel: "trophy consolidation",
+        summary: "~100 event name variants are mapped to 37 canonical trophy names.",
+        detail:
+          "Trophy race names vary across 27 years of data (spelling changes, format differences, apostrophe variations). The archive uses an explicit mapping table verified against the LYC Trophy Case historical record (1947-2025). Each trophy shows its full winner history across all name variants. Five additional recurring events appear in the data but are not yet verified against official records.",
+      },
+      {
+        term: "TNS (Thursday Night Series)",
+        shortLabel: "tns",
+        summary: "Weekly racing series from May to September, with 5-6 named sub-series per year.",
+        detail:
+          "Thursday Night Series events are classified by series name keywords (Glube, Paceship, Scotia Trawler, Moosehead, Fall Series, etc.). Legacy-era TNS data (1999-2013) has one HTML file per individual race rather than one file per series, so race night counts reflect the actual race dates found in source files. The archive tracks race nights, participation, and weather for TNS separately from trophy events.",
+      },
+    ],
+  },
+  {
+    title: "Status Codes",
+    items: [
+      {
+        term: "DNC (Did Not Compete)",
+        shortLabel: "DNC",
+        summary: "Boat was entered/scored but did not appear for the race.",
+        detail:
+          "DNC entries are included in fleet counts but excluded from head-to-head comparisons by default. The compare page has a toggle to show or hide non-finisher results.",
+      },
+      {
+        term: "DNS (Did Not Start)",
+        shortLabel: "DNS",
+        summary: "Boat appeared at the venue but did not cross the start line.",
+        detail:
+          "DNS entries are scored per the racing rules. Like DNC, these can be filtered out of head-to-head comparisons using the toggle control.",
+      },
+      {
+        term: "DNF (Did Not Finish)",
+        shortLabel: "DNF",
+        summary: "Boat started but did not complete the course.",
+        detail:
+          "DNF boats may have elapsed time data (time of retirement) but no corrected time or valid finish position. DNF entries are included in fleet counts and event detail views.",
+      },
+      {
+        term: "OCS (On Course Side)",
+        shortLabel: "OCS",
+        summary: "Boat was over the start line at the starting signal.",
+        detail:
+          "An OCS boat did not have a valid start under the racing rules. Scored with a penalty position, typically fleet size + 1.",
+      },
+      {
+        term: "DSQ (Disqualified)",
+        shortLabel: "DSQ",
+        summary: "Boat was disqualified from the race for a rule violation.",
+        detail:
+          "Scored with a penalty position. The original protest result is preserved in the source data where available.",
       },
     ],
   },
@@ -194,14 +267,14 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
   {
     key: "owner_participation_count",
     label: "Owner/Skipper Participation Count",
-    status: "planned",
+    status: "live",
     summary: "How many counted races or events a person appears in across one or more boats.",
     dimensions: {
       timeBasis: "Participation, not time-based.",
       participantScope: "Skipper/helm identity after enrichment.",
-      eventScope: "Configurable: handicap-only, all events, Thursday-only, Sunday-only.",
-      aggregation: "Must specify race count vs event count and identity-linking rules.",
-      inclusionNotes: "This remains provisional until owner/skipper history is enriched.",
+      eventScope: "Handicap-only results; special events excluded by default.",
+      aggregation: "All boats by the same owner are combined into one participation entry.",
+      inclusionNotes: "Covers 145 of 273 boats with confirmed owners. Remaining boats show individually.",
     },
   },
 ];
