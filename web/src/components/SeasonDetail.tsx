@@ -392,6 +392,23 @@ export default function SeasonDetailPanel() {
         </a>
       </div>
 
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {[
+          { label: "Events", value: season.events.length },
+          { label: "Boats", value: season.boats.length },
+          { label: "TNS Nights", value: tns.length },
+          { label: "Trophy Races", value: trophies.length },
+        ].map((s) => (
+          <div key={s.label} className="stat-card rounded-lg p-3 text-center">
+            <div className="text-xl font-bold text-white">{s.value}</div>
+            <div className="text-[10px] text-white/60 uppercase tracking-wider">
+              {s.label}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <EventTable title="Thursday Night Series" events={tns} expandedId={visibleExpandedId} onToggle={toggleEvent} />
