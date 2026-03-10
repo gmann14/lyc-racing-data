@@ -1459,6 +1459,280 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
     _write_json(OUTPUT_DIR / "leaderboards.json", data)
 
 
+# Explicit mapping from DB event names to canonical trophy names.
+# DB names not listed here are matched by keyword fallback or excluded.
+_TROPHY_NAME_MAP: dict[str, str] = {
+    # Boland's Cup
+    "Bolands": "Boland's Cup",
+    "Bolands Cup": "Boland's Cup",
+    "LYC Handicap - Bolands Trophy": "Boland's Cup",
+    "LYC Handicap - Bolands Trophy Pursuit Race (16.7nm )": "Boland's Cup",
+    # Blue Banner Cup
+    "LYC Handicap - Blue Banner Trophy": "Blue Banner Cup",
+    # Bluenose Motors Trophy
+    "LYC Handicap - Bluenose Motors Cup": "Bluenose Motors Trophy",
+    "LYC Handicap - bluenose_motors": "Bluenose Motors Trophy",
+    # Charter Cup — already matches
+    # Commodores Cup
+    "COMMODORES CUP": "Commodores Cup",
+    "LYC Handicap - Commodore Cup": "Commodores Cup",
+    "LYC Handicap - July Sunday Series Commodore Cup": "Commodores Cup",
+    # Craft Festival Cup
+    "CRAFT FESTIVAL TROPHY": "Craft Festival Cup",
+    "Craft Festival Race": "Craft Festival Cup",
+    "Craft Festival Race #2": "Craft Festival Cup",
+    "Craft Festival Series": "Craft Festival Cup",
+    # Crown Diamond Paint Trophy
+    "Crown Diamond": "Crown Diamond Paint Trophy",
+    "Crown Diamond Trophy": "Crown Diamond Paint Trophy",
+    "LYC Tuesday Night \"Fun & Family\" - July Crown Diamond \"WhiteSail\" Series": "Crown Diamond Paint Trophy",
+    # Cruiser's Trophy
+    "Cruisers' Trophy Series": "Cruiser's Trophy",
+    # Douglas Mosher Trophy
+    "LYC Handicap - Douglas Mosher Cup": "Douglas Mosher Trophy",
+    # Fisheries Exhibition A Cup
+    "Fisheries Exhibition Race": "Fisheries Exhibition A Cup",
+    "Fisheries Exhibition Series #1": "Fisheries Exhibition A Cup",
+    "Fisheries Exhibition Trophy": "Fisheries Exhibition A Cup",
+    "Fisheries Exibition Series #1": "Fisheries Exhibition A Cup",
+    "Fisheries Exibition series A": "Fisheries Exhibition A Cup",
+    "LYC Handicap - Fisheries Exhibition AB": "Fisheries Exhibition A Cup",
+    "LYC Handicap - Fisheries Exhibition Trophies": "Fisheries Exhibition A Cup",
+    "LYC Handicap - Fisheries Exhibition series": "Fisheries Exhibition A Cup",
+    "LYC Handicap - Fisheries Exibition Race": "Fisheries Exhibition A Cup",
+    # Fisheries Exhibition C Cup (MacDonald Cup)
+    "Fisheries Exibition C Trophy": "Fisheries Exhibition C Cup (MacDonald Cup)",
+    "Fisheries Exibition #2 -C Cup": "Fisheries Exhibition C Cup (MacDonald Cup)",
+    "Fisheries Exibition Series #2": "Fisheries Exhibition C Cup (MacDonald Cup)",
+    "MacDonald Trophy": "Fisheries Exhibition C Cup (MacDonald Cup)",
+    # Glube Cup
+    "LYC Handicap - Glube Trophy": "Glube Cup",
+    # Highliner Cup
+    "HighLiner Cup": "Highliner Cup",
+    "Highliner Trophy": "Highliner Cup",
+    # Himmelman's Trophy
+    "LYC Handicap - Himmelman Trophy": "Himmelman's Trophy",
+    "LYC Handicap - Club Race ( Himmelmans Trophy )": "Himmelman's Trophy",
+    # J. F. Stevens Trophy
+    "J.F.STEVENS": "J. F. Stevens Trophy",
+    "J.F.Stevens Trophy": "J. F. Stevens Trophy",
+    # Leeward Island Trophy
+    "Leeward Island Race": "Leeward Island Trophy",
+    "LYC Handicap - Leeward Island Tropy Race": "Leeward Island Trophy",
+    "LYC Handicap - Leeward Islands Pursuit Race": "Leeward Island Trophy",
+    # Mahone Bay Challenge Cup
+    "MAHONE BAY CHALLENGE": "Mahone Bay Challenge Cup",
+    "LYC Handicap - Mahone Bay Regatta": "Mahone Bay Challenge Cup",
+    # Martin Fielding Tray
+    "LYC Handicap - Martin Fielding Cup": "Martin Fielding Tray",
+    # Mini-Ocean Tray
+    "Ocen Tray": "Mini-Ocean Tray",
+    # Ocean Tray — already matches
+    # Paceship Yacht Cup — already matches
+    # Prince's Inlet Cup
+    "Prince's Inlet Trophy": "Prince's Inlet Cup",
+    "LYC Handicap - Princes Inlet Race": "Prince's Inlet Cup",
+    "LYC Handicap - Princes Inlet Challenge LYC - CYC Race": "Prince's Inlet Cup",
+    "LYC Handicap (LYC ONLY ) - Princes Inlet Challenge LYC - CYC Race": "Prince's Inlet Cup",
+    # R. G. Smith Cup
+    "RG Smith Trophy": "R. G. Smith Cup",
+    "R.G. Smith Tancook Island Race": "R. G. Smith Cup",
+    "R.G.Smith (Tancook Race)": "R. G. Smith Cup",
+    "RG Smith Trophy - Lunenburg Yacht Club": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith Tancook Race": "R. G. Smith Cup",
+    "LYC Handicap - RG Smith Trophy (Tancook Race)": "R. G. Smith Cup",
+    # R. H. Winters Cruise Trophy
+    "LYC Handicap - R.H. Winters Trophy": "R. H. Winters Cruise Trophy",
+    "LYC Handicap - Robert H Winters Trophy": "R. H. Winters Cruise Trophy",
+    # Rear Commodores Cup
+    "LYC Handicap - Rear Commodore Trophy": "Rear Commodores Cup",
+    # Sable Sailmakers Cup
+    "Sable Sailmaker": "Sable Sailmakers Cup",
+    "Sable Sailmakers": "Sable Sailmakers Cup",
+    "LYC Handicap - Sable Sailmakers Trophy": "Sable Sailmakers Cup",
+    # Sauerkraut Cup
+    "LYC Handicap - Sauerkraut Cup": "Sauerkraut Cup",
+    "Sauerkraut Ocean Race": "Sauerkraut Cup",
+    "LYC Handicap - Full Moon Sauekraut Cup": "Sauerkraut Cup",
+    # Scotia Trawler Trophy — already matches
+    "S. Trawler July Series (>=50%)": "Scotia Trawler Trophy",
+    # Yacht Shop Trophy
+    "Yacht Shop Trophy #2": "Yacht Shop Trophy",
+    # Stripped prefix variants that don't match exactly
+    "Blue Banner Cup": "Blue Banner Cup",
+    "Bluenose Motors Trophy": "Bluenose Motors Trophy",
+    "Boland's Cup": "Boland's Cup",
+    "Commodore's Cup": "Commodores Cup",
+    "Craft Festival Race": "Craft Festival Cup",
+    "Crown Diamond Trophy": "Crown Diamond Paint Trophy",
+    "Highliner Cup": "Highliner Cup",
+    "Leeward Island": "Leeward Island Trophy",
+    "Leeward Island Race": "Leeward Island Trophy",
+    "Leeward Island Trophy": "Leeward Island Trophy",
+    "MacDonald Trophy": "Fisheries Exhibition C Cup (MacDonald Cup)",
+    "Martin Fielding Tray": "Martin Fielding Tray",
+    "Ocean Tray": "Ocean Tray",
+    "RG Smith Trophy": "R. G. Smith Cup",
+    "Sable Sailmakers Cup": "Sable Sailmakers Cup",
+    "Commodore Cup": "Commodores Cup",
+    "Rear Commodore's Cup": "Rear Commodores Cup",
+    "Rear Commodore Trophy": "Rear Commodores Cup",
+    # Ladies Helm (not in CSV but is a recurring LYC event)
+    "Ladies Helm - Crew Trophy": "Ladies Helm Race",
+    "Lady's Helm Race": "Ladies Helm Race",
+    # Absolute Last Race / Rum Race (recurring LYC event)
+    "LYC Handicap - Absolute Last \"Turkey Race\"": "Absolute Last Race",
+    "LYC Handicap - Absolute Last (Rum) Race": "Absolute Last Race",
+    "LYC Handicap - Absolute Last Race ( Rum Race )": "Absolute Last Race",
+    "LYC Handicap - Absolute Last Race (RUM)": "Absolute Last Race",
+    "LYC Handicap - Absolute Last Race Trophy (Gosling)": "Absolute Last Race",
+    "LYC Handicap - Gosling Rum Race": "Absolute Last Race",
+    "LYC Handicap - Last 2014 Race ( Rum Race )": "Absolute Last Race",
+    # Tune-Up Race (recurring)
+    "Season TUNE-UP Race": "Tune-Up Race",
+    "LYC Handicap - 2011 Tune-up Race": "Tune-Up Race",
+    "LYC Handicap - 2020 TuneUp Race": "Tune-Up Race",
+    "LYC Handicap - 2021 Opener Practice Race": "Tune-Up Race",
+    # Race Week in a Day (recurring)
+    "LYC - Race Week in a Day": "Race Week in a Day",
+    "LYC Handicap - LYC Race Week in a Day 2011": "Race Week in a Day",
+    "LYC Racing - RWIAD 2016": "Race Week in a Day",
+    # LYC-CYC Race
+    "LYC Handicap - LYC - CYC Race": "LYC-CYC Race",
+    # North Sails Atlantic Cup
+    "LYC Handicap - North Sails Atlantic Cup": "North Sails Atlantic Cup",
+    # Ian Kent Race Day
+    "LYC Handicap - Ian Kent Race Day": "Ian Kent Race Day",
+}
+
+
+def _map_trophy_name(name: str) -> str:
+    """Map a DB event name to a canonical trophy name.
+
+    Tries explicit mapping first, then strips common prefixes and retries.
+    """
+    # Direct match
+    if name in _TROPHY_NAME_MAP:
+        return _TROPHY_NAME_MAP[name]
+    # Strip "LYC Handicap - " prefix and try again
+    stripped = re.sub(r"^LYC\s+Handicap\s*[-–—]\s*", "", name)
+    if stripped != name and stripped in _TROPHY_NAME_MAP:
+        return _TROPHY_NAME_MAP[stripped]
+    # Check if stripped name matches a canonical CSV name directly
+    # (e.g. "LYC Handicap - Commodore's Cup" → "Commodore's Cup")
+    return stripped if stripped != name else name
+
+
+def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
+    """Consolidate DB trophy events into canonical trophies.
+
+    Uses explicit name mapping + historical CSV data. Events that don't map
+    to any canonical name and aren't recurring (>=3 unique years) are dropped.
+    """
+    import csv as csv_mod
+
+    # Step 1: Map all DB trophies to canonical names
+    canonical: dict[str, dict] = {}  # canonical_name → trophy entry
+    for t in trophy_list:
+        cname = _map_trophy_name(t["name"])
+        if cname not in canonical:
+            canonical[cname] = {
+                "name": cname,
+                "slug": t.get("slug", cname.lower().replace(" ", "-")),
+                "event_type": t.get("event_type", "trophy"),
+                "winners": [],
+            }
+            if "course" in t:
+                canonical[cname]["course"] = t["course"]
+        entry = canonical[cname]
+        # Merge winners, dedup by year
+        existing_years = {w["year"] for w in entry["winners"]}
+        for w in t["winners"]:
+            if w["year"] not in existing_years:
+                entry["winners"].append(w)
+                existing_years.add(w["year"])
+        # Keep course data if present
+        if "course" not in entry and "course" in t:
+            entry["course"] = t["course"]
+
+    # Step 2: Load historical CSV data
+    csv_path = Path(__file__).parent.parent / "enrichment" / "trophy_case_historical.csv"
+    historical_names: set[str] = set()
+    first_awarded_map: dict[str, int] = {}
+    if csv_path.exists():
+        with open(csv_path, newline="", encoding="utf-8") as f:
+            reader = csv_mod.DictReader(f)
+            hist_by_name: dict[str, list[dict]] = {}
+            for row in reader:
+                tname = row["trophy_name"].strip()
+                hist_by_name.setdefault(tname, []).append(row)
+                historical_names.add(tname)
+                fa = row.get("first_awarded")
+                if fa:
+                    try:
+                        fa_int = int(fa)
+                        if tname not in first_awarded_map or fa_int < first_awarded_map[tname]:
+                            first_awarded_map[tname] = fa_int
+                    except ValueError:
+                        pass
+
+        # Merge historical winners into canonical entries
+        for csv_name, csv_rows in hist_by_name.items():
+            if csv_name not in canonical:
+                canonical[csv_name] = {
+                    "name": csv_name,
+                    "slug": csv_name.lower().replace(" ", "-"),
+                    "event_type": "trophy",
+                    "winners": [],
+                }
+            entry = canonical[csv_name]
+            existing_years = {w["year"] for w in entry["winners"]}
+            for row in csv_rows:
+                try:
+                    year = int(row["year"])
+                except (ValueError, KeyError):
+                    continue
+                if year in existing_years:
+                    continue
+                entry["winners"].append({
+                    "year": year,
+                    "event_id": None,
+                    "display_name": row.get("skipper_name") or "",
+                    "boat_name": row.get("boat_name") or None,
+                    "boat_class": None,
+                    "boat_id": None,
+                    "nett_points": None,
+                    "source": "historical",
+                })
+                existing_years.add(year)
+            # Set first_awarded and verified from CSV
+            if csv_name in first_awarded_map:
+                entry["first_awarded"] = first_awarded_map[csv_name]
+            entry["verified"] = True
+
+    # Step 3: Filter — keep verified (CSV-backed) + recurring unverified (>=3 years)
+    result = []
+    for cname, t in canonical.items():
+        if t.get("verified"):
+            result.append(t)
+            continue
+        unique_years = len({w["year"] for w in t["winners"]})
+        if unique_years >= 3:
+            result.append(t)
+
+    # Step 4: Finalize fields
+    for t in result:
+        if "first_awarded" not in t:
+            years = [w["year"] for w in t["winners"]] if t["winners"] else []
+            t["first_awarded"] = min(years) if years else None
+        if "verified" not in t:
+            t["verified"] = False
+        t["winners"].sort(key=lambda w: w["year"])
+
+    return result
+
+
 def export_trophy_history(conn: sqlite3.Connection) -> None:
     """Export winner history for each trophy/event name, with pace stats for fixed courses."""
     excluded = _excluded_event_map(conn)
@@ -1681,146 +1955,11 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
 
         trophy_list.append(trophy_entry)
 
-    # --- Consolidate trophies by normalized name ---
-    def _trophy_group_key(name: str) -> str:
-        """Normalize trophy name for grouping duplicates."""
-        n = name.lower().strip()
-        # Strip common prefixes
-        n = re.sub(r"^lyc\s+handicap\s*[-–—]\s*", "", n)
-        n = re.sub(r"^lyc\s+", "", n)
-        # Normalize punctuation
-        n = n.replace("\u2019", "'").replace("\u201c", "").replace("\u201d", "")
-        n = re.sub(r"['\"\u00ef\u00bb\u00bf`]", "", n)
-        # Strip trailing " race", "cup race" → "cup"
-        n = re.sub(r"\s+race$", "", n)
-        # Remove all non-alphanumeric
-        n = re.sub(r"[^a-z0-9]+", "", n)
-        return n
-
-    consolidated: dict[str, dict] = {}
-    key_to_name: dict[str, str] = {}
-    for t in trophy_list:
-        gkey = _trophy_group_key(t["name"])
-        if gkey not in consolidated:
-            consolidated[gkey] = t
-            key_to_name[gkey] = t["name"]
-        else:
-            # Merge winners, dedup by year
-            existing_years = {w["year"] for w in consolidated[gkey]["winners"]}
-            for w in t["winners"]:
-                if w["year"] not in existing_years:
-                    consolidated[gkey]["winners"].append(w)
-                    existing_years.add(w["year"])
-            # Keep course data if present
-            if "course" not in consolidated[gkey] and "course" in t:
-                consolidated[gkey]["course"] = t["course"]
-            # Prefer the shorter/cleaner name
-            if len(t["name"]) < len(consolidated[gkey]["name"]):
-                consolidated[gkey]["name"] = t["name"]
-    trophy_list = list(consolidated.values())
-
-    # --- Load historical trophy data from CSV ---
-    csv_path = Path(__file__).parent.parent / "enrichment" / "trophy_case_historical.csv"
-    if csv_path.exists():
-        import csv as csv_mod
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            reader = csv_mod.DictReader(f)
-            hist_by_name: dict[str, list[dict]] = {}
-            first_awarded_map: dict[str, int | None] = {}
-            for row in reader:
-                tname = row["trophy_name"].strip()
-                hist_by_name.setdefault(tname, []).append(row)
-                fa = row.get("first_awarded")
-                if fa:
-                    try:
-                        fa_int = int(fa)
-                        if tname not in first_awarded_map or (
-                            first_awarded_map[tname] is not None
-                            and fa_int < first_awarded_map[tname]
-                        ):
-                            first_awarded_map[tname] = fa_int
-                    except ValueError:
-                        pass
-
-        # Match historical trophies to DB trophies by normalized name
-        db_by_normalized: dict[str, dict] = {}
-        for t in trophy_list:
-            norm = _trophy_group_key(t["name"])
-            db_by_normalized[norm] = t
-
-        matched_csv_names: set[str] = set()
-        for csv_name, csv_rows in hist_by_name.items():
-            norm = _trophy_group_key(csv_name)
-            db_trophy = db_by_normalized.get(norm)
-            if db_trophy:
-                matched_csv_names.add(csv_name)
-                existing_years = {w["year"] for w in db_trophy["winners"]}
-                for row in csv_rows:
-                    try:
-                        year = int(row["year"])
-                    except (ValueError, KeyError):
-                        continue
-                    if year in existing_years:
-                        continue
-                    db_trophy["winners"].append({
-                        "year": year,
-                        "event_id": None,
-                        "display_name": row.get("skipper_name") or "",
-                        "boat_name": row.get("boat_name") or None,
-                        "boat_class": None,
-                        "boat_id": None,
-                        "nett_points": None,
-                        "source": "historical",
-                    })
-                    existing_years.add(year)
-                # Set first_awarded
-                fa = first_awarded_map.get(csv_name)
-                if fa:
-                    db_trophy["first_awarded"] = fa
-                db_trophy["verified"] = True
-
-        # Add CSV-only trophies (not matched to any DB trophy)
-        for csv_name, csv_rows in hist_by_name.items():
-            if csv_name in matched_csv_names:
-                continue
-            winners = []
-            for row in csv_rows:
-                try:
-                    year = int(row["year"])
-                except (ValueError, KeyError):
-                    continue
-                winners.append({
-                    "year": year,
-                    "event_id": None,
-                    "display_name": row.get("skipper_name") or "",
-                    "boat_name": row.get("boat_name") or None,
-                    "boat_class": None,
-                    "boat_id": None,
-                    "nett_points": None,
-                    "source": "historical",
-                })
-            if winners:
-                fa = first_awarded_map.get(csv_name)
-                trophy_list.append({
-                    "name": csv_name,
-                    "slug": csv_name.lower().replace(" ", "-"),
-                    "event_type": "trophy",
-                    "first_awarded": fa,
-                    "verified": True,
-                    "winners": winners,
-                })
-
-    # Ensure all trophies have first_awarded and verified fields
-    for t in trophy_list:
-        if "first_awarded" not in t:
-            years = [w["year"] for w in t["winners"]] if t["winners"] else []
-            t["first_awarded"] = min(years) if years else None
-        if "verified" not in t:
-            t["verified"] = False
-
-    # Sort winners within each trophy by year
-    for t in trophy_list:
-        t["winners"].sort(key=lambda w: w["year"])
+    # --- Consolidate trophies using canonical mapping ---
+    # Map DB event names → one of the 37 canonical trophy names from the
+    # historical CSV. Events that don't map to any canonical name and aren't
+    # recurring (>=3 unique years) are dropped.
+    trophy_list = _consolidate_trophies(trophy_list)
 
     # Aggregate course data: merge all per-event course data into one per fixed course
     # Group trophies by their course label to collect all yearly data
