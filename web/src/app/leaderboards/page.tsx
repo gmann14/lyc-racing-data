@@ -170,7 +170,7 @@ function LeaderboardTable({
                           {displayName}
                         </Link>
                       ) : c.key === "class" && displayClass ? (
-                        <span className="text-gray-500" title={displayClass}>
+                        <span className="text-gray-500 inline-block max-w-[140px] truncate align-bottom" title={displayClass}>
                           {displayClass}
                         </span>
                       ) : c.combineKey ? (

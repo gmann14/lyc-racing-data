@@ -397,7 +397,7 @@ export default function SeasonDetailPanel() {
         {[
           { label: "Events", value: season.events.length },
           { label: "Boats", value: season.boats.length },
-          { label: "TNS Nights", value: tns.length },
+          { label: "TNS Nights", value: tns.reduce((n, e) => n + (e.races_sailed ?? 0), 0) },
           { label: "Trophy Races", value: trophies.length },
         ].map((s) => (
           <div key={s.label} className="stat-card rounded-lg p-3 text-center">

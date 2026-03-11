@@ -1048,7 +1048,12 @@ def _build_owner_map(
     rows = conn.execute("""
         SELECT bo.boat_id, b.name, b.sail_number, b.class,
                s.name as owner_name,
-               (SELECT COUNT(*) FROM participants p WHERE p.boat_id = bo.boat_id) as result_count
+               (SELECT COUNT(*) FROM participants p WHERE p.boat_id = bo.boat_id) as result_count,
+               (SELECT MIN(e.year) FROM participants p
+                JOIN results res ON res.participant_id = p.id
+                JOIN races rc ON res.race_id = rc.id
+                JOIN events e ON rc.event_id = e.id
+                WHERE p.boat_id = bo.boat_id) as first_year
         FROM boat_ownership bo
         JOIN boats b ON bo.boat_id = b.id
         JOIN skippers s ON bo.skipper_id = s.id
@@ -1066,10 +1071,11 @@ def _build_owner_map(
     for key, boats in owner_groups.items():
         # Pick the boat with the most results as primary
         primary = max(boats, key=lambda b: b.get("result_count", 0))
-        # Collect all unique boat names and classes for display
-        all_names = list(dict.fromkeys(b["name"] for b in boats))
+        # Sort boats chronologically by first year seen, then collect names
+        boats_sorted = sorted(boats, key=lambda b: b.get("first_year") or 9999)
+        all_names = list(dict.fromkeys(b["name"] for b in boats_sorted))
         all_classes = list(dict.fromkeys(
-            b["class"] for b in boats if b.get("class")
+            b["class"] for b in boats_sorted if b.get("class")
         ))
         owner_info[key] = {
             "primary_id": primary["boat_id"],
@@ -1225,24 +1231,23 @@ def _merge_leaderboard_seasons(
                     "classes": [row["class"]] if row.get("class") else [],
                     "_years": set(),
                 }
-        for y in range(row.get("first_year", 0), row.get("last_year", 0) + 1):
-            groups[gkey]["_years"].add(y)
-    # Recalculate from actual year data for merged boats
+        # Don't use range(first_year, last_year+1) — that fills gaps.
+        # We'll query actual years below for all groups.
+    # Recalculate from actual year data for all boats (not just merged)
     for gkey, g in groups.items():
-        if len(g["boat_ids"]) > 1:
-            placeholders_b = ",".join("?" for _ in g["boat_ids"])
-            placeholders_e = ",".join("?" for _ in skip_ids) if skip_ids else None
-            where_e = f"AND e.id NOT IN ({placeholders_e})" if placeholders_e else ""
-            year_rows = conn.execute(f"""
-                SELECT DISTINCT e.year
-                FROM participants p
-                JOIN results res ON res.participant_id = p.id
-                JOIN races rc ON res.race_id = rc.id
-                JOIN events e ON rc.event_id = e.id
-                WHERE p.boat_id IN ({placeholders_b})
-                {where_e}
-            """, (*g["boat_ids"], *skip_ids)).fetchall()
-            g["_years"] = {r["year"] for r in year_rows}
+        placeholders_b = ",".join("?" for _ in g["boat_ids"])
+        placeholders_e = ",".join("?" for _ in skip_ids) if skip_ids else None
+        where_e = f"AND e.id NOT IN ({placeholders_e})" if placeholders_e else ""
+        year_rows = conn.execute(f"""
+            SELECT DISTINCT e.year
+            FROM participants p
+            JOIN results res ON res.participant_id = p.id
+            JOIN races rc ON res.race_id = rc.id
+            JOIN events e ON rc.event_id = e.id
+            WHERE p.boat_id IN ({placeholders_b})
+            {where_e}
+        """, (*g["boat_ids"], *skip_ids)).fetchall()
+        g["_years"] = {r["year"] for r in year_rows}
         g["seasons"] = len(g["_years"])
         g["first_year"] = min(g["_years"]) if g["_years"] else None
         g["last_year"] = max(g["_years"]) if g["_years"] else None

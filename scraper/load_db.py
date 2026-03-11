@@ -111,6 +111,11 @@ MANUAL_BOAT_RULES = {
         "canonical_sail_number": "624",
         "canonical_class": "Sonar",
     },
+    "jenkins": {
+        "canonical_name": "Martha Jane",
+        "canonical_sail_number": "624",
+        "canonical_class": "Sonar",
+    },
     "sotafter": {
         "canonical_name": "SOT After",
         "canonical_sail_number": "835",

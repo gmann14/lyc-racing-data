@@ -91,12 +91,7 @@ export function useJsonData<T>(path: string | null): {
 
 /** Read the hash from the URL (e.g. #42 → "42") */
 export function useHashParam(): string | null {
-  const [hash, setHash] = useState<string | null>(() => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-    return window.location.hash.slice(1) || null;
-  });
+  const [hash, setHash] = useState<string | null>(null);
 
   const update = useCallback(() => {
     const h = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
@@ -104,6 +99,8 @@ export function useHashParam(): string | null {
   }, []);
 
   useEffect(() => {
+    // Read initial hash on mount (after hydration)
+    update();
     window.addEventListener("hashchange", update);
     return () => window.removeEventListener("hashchange", update);
   }, [update]);
