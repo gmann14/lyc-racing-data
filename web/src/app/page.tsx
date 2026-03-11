@@ -6,7 +6,7 @@ export default function HomePage() {
   const leaderboards = getLeaderboards();
   const topBoats = (leaderboards.most_active ?? [...leaderboards.most_wins]
     .sort((a, b) => (b.total_races ?? 0) - (a.total_races ?? 0)))
-    .slice(0, 20);
+    .slice(0, leaderboards.fleet_by_year.length);
   const maxRaces = Math.max(...topBoats.map((b) => b.total_races ?? 0));
   const fleetYears = leaderboards.fleet_by_year;
   const maxBoats = Math.max(...fleetYears.map((f) => f.unique_boats));
@@ -72,7 +72,7 @@ export default function HomePage() {
               Most Active Boats
             </h2>
             <p className="mt-1 text-xs text-gray-400">
-              Top 20 by total races in the handicap dataset.
+              Top boats by total races in the handicap dataset.
             </p>
           </div>
           <div className="p-5">

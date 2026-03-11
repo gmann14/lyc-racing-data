@@ -1567,7 +1567,7 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         for bid in g["boat_ids"]:
             yr_set |= boat_year_sets_simple.get(bid, set())
         g["seasons"] = len(yr_set)
-    most_active = sorted(active_groups.values(), key=lambda x: -x["total_races"])[:25]
+    most_active = sorted(active_groups.values(), key=lambda x: -x["total_races"])[:30]
 
     data = {
         "most_wins": merged_wins,
