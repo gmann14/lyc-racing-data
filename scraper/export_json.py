@@ -19,6 +19,10 @@ DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 OUTPUT_DIR = PROJECT_ROOT / "web" / "public" / "data"
 LOCK_PATH = PROJECT_ROOT / ".export_json.lock"
 
+# DNS/DNC means the boat wasn't actually present — exclude from race counts.
+# DNF, OCS, RET, DSQ mean the boat showed up, so those still count as races sailed.
+NO_SHOW_FILTER = "AND (res.status IS NULL OR res.status NOT IN ('DNS', 'DNC'))"
+
 
 def _dict_factory(cursor: sqlite3.Cursor, row: tuple) -> dict:
     """SQLite row factory that returns dicts."""
@@ -569,7 +573,8 @@ def export_overview(conn: sqlite3.Connection) -> dict:
                 JOIN results res ON res.participant_id = p.id
                 JOIN races r ON r.id = res.race_id
                 JOIN events e ON e.id = r.event_id
-                {skip_where}""",
+                {skip_where}
+                {NO_SHOW_FILTER}""",
             tuple(all_skip),
         ).fetchone()["n"],
         "handicap_events": conn.execute(
@@ -584,7 +589,8 @@ def export_overview(conn: sqlite3.Connection) -> dict:
                 FROM results res
                 JOIN races r ON r.id = res.race_id
                 JOIN events e ON e.id = r.event_id
-                {skip_where}""",
+                {skip_where}
+                {NO_SHOW_FILTER}""",
             tuple(all_skip),
         ).fetchone()["n"],
         "year_range": {
@@ -883,11 +889,12 @@ def export_boats(conn: sqlite3.Connection) -> None:
             JOIN races rc ON res.race_id = rc.id
             JOIN events e ON rc.event_id = e.id
             {where}
+            {no_show}
             GROUP BY p.boat_id, res.race_id
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         ORDER BY total_results DESC
-    """.format(where=where), tuple(skip_ids)).fetchall()
+    """.format(where=where, no_show=NO_SHOW_FILTER), tuple(skip_ids)).fetchall()
     _write_json(OUTPUT_DIR / "boats.json", boats)
 
 
@@ -920,9 +927,10 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
             JOIN events e ON rc.event_id = e.id
             WHERE p.boat_id = ?
             {where}
+            {no_show}
             GROUP BY res.race_id
         )
-    """.format(where=where), (boat_id, *skip_ids)).fetchone()
+    """.format(where=where, no_show=NO_SHOW_FILTER), (boat_id, *skip_ids)).fetchone()
 
     # Season-by-season breakdown — deduplicate per race
     seasons = conn.execute("""
@@ -938,11 +946,12 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
             JOIN events e ON rc.event_id = e.id
             WHERE p.boat_id = ?
             {where}
+            {no_show}
             GROUP BY res.race_id
         )
         GROUP BY year
         ORDER BY year
-    """.format(where=where), (boat_id, *skip_ids)).fetchall()
+    """.format(where=where, no_show=NO_SHOW_FILTER), (boat_id, *skip_ids)).fetchall()
 
     # Trophy wins (series standings rank 1)
     trophy_rows = conn.execute("""
@@ -1322,13 +1331,14 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
             JOIN races rc ON res.race_id = rc.id
             JOIN events e ON rc.event_id = e.id
             {where}
+            {no_show}
             GROUP BY p.boat_id, res.race_id
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         HAVING wins > 0
         ORDER BY wins DESC
         LIMIT 25
-    """.format(where=where), tuple(skip_ids)).fetchall()
+    """.format(where=where, no_show=NO_SHOW_FILTER), tuple(skip_ids)).fetchall()
 
     # Most seasons raced
     most_seasons = conn.execute("""
@@ -1387,13 +1397,14 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
             JOIN races rc ON res.race_id = rc.id
             JOIN events e ON rc.event_id = e.id
             {where}
+            {no_show}
             GROUP BY p.boat_id, res.race_id
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         HAVING total_races >= 20 AND wins > 0
         ORDER BY win_pct DESC
         LIMIT 25
-    """.format(where=where), tuple(skip_ids)).fetchall()
+    """.format(where=where, no_show=NO_SHOW_FILTER), tuple(skip_ids)).fetchall()
 
     # Best average finish position as % of fleet (min 20 races) — deduplicate per race
     best_avg_finish_pct = conn.execute("""
@@ -1530,11 +1541,12 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
             JOIN races rc ON res.race_id = rc.id
             JOIN events e ON rc.event_id = e.id
             {where}
+            {no_show}
             GROUP BY p.boat_id, res.race_id
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
         ORDER BY total_races DESC
-    """.format(where=where), tuple(skip_ids)).fetchall()
+    """.format(where=where, no_show=NO_SHOW_FILTER), tuple(skip_ids)).fetchall()
 
     # Group by owner
     active_groups: dict[str, dict] = {}
@@ -2502,6 +2514,7 @@ def export_analysis(conn: sqlite3.Connection) -> None:
             JOIN races r ON res.race_id = r.id
             JOIN events e ON r.event_id = e.id
             WHERE p.boat_id IS NOT NULL {excl_where}
+            {NO_SHOW_FILTER}
             GROUP BY p.boat_id, res.race_id
         ) deduped ON deduped.boat_id = b.id
         GROUP BY b.id
