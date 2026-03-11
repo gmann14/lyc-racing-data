@@ -537,7 +537,7 @@ function TnsSection({ data }: { data: AnalysisData }) {
     }
     yearTotals[row.year].race_nights += row.race_nights;
     yearTotals[row.year].unique_boats = Math.max(yearTotals[row.year].unique_boats, row.unique_boats);
-    const month = row.month.toLowerCase();
+    const month = (row.month ?? "").toLowerCase();
     if (month in yearTotals[row.year]) {
       (yearTotals[row.year] as Record<string, number>)[month] = row.race_nights;
     }
@@ -547,7 +547,7 @@ function TnsSection({ data }: { data: AnalysisData }) {
   // Monthly field sizes
   const monthlyField: Record<string, { total: number; count: number }> = {};
   for (const row of by_year_month) {
-    const m = row.month.toLowerCase();
+    const m = (row.month ?? "").toLowerCase();
     if (!monthlyField[m]) monthlyField[m] = { total: 0, count: 0 };
     if (row.race_nights > 0) {
       monthlyField[m].total += row.total_results / row.race_nights;
@@ -664,7 +664,7 @@ function WeatherSection({ data }: { data: AnalysisData }) {
                   <div className="flex-1 bg-blue-light rounded-full h-6 overflow-hidden">
                     <div
                       className="h-full rounded-full bar-animated flex items-center justify-end pr-2"
-                      style={{ width: `${Math.max(pct, 2)}%`, background: WIND_COLORS[d.name.toLowerCase()] ?? SLATE }}
+                      style={{ width: `${Math.max(pct, 2)}%`, background: WIND_COLORS[(d.name ?? "").toLowerCase()] ?? SLATE }}
                     >
                       {pct > 8 && <span className="text-[10px] text-white font-mono">{Math.round(pct)}%</span>}
                     </div>

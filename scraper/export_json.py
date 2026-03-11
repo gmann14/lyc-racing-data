@@ -2660,7 +2660,7 @@ def export_analysis(conn: sqlite3.Connection) -> None:
         LEFT JOIN boats b ON p.boat_id = b.id
         JOIN races r ON res.race_id = r.id
         JOIN events e ON r.event_id = e.id
-        WHERE e.event_type = 'tns'
+        WHERE e.event_type = 'tns' AND e.month IS NOT NULL
         {tns_excl_where}
         GROUP BY e.year, e.month
         ORDER BY e.year, e.month
