@@ -504,12 +504,12 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
                 return (
                   <tr key={b.id} className="border-b border-border/50 last:border-0">
                     <td className="py-2 pr-3 text-gray-400 font-mono">{i + 1}</td>
-                    <td className="py-2 pr-3">
-                      <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold font-medium transition-colors" title={displayName}>
+                    <td className="py-2 pr-3 max-w-[200px]">
+                      <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold font-medium transition-colors block truncate" title={displayName}>
                         {displayName}
                       </Link>
                     </td>
-                    <td className="py-2 pr-3 text-gray-400" title={displayClass}>{displayClass}</td>
+                    <td className="py-2 pr-3 text-gray-400 max-w-[120px] truncate" title={displayClass}>{displayClass}</td>
                     <td className="py-2 pr-3 text-right font-mono font-semibold text-navy">{b.races}</td>
                     <td className="py-2 pr-3 text-right font-mono">{b.seasons}</td>
                     <td className="py-2 pr-3 text-right font-mono">{b.wins}</td>
