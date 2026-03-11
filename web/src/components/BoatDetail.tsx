@@ -146,7 +146,7 @@ export default function BoatDetailPanel() {
               </tr>
             </thead>
             <tbody>
-              {boat.seasons.map((s) => (
+              {[...boat.seasons].reverse().map((s) => (
                 <tr
                   key={s.year}
                   className="border-b border-border/50 last:border-0"
