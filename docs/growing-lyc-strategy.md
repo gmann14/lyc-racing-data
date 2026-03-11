@@ -309,64 +309,66 @@ Track these metrics to know if the strategy is working:
 
 These are boats with 2+ seasons of racing history that have stopped racing. Sorted by last year seen. Single-season one-offs are excluded. Owner data from `boat_owners.csv` where available.
 
-### Stopped After 2024 (just missed last season — highest recovery potential)
+### Stopped After 2024 (just missed last season)
 
-| Boat | Sail # | Class | Owner | Seasons | Races | First | Last |
-|------|--------|-------|-------|---------|-------|-------|------|
-| Paradigm Shift | 117 | J/29 O/B | Don Williams | 15 | 175 | 2010 | 2024 |
-| Shenanagans | 425 | Sonar | Jonathan Chiasson | 11 | 181 | 2013 | 2024 |
-| Scamp | 17 | Sonar | Alexander Ritchie | 10 | 80 | 2011 | 2024 |
-| Wild Thing | 51223 | Beneteau | ? | 2 | 14 | 2022 | 2024 |
+| Boat | Sail # | Class | Owner | Seasons | Races | First | Last | Status |
+|------|--------|-------|-------|---------|-------|-------|------|--------|
+| Paradigm Shift | 117 | J/29 O/B | Don Williams | 15 | 175 | 2010 | 2024 | Shifted to Second Shift (J/100) — still active |
+| Shenanagans | 425 | Sonar | Jonathan Chiasson | 11 | 181 | 2013 | 2024 | True loss — outreach target |
+| Scamp | 17 | Sonar | Alexander Ritchie | 10 | 80 | 2011 | 2024 | True loss — outreach target |
+| Wild Thing | 51223 | Beneteau | ? | 2 | 14 | 2022 | 2024 | ? |
 
 ### Stopped After 2022
 
-| Boat | Sail # | Class | Owner | Seasons | Races | First | Last |
-|------|--------|-------|-------|---------|-------|-------|------|
-| Topaz | M55 | Mega 30 | D Knickle | 17 | 326 | 1999 | 2022 |
-| Hearts3 | 355 | Sonar | Graham Eisenhauer | 10 | 128 | 1999 | 2022 |
-| Hot Mess | 2 | Olson 29 | ? | 5 | 43 | 2018 | 2022 |
-| Crest | AUS1384 | Etchells | ? | 2 | 3 | 2021 | 2022 |
+| Boat | Sail # | Class | Owner | Seasons | Races | First | Last | Status |
+|------|--------|-------|-------|---------|-------|-------|------|--------|
+| Topaz | M55 | Mega 30 | D Knickle | 17 | 326 | 1999 | 2022 | Boat retired; David crews on other boats |
+| Hearts3 | 355 | Sonar | Graham Eisenhauer | 10 | 128 | 1999 | 2022 | True loss — outreach target |
+| Hot Mess | 2 | Olson 29 | ? | 5 | 43 | 2018 | 2022 | ? |
+| Crest | AUS1384 | Etchells | ? | 2 | 3 | 2021 | 2022 | ? |
 
-### Stopped After 2021 (IOD fleet gone entirely)
+### Stopped After 2021
 
-| Boat | Sail # | Class | Owner | Seasons | Races | First | Last |
-|------|--------|-------|-------|---------|-------|-------|------|
-| Rumble Fish | 31991 | J/29 I/B | Matt Wawrzyszyn | 18 | 465 | 2003 | 2021 |
-| Restless | 11 | IOD | ? | 6 | 51 | 2016 | 2021 |
-| Squall | 3 | IOD | ? | 5 | 43 | 2015 | 2021 |
-| Mighty Mo | 1 | IOD | ? | 5 | 29 | 2009 | 2021 |
-| Bella | 10 | IOD | ? | 5 | 43 | 2016 | 2021 |
-| Piper | 9BLUE | IOD | ? | 5 | 44 | 2016 | 2021 |
-| Coachman | 12RED | IOD | ? | 3 | 18 | 2018 | 2021 |
-| Wandrian | 109 | Ben 36.7 | ? | 2 | 3 | 2020 | 2021 |
+| Boat | Sail # | Class | Owner | Seasons | Races | First | Last | Status |
+|------|--------|-------|-------|---------|-------|-------|------|--------|
+| Rumble Fish | 31991 | J/29 I/B | Matt Wawrzyszyn | 18 | 465 | 2003 | 2021 | Got new boat, now cruises instead of racing |
+| Wandrian | 109 | Ben 36.7 | ? | 2 | 3 | 2020 | 2021 | ? |
+
+*Note: IOD boats (Restless, Squall, Mighty Mo, Bella, Piper, Coachman, Spectacle) excluded — these were never LYC-based boats, they raced in special events only.*
 
 ### Stopped After 2020
 
-| Boat | Sail # | Class | Owner | Seasons | Races | First | Last |
-|------|--------|-------|-------|---------|-------|-------|------|
-| Tsunami | 428 | C&C 24 | Ivan Carey | 15 | 113 | 2001 | 2020 |
-| Model T | 462 | Sonar | Graham Hart | 7 | 93 | 2014 | 2020 |
-| So-Gnarly | 366 | Sonar | ? | 4 | 32 | 2017 | 2020 |
-| So Nar So Good | 747 | Sonar | ? | 3 | 29 | 2014 | 2020 |
-| Buzz 105 | 209 | J/105 | Barry Eisener | 3 | 65 | 2018 | 2020 |
+| Boat | Sail # | Class | Owner | Seasons | Races | First | Last | Status |
+|------|--------|-------|-------|---------|-------|-------|------|--------|
+| Tsunami | 428 | C&C 24 | Ivan Carey | 15 | 113 | 2001 | 2020 | ? |
+| Model T | 462 | Sonar | Graham Hart | 7 | 93 | 2014 | 2020 | ? |
+| So-Gnarly | 366 | Sonar | ? | 4 | 32 | 2017 | 2020 | ? |
+| So Nar So Good | 747 | Sonar | ? | 3 | 29 | 2014 | 2020 | ? |
+| Buzz 105 | 209 | J/105 | Barry Eisener | 3 | 65 | 2018 | 2020 | ? |
 
 ### Summary of Losses
 
-**By the numbers (boats with 2+ seasons, lost since 2020):**
-- **21 boats** stopped racing
-- **2,188 race entries** of historical participation — gone
-- **7 IODs** disappeared all at once in 2021 (entire fleet gone)
-- **6 Sonars** lost (Model T, So-Gnarly, So Nar So Good, Hearts3, Shenanagans, Scamp)
-- **3 J/29s** lost (Paradigm Shift, Rumble Fish, plus others)
-- **Biggest individual losses:** Rumble Fish (465 races over 18 seasons), Topaz (326 races over 17 seasons), Paradigm Shift (175 races over 15 seasons)
+After accounting for boats that shifted to new boats or were special-event only:
 
-**Highest-value outreach targets** (long history, stopped recently, most likely to have recoverable reasons):
-1. Don Williams (Paradigm Shift) — 15 seasons, stopped 2024
-2. Jonathan Chiasson (Shenanagans) — 11 seasons, stopped 2024
-3. Alexander Ritchie (Scamp) — 10 seasons, stopped 2024
-4. D Knickle (Topaz) — 17 seasons, stopped 2022
-5. Graham Eisenhauer (Hearts3) — 10 seasons, stopped 2022
-6. Matt Wawrzyszyn (Rumble Fish) — 18 seasons, stopped 2021
+**True losses (boat gone, skipper not racing elsewhere):**
+- ~**12–14 boats** genuinely stopped racing (excluding IODs, boat upgrades, and crew-on-other-boat cases)
+- **5 Sonars** lost (Model T, So-Gnarly, So Nar So Good, Hearts3, Shenanagans, Scamp) — this is the biggest single-class loss
+- Several unknown-status boats that are worth investigating
+
+**Not actually lost (still in the community):**
+- Don Williams (Paradigm Shift → Second Shift J/100) — upgraded boats, still racing
+- D Knickle (Topaz) — boat retired but David still races as crew
+- Matt Wawrzyszyn (Rumble Fish) — got a new boat, cruises now
+
+**This matters because:** The raw numbers overstate the problem. Some "losses" are actually boat transitions. But the Sonar fleet losses and the unknowns are real, and the people who switched to cruising (like Rumble Fish's owner) represent a different kind of loss — they're still sailors but have opted out of racing.
+
+**Highest-value outreach targets** (true losses with long history):
+1. Jonathan Chiasson (Shenanagans) — 11 seasons, stopped 2024
+2. Alexander Ritchie (Scamp) — 10 seasons, stopped 2024
+3. Graham Eisenhauer (Hearts3) — 10 seasons, stopped 2022
+4. Graham Hart (Model T) — 7 seasons, stopped 2020
+5. Ivan Carey (Tsunami) — 15 seasons, stopped 2020
+6. Barry Eisener (Buzz 105) — 3 seasons but 65 races, stopped 2020
 
 ## Remaining Questions
 
