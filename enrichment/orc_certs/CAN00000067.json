@@ -1,0 +1,60 @@
+{
+  "age_date": "01/1983",
+  "aph": null,
+  "beam_m": null,
+  "boat_class": "C&C 29-2",
+  "builder": "C & C",
+  "cdl": 6.693,
+  "designer": "Cuthbertson & Cass",
+  "draft_m": null,
+  "gph": 712.1,
+  "imsl_m": null,
+  "issued_on": "06/03/2017",
+  "loa_m": null,
+  "name": "Predictable",
+  "orc_ref": "CAN00000067",
+  "polar": null,
+  "sail_no": "CAN",
+  "scoring": {
+    "coastal": {
+      "tod": 694.8,
+      "tot": 0.8635
+    },
+    "coastal_triple": {
+      "high": {
+        "tod": 573.9,
+        "tot": 1.1762
+      },
+      "low": {
+        "tod": 801.5,
+        "tot": 0.8422
+      },
+      "medium": {
+        "tod": 635.4,
+        "tot": 1.0624
+      }
+    },
+    "windward_leeward": {
+      "tod": 771.8,
+      "tot": 0.8746
+    },
+    "windward_leeward_triple": {
+      "high": {
+        "tod": 683.3,
+        "tot": 0.9879
+      },
+      "low": {
+        "tod": 1028.2,
+        "tot": 0.6565
+      },
+      "medium": {
+        "tod": 774.8,
+        "tot": 0.8712
+      }
+    }
+  },
+  "source_format": "pdf",
+  "time_allowances": null,
+  "valid_until": "31/12/2017",
+  "vpp_version": "2017 1.00"
+}

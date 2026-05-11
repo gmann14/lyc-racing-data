@@ -1,0 +1,18 @@
+lyc_boat,lyc_sail,lyc_class,cert_ref,cert_boat_name,cert_country_sail,notes
+Echo,571,Sonar,043900036AB,Tamar,ISR-113,proxy cert
+Pi,415,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+Ping,754,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+Barbarian,629,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+SOT After,835,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+Martha Jane,624,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+Toad's Wild Ride,455,Sonar,043900036AB,Tamar,ISR-113,proxy cert (shared)
+Odyssey,151165,Swan 57,03860003TQ2,MATCHLESS,GBR-171,proxy cert
+Poohsticks,8,J/92,03360002EWV,J3M,FRA-39292,proxy cert
+Scotch Mist,34429,J/29 O/B,03880001H3B,Koloa,,proxy cert; J/29 outboard with genoa
+Mojo,606,J/105,03420002E4P,Enjoy,GRE-1146,proxy cert
+Buzz,7049,J/27,03880001PIR,Junior,,proxy cert (alt: 03880001LSJ Toccata)
+Second Chance,71114,C&C 29-2,CAN00000067,,,proxy cert (Canadian)
+Moxie,XXX,J/100,030200040L7,NINJO,AUS-SB2,proxy cert (2025) - check rig config matches
+Second Shift,6,J/100,030200040L7,NINJO,AUS-SB2,proxy cert (shared with Moxie)
+Boost,357,J/70,03190004L8K,FREE FUN,ITA-455J70,proxy cert
+Enchantress,582?,C&C 25,NL00015566,Twenty Five,NED-9099,proxy cert (2019)

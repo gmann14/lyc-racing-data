@@ -1,0 +1,61 @@
+{
+  "age_date": "01/1974",
+  "aph": null,
+  "beam_m": 2.664,
+  "boat_class": "C&C 25",
+  "builder": "C&C",
+  "cdl": 5.644,
+  "designer": "C&C",
+  "displacement_kg": 1877.0,
+  "draft_m": 1.104,
+  "gph": 765.8,
+  "imsl_m": 6.245,
+  "issued_on": "27/03/2019",
+  "loa_m": 7.64,
+  "name": "Twenty Five",
+  "orc_ref": "NL00015566",
+  "polar": null,
+  "sail_no": "NED",
+  "scoring": {
+    "coastal": {
+      "tod": 747.8,
+      "tot": 0.8023
+    },
+    "coastal_triple": {
+      "high": {
+        "tod": 621.3,
+        "tot": 1.0864
+      },
+      "low": {
+        "tod": 861.0,
+        "tot": 0.784
+      },
+      "medium": {
+        "tod": 682.9,
+        "tot": 0.9884
+      }
+    },
+    "windward_leeward": {
+      "tod": 836.9,
+      "tot": 0.8065
+    },
+    "windward_leeward_triple": {
+      "high": {
+        "tod": 750.6,
+        "tot": 0.8993
+      },
+      "low": {
+        "tod": 1110.2,
+        "tot": 0.608
+      },
+      "medium": {
+        "tod": 838.1,
+        "tot": 0.8054
+      }
+    }
+  },
+  "source_format": "pdf",
+  "time_allowances": null,
+  "valid_until": "31/03/2020",
+  "vpp_version": "2019 1.01"
+}
