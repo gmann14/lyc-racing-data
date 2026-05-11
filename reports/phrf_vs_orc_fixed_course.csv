@@ -1,0 +1,156 @@
+year,event,course,distance_nm,race_date,wind_kts,wind_band,boat,sail,boat_class,phrf_rating,elapsed,elapsed_s,phrf_corrected,phrf_corrected_s,phrf_rank_overall,phrf_rank_in_covered,cert_ref,cert_class,orc_tot_used,orc_corrected,orc_corrected_s,orc_rank
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Playmate,19,J/88,81,2:32:00,9120,2:54:19,10459,1,1,,,,,,
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Shenanagans,425,Sonar,168,2:58:24,10704,2:58:55,10735,2,1,043900036AB,Sonar,0.9069,2:41:47,9707.5,1
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Gosling,42634,J/29 O/B,104,2:41:57,9717,2:58:57,10737,3,2,03880001H3B,J 29 𝕚,1.0246,2:45:56,9956.0,4
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Ping,415,Sonar,168,2:58:52,10732,2:59:23,10763,4,3,043900036AB,Sonar,0.9069,2:42:13,9732.9,2
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Sly Fox,34142,Chaser 29 Mod.,154,2:57:37,10657,3:01:48,10908,5,5,,,,,,
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Armada,20320,C&C 30,175,3:03:28,11008,3:02:09,10929,6,6,,,,,,
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Echo,571,Sonar,168,3:02:27,10947,3:02:59,10979,7,4,043900036AB,Sonar,0.9069,2:45:28,9927.8,3
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Scotch Mist,34429,J/29 O/B,106,2:46:59,10019,3:03:55,11035,8,5,03880001H3B,J 29 𝕚,1.0246,2:51:05,10265.5,5
+2014,LYC Handicap - Boland's Cup,Boland's Cup,16.7,27/07/14,12.6,medium,Big Fish,40930,Newport 28,243,3:24:54,12294,3:05:25,11125,9,9,,,,,,
+2014,LYC Handicap - Leeward Island Trophy,Leeward Island,14.2,22/06/14,4.7,low,Playmate,19,J/88,81,2:52:18,10338,3:17:36,11856,1,1,,,,,,
+2014,LYC Handicap - Leeward Island Trophy,Leeward Island,14.2,22/06/14,4.7,low,Shenanagans,425,Sonar,168,3:26:57,12417,3:27:33,12453,2,1,043900036AB,Sonar,0.6994,2:24:44,8684.4,1
+2014,LYC Handicap - Leeward Island Trophy,Leeward Island,14.2,22/06/14,4.7,low,Poohsticks,8,J/92,98,3:07:49,11269,3:29:31,12571,3,2,03360002EWV,J 92,0.8479,2:39:15,9555.0,2
+2014,LYC Handicap - Leeward Island Trophy,Leeward Island,14.2,22/06/14,4.7,low,Winter Project,31587,J/29 I/B,122,3:15:09,11709,3:29:38,12578,4,4,,,,,,
+2014,LYC Handicap - RG Smith Trophy (Tancook Race ),RG Smith (Tancook),22.2,31/08/14,11.9,medium,Winter Project,31587,J/29 I/B,124,3:29:54,12594,3:44:47,13487,1,1,,,,,,
+2014,LYC Handicap - RG Smith Trophy (Tancook Race ),RG Smith (Tancook),22.2,31/08/14,11.9,medium,Scotch Mist,34429,J/29 O/B,103,3:24:23,12263,3:46:11,13571,2,1,03880001H3B,J 29 𝕚,1.0246,3:29:25,12564.7,1
+2014,LYC Handicap - RG Smith Trophy (Tancook Race ),RG Smith (Tancook),22.2,31/08/14,11.9,medium,Rumble Fish,31991,J/29 I/B,124,3:32:10,12730,3:47:12,13632,3,3,,,,,,
+2014,LYC Handicap - RG Smith Trophy (Tancook Race ),RG Smith (Tancook),22.2,31/08/14,11.9,medium,WAI WHARE,KC,S2 7.9,183,4:11:46,15106,4:07:09,14829,4,4,,,,,,
+2015,LYC Handicap - Boland's Cup,Boland's Cup,16.7,26/07/15,9.6,medium,Shenanagans,425,Sonar,165,2:54:02,10442,2:55:18,10518,1,1,043900036AB,Sonar,0.9069,2:37:50,9469.8,1
+2015,LYC Handicap - Boland's Cup,Boland's Cup,16.7,26/07/15,9.6,medium,J2.2,84675,J/29,120,2:45:07,9907,2:57:55,10675,2,2,,,,,,
+2015,LYC Handicap - Boland's Cup,Boland's Cup,16.7,26/07/15,9.6,medium,Sly Fox,34142,Chaser 29 Mod.,159,2:57:53,10673,3:00:45,10845,3,3,,,,,,
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Scotch Mist,34429,J/29 O/B,110,2:45:18,9918,3:00:55,10855,1,1,03880001H3B,J 29 𝕚,0.8109,2:14:03,8042.5,6
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Rumble Fish,31991,J/29 I/B,126,2:50:47,10247,3:02:20,10940,2,2,,,,,,
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Ping,754,Sonar,165,3:02:10,10930,3:03:29,11009,3,2,043900036AB,Sonar,0.6994,2:07:24,7644.4,1
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,SOT After,835,Sonar,165,3:02:24,10944,3:03:43,11023,4,3,043900036AB,Sonar,0.6994,2:07:34,7654.2,2
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Pi,415,Sonar,165,3:04:57,11097,3:06:17,11177,5,4,043900036AB,Sonar,0.6994,2:09:21,7761.2,3
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Shenanagans,425,Sonar,165,3:05:33,11133,3:06:54,11214,6,5,043900036AB,Sonar,0.6994,2:09:46,7786.4,4
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Echo,571,Sonar,165,3:05:42,11142,3:07:03,11223,7,6,043900036AB,Sonar,0.6994,2:09:53,7792.7,5
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Aileen,1,IOD,158,3:07:16,11236,3:10:33,11433,8,8,,,,,,
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,J2.2,84675,J/29,108,2:56:11,10571,3:13:26,11606,9,9,,,,,,
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Paradigm Shift,117,J/29 O/B,101,2:54:31,10471,3:13:45,11625,10,7,03880001H3B,J 29 𝕚,0.8109,2:21:31,8490.9,8
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,Fighting Haddock,624,Sonar,165,3:12:46,11566,3:14:10,11650,11,8,043900036AB,Sonar,0.6994,2:14:49,8089.3,7
+2015,LYC Handicap - Leeward Island,Leeward Island,14.2,05/07/15,5.7,low,So Nar So Good,747,Sonar,165,3:22:40,12160,3:24:08,12248,12,9,043900036AB,Sonar,0.6994,2:21:45,8504.7,9
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Scotch Mist,34429,J/29 O/B,110,4:32:03,16323,4:57:45,17865,1,1,03880001H3B,J 29 𝕚,0.8109,3:40:36,13236.3,3
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Sly Fox,34142,Chaser 29 Mod.,162,5:00:22,18022,5:03:52,18232,2,2,,,,,,
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Ping,754,Sonar,165,5:03:38,18218,5:05:50,18350,3,2,043900036AB,Sonar,0.6994,3:32:22,12741.7,1
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Wandrian,50141,Taylor 41,51,4:14:15,15255,5:06:47,18407,4,4,,,,,,
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,J2.2,84675,J/29,114,4:44:30,17070,5:09:26,18566,5,5,,,,,,
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Poohsticks,8,J/92,97,4:37:30,16650,5:10:04,18604,6,3,03360002EWV,J 92,0.8479,3:55:18,14117.5,4
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Rumble Fish,31991,J/29 I/B,120,4:53:16,17596,5:16:00,18960,7,7,,,,,,
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Martha Jane,624,Sonar,165,5:14:15,18855,5:16:32,18992,8,4,043900036AB,Sonar,0.6994,3:39:47,13187.2,2
+2015,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,30/08/15,7.3,low,Odyssey,151165,Swan 57,42,4:31:22,16282,5:32:38,19958,9,5,03860003TQ2,SWAN 57,0.9363,4:14:05,15244.8,5
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Mojo,606,J/105,87,2:21:12,8472,2:40:21,9621,1,1,03420002E4P,J-105,1.0998,2:35:18,9317.5,4
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Poohsticks,8,J/92,99,2:29:44,8984,2:46:46,10006,2,2,03360002EWV,J 92,1.056,2:38:07,9487.1,6
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Rumble Fish,31991,J/29 I/B,132,2:38:02,9482,2:47:10,10030,3,3,,,,,,
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Paradigm Shift,117,J/29 O/B,114,2:34:24,9264,2:47:56,10076,4,3,03880001H3B,J 29 𝕚,1.0246,2:38:12,9491.9,7
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Echo,571,Sonar,171,2:48:20,10100,2:48:05,10085,5,4,043900036AB,Sonar,0.9069,2:32:40,9159.7,1
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Scotch Mist,34429,J/29 O/B,108,2:33:56,9236,2:49:01,10141,6,5,03880001H3B,J 29 𝕚,1.0246,2:37:43,9463.2,5
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,SOT After,835,Sonar,171,2:50:52,10252,2:50:37,10237,7,6,043900036AB,Sonar,0.9069,2:34:58,9297.5,2
+2016,LYC Handicap - Boland's Cup,Boland's Cup,16.7,21/08/16,9.2,medium,Shenanagans,425,Sonar,171,2:51:04,10264,2:50:49,10249,8,7,043900036AB,Sonar,0.9069,2:35:08,9308.4,3
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Shenanagans,425,Sonar,171,3:16:02,11762,3:15:45,11745,1,1,043900036AB,Sonar,0.6994,2:17:06,8226.3,1
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Echo,571,Sonar,171,3:19:43,11983,3:19:26,11966,2,2,043900036AB,Sonar,0.6994,2:19:41,8380.9,2
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Ping,754,Sonar,171,3:21:46,12106,3:21:29,12089,3,3,043900036AB,Sonar,0.6994,2:21:07,8466.9,3
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Buzz,7049,J/27,132,3:10:52,11452,3:21:54,12114,4,4,03880001PIR,J-27 𝕚,0.7924,2:31:15,9074.6,4
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Poohsticks,8,J/92,99,3:02:15,10935,3:22:59,12179,5,5,03360002EWV,J 92,0.8479,2:34:32,9271.8,6
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Mojo,606,J/105,87,3:01:57,10917,3:26:38,12398,6,6,03420002E4P,J-105,0.8465,2:34:01,9241.2,5
+2016,LYC Handicap - Leeward Island Race,Leeward Island,14.2,24/07/16,5.1,low,Scotch Mist,34429,J/29 O/B,108,3:15:22,11722,3:34:30,12870,7,7,03880001H3B,J 29 𝕚,0.8109,2:38:25,9505.4,7
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Ping,754,Sonar,171,4:46:49,17209,4:46:24,17184,1,1,043900036AB,Sonar,0.6994,3:20:36,12036.0,1
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Shenanagans,425,Sonar,171,4:47:49,17269,4:47:24,17244,2,2,043900036AB,Sonar,0.6994,3:21:18,12077.9,2
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Paradigm Shift,117,J/29 O/B,114,4:29:03,16143,4:52:38,17558,3,3,03880001H3B,J 29 𝕚,0.8109,3:38:10,13090.4,3
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Buzz,7049,J/27,132,4:38:11,16691,4:54:16,17656,4,4,03880001PIR,J-27 𝕚,0.7924,3:40:26,13225.9,4
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Rumble Fish,31991,J/29 I/B,120,4:34:27,16467,4:55:44,17744,5,5,,,,,,
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Wandrian,50141,Taylor 41,54,4:11:14,15074,5:01:34,18094,6,6,,,,,,
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Mojo,606,J/105,87,4:26:02,15962,5:02:07,18127,7,5,03420002E4P,J-105,0.8465,3:45:12,13511.8,5
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Odyssey,151165,Swan 57,42,4:12:48,15168,5:09:52,18592,8,6,03860003TQ2,SWAN 57,0.9363,3:56:42,14201.8,6
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Deep Bight,89,J/88,84,4:36:00,16560,5:14:59,18899,9,9,,,,,,
+2016,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/16,8.4,low,Spirit,??,Cat,0,4:37:45,16665,6:07:41,22061,10,10,,,,,,
+2017,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,27/08/17,2.8,low,Rumble Fish,31991,J/29 I/B,120,5:37:12,20232,6:03:20,21800,1,1,,,,,,
+2017,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,27/08/17,2.8,low,Mojo,606,J/105,87,5:34:30,20070,6:19:52,22792,2,1,03420002E4P,J-105,0.8465,4:43:09,16989.3,1
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Mojo,606,J/105,87,2:36:53,9413,2:58:10,10690,1,1,03420002E4P,J-105,0.8465,2:12:48,7968.1,5
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Scotch Mist,34429,J/29 O/B,108,2:46:37,9997,3:02:56,10976,2,2,03880001H3B,J 29 𝕚,0.8109,2:15:07,8106.6,6
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,SOT After,835,Sonar,171,3:04:20,11060,3:04:04,11044,3,3,043900036AB,Sonar,0.6994,2:08:55,7735.4,1
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Echo,571,Sonar,171,3:05:03,11103,3:04:47,11087,4,4,043900036AB,Sonar,0.6994,2:09:25,7765.4,2
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Barbarian,629,Sonar,171,3:07:04,11224,3:06:48,11208,5,5,043900036AB,Sonar,0.6994,2:10:50,7850.1,3
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Model T,462,Sonar,171,3:07:32,11252,3:07:16,11236,6,6,043900036AB,Sonar,0.6994,2:11:10,7869.6,4
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Wandrian,50141,Taylor 41,72,2:44:17,9857,3:11:15,11475,7,7,,,,,,
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Buzz,7049,J/27,132,3:02:45,10965,3:13:19,11599,8,7,03880001PIR,J-27 𝕚,0.7924,2:24:49,8688.7,7
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Rumble Fish,31991,J/29 I/B,132,3:07:43,11263,3:18:34,11914,9,9,,,,,,
+2017,LYC Handicap - Leeward Island Race,Leeward Island,14.2,30/07/17,7.8,low,Poohsticks,8,J/92,99,3:01:01,10861,3:21:37,12097,10,8,03360002EWV,J 92,0.8479,2:33:29,9209.0,8
+2017,LYC Handicap - RG Smith Tancook RAce,RG Smith (Tancook),22.2,03/09/17,9.1,medium,Mojo,606,J/105,87,3:53:14,13994,4:24:52,15892,1,1,03420002E4P,J-105,1.0998,4:16:31,15390.6,3
+2017,LYC Handicap - RG Smith Tancook RAce,RG Smith (Tancook),22.2,03/09/17,9.1,medium,Buzz,7049,J/27,132,4:13:24,15204,4:28:03,16083,2,2,03880001PIR,J-27 𝕚,1.007,4:15:10,15310.4,2
+2017,LYC Handicap - RG Smith Tancook RAce,RG Smith (Tancook),22.2,03/09/17,9.1,medium,Wandrian,50141,Taylor 41,54,3:46:36,13596,4:32:00,16320,3,3,,,,,,
+2017,LYC Handicap - RG Smith Tancook RAce,RG Smith (Tancook),22.2,03/09/17,9.1,medium,Echo,571,Sonar,171,4:38:28,16708,4:38:04,16684,4,3,043900036AB,Sonar,0.9069,4:12:32,15152.5,1
+2017,LYC Handicap - RG Smith Tancook RAce,RG Smith (Tancook),22.2,03/09/17,9.1,medium,Odyssey,151165,Swan 57,42,3:52:08,13928,4:44:32,17072,5,4,03860003TQ2,SWAN 57,1.2147,4:41:58,16918.3,4
+2018,LYC Handicap - Boland's,Boland's Cup,16.7,26/08/18,9.0,low,Buzz 105,209,J/105,87,2:38:09,9489,2:59:36,10776,1,1,03420002E4P,J-105,0.8465,2:13:52,8032.4,2
+2018,LYC Handicap - Boland's,Boland's Cup,16.7,26/08/18,9.0,low,Echo,571,Sonar,171,3:00:46,10846,3:00:30,10830,2,2,043900036AB,Sonar,0.6994,2:06:26,7585.7,1
+2018,LYC Handicap - Boland's,Boland's Cup,16.7,26/08/18,9.0,low,Mojo,606,J/105,87,2:40:12,9612,3:01:56,10916,3,3,03420002E4P,J-105,0.8465,2:15:37,8136.6,3
+2018,LYC Handicap - Boland's,Boland's Cup,16.7,26/08/18,9.0,low,Paradigm Shift,117,J/29 O/B,114,2:50:22,10222,3:05:18,11118,4,4,03880001H3B,J 29 𝕚,0.8109,2:18:09,8289.0,4
+2018,LYC Handicap - Boland's,Boland's Cup,16.7,26/08/18,9.0,low,Rumble Fish,31991,J/29 I/B,117,2:52:26,10346,3:06:40,11200,5,5,,,,,,
+2018,LYC Handicap - Leeward Island Race,Leeward Island,14.2,22/07/18,9.6,medium,Mojo,606,J/105,87,2:20:27,8427,2:39:30,9570,1,1,03420002E4P,J-105,1.0998,2:34:28,9268.0,2
+2018,LYC Handicap - Leeward Island Race,Leeward Island,14.2,22/07/18,9.6,medium,Rumble Fish,31991,J/29 I/B,132,2:34:19,9259,2:43:15,9795,2,2,,,,,,
+2018,LYC Handicap - Leeward Island Race,Leeward Island,14.2,22/07/18,9.6,medium,So-Gnarly,366,Sonar,171,2:44:10,9850,2:43:56,9836,3,2,043900036AB,Sonar,0.9069,2:28:53,8933.0,1
+2018,LYC Handicap - Leeward Island Race,Leeward Island,14.2,22/07/18,9.6,medium,Buzz 105,209,J/105,87,2:29:50,8990,2:50:09,10209,4,3,03420002E4P,J-105,1.0998,2:44:47,9887.2,4
+2018,LYC Handicap - Leeward Island Race,Leeward Island,14.2,22/07/18,9.6,medium,Poohsticks,8,J/92,99,2:32:55,9175,2:50:19,10219,5,4,03360002EWV,J 92,1.056,2:41:29,9688.8,3
+2018,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,02/09/18,9.3,medium,Mojo,606,J/105,87,3:21:08,12068,3:48:25,13705,1,1,03420002E4P,J-105,1.0998,3:41:12,13272.4,1
+2018,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,02/09/18,9.3,medium,Odyssey,151165,Swan 57,42,3:08:32,11312,3:51:06,13866,2,2,03860003TQ2,SWAN 57,1.2147,3:49:01,13740.7,3
+2018,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,02/09/18,9.3,medium,Buzz 105,209,J/105,87,3:26:01,12361,3:53:57,14037,3,3,03420002E4P,J-105,1.0998,3:46:35,13594.6,2
+2018,LYC Handicap - RG Smith Trophy,RG Smith (Tancook),22.2,02/09/18,9.3,medium,Enchantress,582?,C&C 25,225,4:18:20,15500,3:59:23,14363,4,4,NL00015566,C&C 25,0.9884,4:15:20,15320.2,4
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,Ping,754,Sonar,171,2:47:18,10038,2:47:04,10024,1,1,043900036AB,Sonar,0.9069,2:31:43,9103.5,1
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,Buzz 105,209,J/105,87,2:29:22,8962,2:49:37,10177,2,2,03420002E4P,J-105,1.0998,2:44:16,9856.4,4
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,Mojo,606,J/105,87,2:29:58,8998,2:50:18,10218,3,3,03420002E4P,J-105,1.0998,2:44:56,9896.0,5
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,So-Gnarly,366,Sonar,171,2:53:38,10418,2:53:23,10403,4,4,043900036AB,Sonar,0.9069,2:37:28,9448.1,2
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,Echo,571,Sonar,171,2:57:57,10677,2:57:42,10662,5,5,043900036AB,Sonar,0.9069,2:41:23,9683.0,3
+2019,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,11/08/19,10.4,medium,Rumble Fish,31991,J/29 I/B,129,2:47:48,10068,2:58:19,10699,6,6,,,,,,
+2019,LYC Handicap - Leeward Island,Leeward Island,14.2,23/06/19,13.6,medium,Buzz 105,209,J/105,87,2:07:07,7627,2:24:21,8661,1,1,03420002E4P,J-105,1.0998,2:19:48,8388.2,1
+2019,LYC Handicap - Leeward Island,Leeward Island,14.2,23/06/19,13.6,medium,Rumble Fish,31991,J/29 I/B,129,2:19:59,8399,2:28:46,8926,2,2,,,,,,
+2019,LYC Handicap - Leeward Island,Leeward Island,14.2,23/06/19,13.6,medium,Poohsticks,8,J/92,111,2:17:46,8266,2:30:33,9033,3,2,03360002EWV,J 92,1.056,2:25:29,8728.9,2
+2019,LYC Handicap - Leeward Island,Leeward Island,14.2,23/06/19,13.6,medium,Mojo,606,J/105,87,2:13:23,8003,2:31:28,9088,4,3,03420002E4P,J-105,1.0998,2:26:42,8801.7,3
+2019,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,01/09/19,2.4,low,Rumble Fish,31991,J/29 I/B,117,6:11:41,22301,6:42:22,24142,1,1,,,,,,
+2019,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,01/09/19,2.4,low,Paradigm Shift,117,J/29 O/B,114,6:11:34,22294,6:44:08,24248,2,1,03880001H3B,J 29 𝕚,0.8109,5:01:18,18078.2,1
+2019,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,01/09/19,2.4,low,Mojo,606,J/105,87,6:10:44,22244,7:01:01,25261,3,2,03420002E4P,J-105,0.8465,5:13:50,18829.5,2
+2019,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,01/09/19,2.4,low,Odyssey,151165,Swan 57,42,5:58:28,21508,7:19:23,26363,4,3,03860003TQ2,SWAN 57,0.9363,5:35:38,20137.9,3
+2020,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,09/08/20,6.4,low,Mojo,606,J/105,87,2:41:56,9716,3:03:54,11034,1,1,03420002E4P,J-105,0.8465,2:17:05,8224.6,1
+2020,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,09/08/20,6.4,low,Buzz 105,209,J/105,87,2:46:30,9990,3:09:05,11345,2,2,03420002E4P,J-105,0.8465,2:20:57,8456.5,2
+2020,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,09/08/20,6.4,low,Rumble Fish,31991,J/29 I/B,117,3:05:49,11149,3:21:09,12069,3,3,,,,,,
+2020,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,09/08/20,6.4,low,Paradigm Shift,117,J/29 O/B,114,3:04:59,11099,3:21:12,12072,4,3,03880001H3B,J 29 𝕚,0.8109,2:30:00,9000.2,4
+2020,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,09/08/20,6.4,low,Model T,462,Sonar,171,3:26:10,12370,3:25:52,12352,5,4,043900036AB,Sonar,0.6994,2:24:12,8651.6,3
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,Mojo,606,J/105,87,3:25:09,12309,3:52:58,13978,1,1,03420002E4P,J-105,0.8465,2:53:40,10419.6,1
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,Buzz 105,209,J/105,87,3:29:18,12558,3:57:41,14261,2,2,03420002E4P,J-105,0.8465,2:57:10,10630.3,3
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,Ping,754,Sonar,171,4:10:22,15022,4:10:00,15000,3,3,043900036AB,Sonar,0.6994,2:55:06,10506.4,2
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,So-Gnarly,366,Sonar,171,4:19:47,15587,4:19:25,15565,4,4,043900036AB,Sonar,0.6994,3:01:42,10901.5,4
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,Model T,462,Sonar,171,4:33:45,16425,4:33:21,16401,5,5,043900036AB,Sonar,0.6994,3:11:28,11487.6,5
+2020,LYC Handicap - Leeward Island Race,Leeward Island,14.2,26/07/20,7.3,low,Rumble Fish,31991,J/29 I/B,117,4:23:47,15827,4:45:34,17134,6,6,,,,,,
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Paradigm Shift,117,J/29 O/B,114,4:02:20,14540,4:23:34,15814,1,1,03880001H3B,J 29 𝕚,0.8109,3:16:30,11790.5,1
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Poohsticks,8,J/92,96,3:56:22,14182,4:24:32,15872,2,2,03360002EWV,J 92,0.8479,3:20:25,12024.9,3
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Mojo,606,J/105,87,3:53:13,13993,4:24:51,15891,3,3,03420002E4P,J-105,0.8465,3:17:25,11845.1,2
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Topaz,M55,Mega 30,147,4:16:12,15372,4:24:58,15898,4,4,,,,,,
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Still Magnetic,294,J/80,117,4:07:26,14846,4:27:52,16072,5,5,,,,,,
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Enchantress,582?,C&C 25,225,5:00:40,18040,4:38:37,16717,6,4,NL00015566,C&C 25,0.784,3:55:43,14143.4,4
+2020,LYC Handicap - RG.Smith Tancook Race,RG Smith (Tancook),22.2,06/09/20,7.9,low,Wandrian,109,Ben 36.7,93,4:12:48,15168,4:44:18,17058,7,7,,,,,,
+2021,LYC Handicap - Leeward Island,Leeward Island,14.2,25/07/21,9.6,medium,Mojo,606,J/105,87,2:11:13,7873,2:29:01,8941,1,1,03420002E4P,J-105,1.0998,2:24:19,8658.7,3
+2021,LYC Handicap - Leeward Island,Leeward Island,14.2,25/07/21,9.6,medium,SOT After,835,Sonar,171,2:34:45,9285,2:34:32,9272,2,2,043900036AB,Sonar,0.9069,2:20:21,8420.6,1
+2021,LYC Handicap - Leeward Island,Leeward Island,14.2,25/07/21,9.6,medium,Rumble Fish,31991,J/29 I/B,135,2:29:21,8961,2:37:16,9436,3,3,,,,,,
+2021,LYC Handicap - Leeward Island,Leeward Island,14.2,25/07/21,9.6,medium,Shenanagans,425,Sonar,171,2:38:21,9501,2:38:07,9487,4,3,043900036AB,Sonar,0.9069,2:23:36,8616.5,2
+2021,LYC Handicap - RG Smith,RG Smith (Tancook),22.2,05/09/21,5.4,low,Second Chance,71114,C&C 29-2,183,5:12:46,18766,5:07:01,18421,1,1,CAN00000067,C&C 29-2,0.8422,4:23:25,15804.7,3
+2021,LYC Handicap - RG Smith,RG Smith (Tancook),22.2,05/09/21,5.4,low,Mojo,606,J/105,87,4:31:35,16295,5:08:25,18505,2,2,03420002E4P,J-105,0.8465,3:49:54,13793.7,1
+2021,LYC Handicap - RG Smith,RG Smith (Tancook),22.2,05/09/21,5.4,low,Odyssey,151165,Swan 57,42,4:33:02,16382,5:34:40,20080,3,3,03860003TQ2,SWAN 57,0.9363,4:15:38,15338.5,2
+2022,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,24/07/22,8.4,low,Mojo,606,J/105,87,2:35:50,9350,2:56:58,10618,1,1,03420002E4P,J-105,0.8465,2:11:55,7914.8,1
+2022,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,24/07/22,8.4,low,Poohsticks,8,J/92,96,2:44:30,9870,3:04:06,11046,2,2,03360002EWV,J 92,0.8479,2:19:29,8368.8,2
+2022,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,24/07/22,8.4,low,Second Chance,71114,C&C 29-2,183,3:25:14,12314,3:21:28,12088,3,3,CAN00000067,C&C 29-2,0.8422,2:52:51,10370.9,3
+2022,LYC Handicap - Bolands Trophy,Boland's Cup,16.7,24/07/22,8.4,low,Hot Mess,2,Olson 29,111,3:09:43,11383,3:27:19,12439,4,4,,,,,,
+2022,LYC Handicap - Leeward Islands Pursuit Race,Leeward Island,14.2,21/08/22,5.9,low,Paradigm Shift,117,J/29 O/B,114,2:43:19,9799,,,1,1,03880001H3B,J 29 𝕚,0.8109,2:12:26,7946.0,2
+2022,LYC Handicap - Leeward Islands Pursuit Race,Leeward Island,14.2,21/08/22,5.9,low,Shenanagans,425,Sonar,171,3:00:18,10818,,,2,2,043900036AB,Sonar,0.6994,2:06:06,7566.1,1
+2022,LYC Handicap - Leeward Islands Pursuit Race,Leeward Island,14.2,21/08/22,5.9,low,Mojo,606,J/105,87,2:40:36,9636,,,3,3,03420002E4P,J-105,0.8465,2:15:57,8156.9,3
+2022,LYC Handicap - Leeward Islands Pursuit Race,Leeward Island,14.2,21/08/22,5.9,low,Second Chance,71114,C&C 29-2,183,3:17:26,11846,,,4,4,CAN00000067,C&C 29-2,0.8422,2:46:17,9976.7,5
+2022,LYC Handicap - Leeward Islands Pursuit Race,Leeward Island,14.2,21/08/22,5.9,low,Enchantress,582?,C&C 25,225,3:27:51,12471,,,5,5,NL00015566,C&C 25,0.784,2:42:57,9777.3,4
+2022,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/22,6.1,low,Mojo,606,J/105,87,4:56:31,17791,5:36:44,20204,1,1,03420002E4P,J-105,0.8465,4:11:00,15060.1,1
+2022,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/22,6.1,low,Second Chance,71114,C&C 29-2,183,5:47:43,20863,5:41:20,20480,2,2,CAN00000067,C&C 29-2,0.8422,4:52:51,17570.8,2
+2022,LYC Handicap - RG Smith Tancook Race,RG Smith (Tancook),22.2,04/09/22,6.1,low,Falcon,229,J/35,72,4:57:52,17872,5:46:46,20806,3,3,,,,,,
+2025,LYC Handicap - Bolands,Boland's Cup,16.7,20/07/25,10.2,medium,Mojo,606,J/105,87,2:44:55,9895,3:07:17,11237,1,1,03420002E4P,J-105,1.0998,3:01:23,10882.5,2
+2025,LYC Handicap - Bolands,Boland's Cup,16.7,20/07/25,10.2,medium,Echo,571,Sonar,171,3:13:07,11587,3:12:50,11570,2,2,043900036AB,Sonar,0.9069,2:55:08,10508.3,1
+2025,LYC Handicap - Leeward Island Race,Leeward Island,14.2,,,medium,Mojo,606,J/105,87,2:04:28,7468,2:21:21,8481,1,1,03420002E4P,J-105,1.0998,2:16:53,8213.3,2
+2025,LYC Handicap - Leeward Island Race,Leeward Island,14.2,,,medium,Poohsticks,8,J/92,96,2:07:27,7647,2:22:38,8558,2,2,03360002EWV,J 92,1.056,2:14:35,8075.2,1
+2025,LYC Handicap - RG Smith (Tancook Race),RG Smith (Tancook),22.2,30/08/25,8.7,low,Mojo,606,J/105,87,4:22:41,15761,4:58:19,17899,1,1,03420002E4P,J-105,0.8465,3:42:22,13341.7,1
+2025,LYC Handicap - RG Smith (Tancook Race),RG Smith (Tancook),22.2,30/08/25,8.7,low,Wandrian,1001,Frers Cat/Ketch,126,4:43:14,16994,5:02:23,18143,2,2,,,,,,
+2025,LYC Handicap - RG Smith (Tancook Race),RG Smith (Tancook),22.2,30/08/25,8.7,low,Second Chance,71114,C&C 29-2,189,5:52:00,21120,5:42:38,20558,3,2,CAN00000067,C&C 29-2,0.8422,4:56:27,17787.3,2
