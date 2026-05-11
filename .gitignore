@@ -11,6 +11,9 @@ build/
 venv/
 env/
 
+# Claude Code worktrees (local working-tree artifact)
+.claude/worktrees/
+
 # Database
 *.db
 *.db-journal
