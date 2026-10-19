@@ -17,8 +17,11 @@ Run:
 from __future__ import annotations
 
 import json
+import math
+import os
 import sqlite3
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -42,8 +45,30 @@ def _load_cache() -> dict:
 
 
 def _save_cache(data: dict) -> None:
-    with CACHE_PATH.open("w") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
+    """Write the cache atomically (temp file + rename) so a crash can't truncate it."""
+    CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=CACHE_PATH.parent, prefix=f".{CACHE_PATH.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f, indent=2, sort_keys=True)
+        os.replace(tmp, CACHE_PATH)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
+def circular_mean_deg(degrees: list[float]) -> int | None:
+    """Mean of compass bearings via unit vectors (350° and 10° → 0°, not 180°).
+
+    Returns None for an empty list or when the bearings cancel out.
+    """
+    if not degrees:
+        return None
+    s = sum(math.sin(math.radians(d)) for d in degrees)
+    c = sum(math.cos(math.radians(d)) for d in degrees)
+    if math.hypot(s, c) / len(degrees) < 1e-6:
+        return None
+    return round(math.degrees(math.atan2(s, c))) % 360
 
 
 def fetch_day(date_iso: str) -> dict | None:
@@ -125,7 +150,7 @@ def avg_window(hourly: dict, start_hour: int, end_hour: int) -> dict:
         "wind_speed_kmh_avg": round(sum(speeds) / len(speeds), 1),
         "wind_speed_kts_avg": round((sum(speeds) / len(speeds)) / 1.852, 1),
         "wind_gust_kmh_max": max(gusts) if gusts else None,
-        "wind_direction_deg_avg": round(sum(dirs) / len(dirs)) if dirs else None,
+        "wind_direction_deg_avg": circular_mean_deg(dirs),
         "n_hours": len(speeds),
     }
 
@@ -162,8 +187,10 @@ def main(argv: list[str]) -> int:
         if not w:
             print(f"  {d}: no daytime data")
             continue
+        gust = w["wind_gust_kmh_max"] if w["wind_gust_kmh_max"] is not None else "?"
+        direction = w["wind_direction_deg_avg"] if w["wind_direction_deg_avg"] is not None else "?"
         print(f"  {d:12s} {w['wind_speed_kmh_avg']:>9.1f} {w['wind_speed_kts_avg']:>8.1f} "
-              f"{w['wind_gust_kmh_max'] or '?':>10}  {w['wind_direction_deg_avg'] or '?':>4}°")
+              f"{gust:>10}  {direction:>4}°")
     return 0
 
 
