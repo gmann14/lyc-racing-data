@@ -69,13 +69,16 @@ table {
   border-collapse: collapse;
 }
 
-thead th {
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  color: #6b7280;
+/* In the base layer so Tailwind utilities on a <th> (e.g. text-white) win */
+@layer base {
+  thead th {
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+  }
 }
 
 /* Gold accent bar for detail panels */
