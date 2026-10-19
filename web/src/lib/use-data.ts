@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useReducer } from "react";
+import { useEffect, useReducer, useSyncExternalStore } from "react";
 
 interface JsonState<T> {
   data: T | null;
@@ -89,21 +89,33 @@ export function useJsonData<T>(path: string | null): {
   return { data: state.data, loading: state.loading, error: state.error };
 }
 
-/** Read the hash from the URL (e.g. #42 → "42") */
+function subscribeToHash(onChange: () => void): () => void {
+  window.addEventListener("hashchange", onChange);
+  window.addEventListener("popstate", onChange);
+  return () => {
+    window.removeEventListener("hashchange", onChange);
+    window.removeEventListener("popstate", onChange);
+  };
+}
+
+function getHashSnapshot(): string | null {
+  return window.location.hash.slice(1) || null;
+}
+
+function getServerHashSnapshot(): string | null {
+  return null;
+}
+
+/** Read the hash from the URL (e.g. #42 → "42"). Null during SSR/hydration. */
 export function useHashParam(): string | null {
-  const [hash, setHash] = useState<string | null>(null);
+  return useSyncExternalStore(subscribeToHash, getHashSnapshot, getServerHashSnapshot);
+}
 
-  const update = useCallback(() => {
-    const h = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
-    setHash(h || null);
-  }, []);
-
-  useEffect(() => {
-    // Read initial hash on mount (after hydration)
-    update();
-    window.addEventListener("hashchange", update);
-    return () => window.removeEventListener("hashchange", update);
-  }, [update]);
-
-  return hash;
+/**
+ * Read a numeric id from the URL hash (e.g. #42 → "42"). Anything else
+ * (e.g. a crafted "#../overview") is ignored so it never reaches a fetch path.
+ */
+export function useNumericHashParam(): string | null {
+  const hash = useHashParam();
+  return hash && /^\d+$/.test(hash) ? hash : null;
 }

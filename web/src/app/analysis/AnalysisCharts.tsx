@@ -17,13 +17,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { AnalysisData } from "@/lib/data";
+import { KMH_PER_KNOT, leaderKey, leaderName, topBy, weightedMonthlyAvg } from "@/lib/analysis-stats";
 
 // Theme colors matching the site's navy/gold palette
 const NAVY = "#0f1d35";
-const NAVY_LIGHT = "#1e3a5f";
 const NAVY_MID = "#2d4a6f";
 const GOLD = "#c9a94e";
-const GOLD_LIGHT = "#e8d49a";
 const BLUE_ACCENT = "#4a8bc2";
 const TEAL = "#2d8b7a";
 const CORAL = "#c75b4a";
@@ -40,11 +39,6 @@ const WIND_COLORS: Record<string, string> = {
   moderate: TEAL,
   fresh: GOLD,
   strong: CORAL,
-};
-
-const MONTH_ORDER = ["june", "july", "august", "september"];
-const MONTH_LABELS: Record<string, string> = {
-  june: "Jun", july: "Jul", august: "Aug", september: "Sep",
 };
 
 type Section = "fleet" | "performance" | "participation" | "tns" | "weather";
@@ -84,16 +78,6 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
         {subtitle && <p className="mt-1 text-xs text-gray-400">{subtitle}</p>}
       </div>
       <div className="p-5">{children}</div>
-    </div>
-  );
-}
-
-function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div className="text-center">
-      <div className="text-2xl font-bold text-navy font-mono">{value}</div>
-      <div className="text-xs text-gray-500 mt-1 uppercase tracking-wider">{label}</div>
-      {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
     </div>
   );
 }
@@ -397,26 +381,31 @@ function PerformanceSection({ data }: { data: AnalysisData }) {
 
 // --- Participation Section ---
 function ParticipationSection({ data }: { data: AnalysisData }) {
-  const { most_races, longest_streaks } = data.participation;
+  const most_races = data.participation?.most_races ?? [];
+  const longest_streaks = data.participation?.longest_streaks ?? [];
+  // Leaders among the all-time participation list (owner-merged, like the rest of this section)
+  const topRaces = topBy(most_races, (b) => b.races ?? 0);
+  const topSeasons = topBy(most_races, (b) => b.seasons ?? 0);
+  const topWins = topBy(most_races, (b) => b.wins ?? 0);
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
         <div className="stat-card rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-white font-mono">{most_races[0]?.races}</div>
-          <div className="text-xs text-white/60 mt-1">Most Races ({most_races[0]?.name})</div>
+          <div className="text-2xl font-bold text-white font-mono">{topRaces?.value ?? "—"}</div>
+          <div className="text-xs text-white/60 mt-1">Most Races{topRaces ? ` (${topRaces.holders})` : ""}</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-white font-mono">{longest_streaks[0]?.streak}</div>
+          <div className="text-2xl font-bold text-white font-mono">{longest_streaks[0]?.streak ?? "—"}</div>
           <div className="text-xs text-white/60 mt-1">Longest Streak (yrs)</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-white font-mono">{most_races[0]?.seasons}</div>
-          <div className="text-xs text-white/60 mt-1">Most Seasons</div>
+          <div className="text-2xl font-bold text-white font-mono">{topSeasons?.value ?? "—"}</div>
+          <div className="text-xs text-white/60 mt-1">Most Seasons{topSeasons ? ` (${topSeasons.holders})` : ""}</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-white font-mono">{most_races[0]?.wins}</div>
-          <div className="text-xs text-white/60 mt-1">Most Wins</div>
+          <div className="text-2xl font-bold text-white font-mono">{topWins?.value ?? "—"}</div>
+          <div className="text-xs text-white/60 mt-1">Most Wins{topWins ? ` (${topWins.holders})` : ""}</div>
         </div>
       </div>
 
@@ -424,10 +413,10 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
         <Card title="Most Races Sailed" subtitle="All-time top 20 boats by total race count">
           <div className="space-y-1.5">
             {most_races.slice(0, 20).map((b, i) => {
-              const pct = (b.races / most_races[0].races) * 100;
-              const displayName = b.boat_names && b.boat_names.length > 1 ? b.boat_names.join(" / ") : b.name;
+              const pct = topRaces?.value ? (b.races / topRaces.value) * 100 : 0;
+              const displayName = leaderName(b);
               return (
-                <div key={b.id} className="flex items-center gap-2 text-xs">
+                <div key={leaderKey(b)} className="flex items-center gap-2 text-xs">
                   <span className="w-5 text-right text-gray-400 font-mono">{i + 1}</span>
                   <div className="w-28 truncate">
                     <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold transition-colors font-medium" title={displayName}>
@@ -456,9 +445,9 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
             {longest_streaks.slice(0, 20).map((s, i) => {
               const maxStreak = longest_streaks[0].streak;
               const pct = (s.streak / maxStreak) * 100;
-              const displayName = s.boat_names && s.boat_names.length > 1 ? s.boat_names.join(" / ") : s.name;
+              const displayName = leaderName(s);
               return (
-                <div key={s.id} className="flex items-center gap-2 text-xs">
+                <div key={leaderKey(s)} className="flex items-center gap-2 text-xs">
                   <span className="w-5 text-right text-gray-400 font-mono">{i + 1}</span>
                   <div className="w-28 truncate">
                     <Link href={`/boats/#${s.id}`} className="text-navy-light hover:text-gold transition-colors font-medium" title={displayName}>
@@ -499,10 +488,10 @@ function ParticipationSection({ data }: { data: AnalysisData }) {
             </thead>
             <tbody>
               {most_races.map((b, i) => {
-                const displayName = b.boat_names && b.boat_names.length > 1 ? b.boat_names.join(" / ") : b.name;
+                const displayName = leaderName(b);
                 const displayClass = b.classes && b.classes.length > 1 ? b.classes.join(" / ") : (b.class ?? "—");
                 return (
-                  <tr key={b.id} className="border-b border-border/50 last:border-0">
+                  <tr key={leaderKey(b)} className="border-b border-border/50 last:border-0">
                     <td className="py-2 pr-3 text-gray-400 font-mono">{i + 1}</td>
                     <td className="py-2 pr-3 max-w-[200px]">
                       <Link href={`/boats/#${b.id}`} className="text-navy-light hover:text-gold font-medium transition-colors block truncate" title={displayName}>
@@ -556,9 +545,11 @@ function TnsSection({ data }: { data: AnalysisData }) {
   }
 
   const totalRaceNights = tnsYearData.reduce((s, d) => s + d.race_nights, 0);
-  const avgFieldPerNight = by_year_month.length
+  const avgFieldPerNight = totalRaceNights > 0
     ? Math.round(by_year_month.reduce((s, r) => s + r.total_results, 0) / totalRaceNights)
     : 0;
+  // Each year+month with racing is one monthly series
+  const monthlySeriesCount = by_year_month.filter((r) => r.race_nights > 0).length;
 
   return (
     <div className="space-y-6">
@@ -576,7 +567,7 @@ function TnsSection({ data }: { data: AnalysisData }) {
           <div className="text-xs text-white/60 mt-1">Avg Boats / Night</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-white font-mono">4</div>
+          <div className="text-2xl font-bold text-white font-mono">{monthlySeriesCount}</div>
           <div className="text-xs text-white/60 mt-1">Monthly Series</div>
         </div>
       </div>
@@ -626,6 +617,17 @@ function WeatherSection({ data }: { data: AnalysisData }) {
 
   const windTotal = Object.values(wind_distribution).reduce((s, v) => s + v, 0);
 
+  // Weighted by race days so a month with 9 races doesn't count as much as one with 175
+  const avgWindKmh = weightedMonthlyAvg(monthly_averages, (m) => m.avg_wind_kmh);
+  const avgTempC = weightedMonthlyAvg(monthly_averages, (m) => m.avg_temp_c);
+
+  // Chart wind in knots to match the rest of the site
+  const seasonalData = monthly_averages.map((m) => ({
+    month: m.month,
+    avg_temp_c: m.avg_temp_c,
+    avg_wind_kt: m.avg_wind_kmh != null ? Math.round((m.avg_wind_kmh / KMH_PER_KNOT) * 10) / 10 : null,
+  }));
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-2">
@@ -635,13 +637,13 @@ function WeatherSection({ data }: { data: AnalysisData }) {
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-white font-mono">
-            {monthly_averages.length ? `${(monthly_averages.reduce((s, m) => s + m.avg_wind_kmh, 0) / monthly_averages.length / 1.852).toFixed(0)}kt` : "—"}
+            {avgWindKmh != null ? `${(avgWindKmh / KMH_PER_KNOT).toFixed(0)}kt` : "—"}
           </div>
           <div className="text-xs text-white/60 mt-1">Avg Wind</div>
         </div>
         <div className="stat-card rounded-lg p-4 text-center">
           <div className="text-2xl font-bold text-white font-mono">
-            {monthly_averages.length ? `${(monthly_averages.reduce((s, m) => s + m.avg_temp_c, 0) / monthly_averages.length).toFixed(0)}°C` : "—"}
+            {avgTempC != null ? `${avgTempC.toFixed(0)}°C` : "—"}
           </div>
           <div className="text-xs text-white/60 mt-1">Avg Temperature</div>
         </div>
@@ -685,19 +687,19 @@ function WeatherSection({ data }: { data: AnalysisData }) {
 
         <Card title="Seasonal Averages" subtitle="Temperature and wind by month">
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthly_averages}>
+            <BarChart data={seasonalData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2ddd5" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} />
               <YAxis yAxisId="temp" tick={{ fontSize: 11 }} unit="°C" />
               <YAxis yAxisId="wind" orientation="right" tick={{ fontSize: 11 }} unit="kt" />
               <Tooltip
                 content={<ChartTooltipContent formatter={(v, name) =>
-                  name.includes("Temp") ? `${v}°C` : `${(v / 1.852).toFixed(1)}kt`
+                  name.includes("Temp") ? `${v}°C` : `${v}kt`
                 } />}
               />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <Bar yAxisId="temp" dataKey="avg_temp_c" name="Avg Temp" fill={CORAL} radius={[3, 3, 0, 0]} />
-              <Bar yAxisId="wind" dataKey="avg_wind_kmh" name="Avg Wind" fill={BLUE_ACCENT} radius={[3, 3, 0, 0]} />
+              <Bar yAxisId="wind" dataKey="avg_wind_kt" name="Avg Wind" fill={BLUE_ACCENT} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>

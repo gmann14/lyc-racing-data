@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
+import DesktopNav from "@/components/DesktopNav";
 import MobileNav from "@/components/MobileNav";
 import SearchOverlay from "@/components/SearchOverlay";
 import "./globals.css";
@@ -27,11 +28,8 @@ export const metadata: Metadata = {
   title: "LYC Racing Archive",
   description:
     "27 years of Lunenburg Yacht Club racing history — results, leaderboards, and boat profiles from 1999 to 2025.",
-  icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
-    shortcut: "/icon.png",
-  },
+  // Favicons come from app/icon.png and app/apple-icon.png, which Next.js
+  // links with the basePath applied.
 };
 
 const NAV_LINKS = [
@@ -61,22 +59,12 @@ function Nav() {
             LYC Racing
           </span>
         </Link>
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
-          {NAV_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-white/70 hover:text-gold transition-colors font-medium"
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="flex items-center gap-1 md:gap-6">
+          {/* Desktop nav (hidden below md) */}
+          <DesktopNav links={NAV_LINKS} />
+          {/* One search instance; it renders its own desktop and mobile triggers */}
           <SearchOverlay />
-        </div>
-        {/* Mobile nav */}
-        <div className="flex items-center gap-1 md:hidden">
-          <SearchOverlay />
+          {/* Mobile nav (hidden at md and up) */}
           <MobileNav links={NAV_LINKS} />
         </div>
       </div>

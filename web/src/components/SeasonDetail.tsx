@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
-import { useHashParam, useJsonData } from "@/lib/use-data";
+import { useNumericHashParam, useJsonData } from "@/lib/use-data";
 import type { SeasonDetail, EventSummary, EventDetail } from "@/lib/data";
+import { formatScope, groupStandingsByScope } from "@/lib/standings";
 
 const MONTH_ORDER: Record<string, number> = {
   january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
@@ -70,8 +71,9 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
     );
   if (error || !event) return null;
 
-  const hasStandings = event.standings.length > 0;
-  const hasRaces = event.races.length > 0;
+  const standingGroups = groupStandingsByScope(event.standings ?? []);
+  const hasStandings = standingGroups.length > 0;
+  const hasRaces = (event.races?.length ?? 0) > 0;
 
   return (
     <div className="bg-cream/50 border-t border-border/50 animate-fade-in">
@@ -84,18 +86,21 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
             </span>
           )}
         </div>
-        {event.special_event_reasons.length > 0 && (
+        {(event.special_event_reasons?.length ?? 0) > 0 && (
           <div>
             Reason: {event.special_event_reasons.map(formatReason).join(", ")}
           </div>
         )}
       </div>
 
-      {/* Series standings */}
-      {hasStandings && (
-        <div className="px-4 py-3">
+      {/* Series standings, one table per scope (overall, fleets, divisions) */}
+      {standingGroups.map((group, gi) => (
+        <div
+          key={group.scope}
+          className={`px-4 py-3 ${gi > 0 ? "border-t border-border/30" : ""}`}
+        >
           <div className="text-xs font-bold text-navy mb-1.5 uppercase tracking-wider">
-            Overall Standings
+            {formatScope(group.scope)} Standings
           </div>
           <table className="w-full text-xs">
             <thead>
@@ -106,40 +111,38 @@ function EventRaceDetail({ eventId }: { eventId: number }) {
               </tr>
             </thead>
             <tbody>
-              {event.standings
-                .filter((s) => s.summary_scope === "overall")
-                .map((s, i) => (
-                  <tr key={i} className="border-b border-border/30 last:border-0">
-                    <td className="py-1 font-mono text-gray-400">{s.rank}</td>
-                    <td className="py-1">
-                      {s.boat_id ? (
-                        <Link
-                          href={`/boats/#${s.boat_id}`}
-                          className="text-navy-light hover:text-gold transition-colors"
-                        >
-                          {s.boat_name ?? s.display_name}
-                        </Link>
-                      ) : (
-                        s.display_name
-                      )}
-                      {s.boat_class && (
-                        <span className="text-gray-400 ml-1">({s.boat_class})</span>
-                      )}
-                    </td>
-                    <td className="py-1 text-right font-mono">
-                      {s.nett_points ?? s.total_points ?? "\u2014"}
-                    </td>
-                  </tr>
-                ))}
+              {group.rows.map((s, i) => (
+                <tr key={i} className="border-b border-border/30 last:border-0">
+                  <td className="py-1 font-mono text-gray-400">{s.rank}</td>
+                  <td className="py-1">
+                    {s.boat_id ? (
+                      <Link
+                        href={`/boats/#${s.boat_id}`}
+                        className="text-navy-light hover:text-gold transition-colors"
+                      >
+                        {s.boat_name ?? s.display_name}
+                      </Link>
+                    ) : (
+                      s.display_name
+                    )}
+                    {s.boat_class && (
+                      <span className="text-gray-400 ml-1">({s.boat_class})</span>
+                    )}
+                  </td>
+                  <td className="py-1 text-right font-mono">
+                    {s.nett_points ?? s.total_points ?? "\u2014"}
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-      )}
+      ))}
 
       {/* Individual races */}
       {hasRaces && (
         <div className="px-4 py-3 border-t border-border/30">
-          {event.races.map((race) => (
+          {(event.races ?? []).map((race) => (
             <div key={race.id} className="mb-3 last:mb-0">
               <div className="mb-1">
                 <div className="text-xs font-bold text-navy flex items-center gap-2">
@@ -279,7 +282,11 @@ function EventRow({
       {isExpanded && (
         <tr>
           <td colSpan={showMonth ? 4 : 3} className="p-0">
-            <EventRaceDetail eventId={event.id} />
+            {/* w-0 + min-w-full stops wide race tables from stretching the
+                parent table on phones; they scroll inside their own wrapper */}
+            <div className="w-0 min-w-full">
+              <EventRaceDetail eventId={event.id} />
+            </div>
           </td>
         </tr>
       )}
@@ -330,7 +337,7 @@ function EventTable({
 }
 
 export default function SeasonDetailPanel() {
-  const year = useHashParam();
+  const year = useNumericHashParam();
   const {
     data: season,
     loading,

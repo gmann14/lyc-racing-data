@@ -134,18 +134,29 @@ export default function BoatsTable({ boats }: { boats: BoatListItem[] }) {
         <table className="w-full text-sm min-w-[540px]">
           <thead>
             <tr className="bg-navy text-white text-left">
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className={`px-4 py-3 cursor-pointer select-none hover:bg-navy-light transition-colors ${
-                    col.align === "right" ? "text-right" : ""
-                  }`}
-                  onClick={() => toggleSort(col.key)}
-                >
-                  {col.label}
-                  <SortIcon active={sortKey === col.key} dir={sortDir} />
-                </th>
-              ))}
+              {columns.map((col) => {
+                const active = sortKey === col.key;
+                return (
+                  <th
+                    key={col.key}
+                    aria-sort={active ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+                    className={`p-0 text-white hover:bg-navy-light transition-colors ${
+                      col.align === "right" ? "text-right" : ""
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleSort(col.key)}
+                      className={`w-full px-4 py-3 inline-flex items-center select-none uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gold ${
+                        col.align === "right" ? "justify-end" : ""
+                      }`}
+                    >
+                      {col.label}
+                      <SortIcon active={active} dir={sortDir} />
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>

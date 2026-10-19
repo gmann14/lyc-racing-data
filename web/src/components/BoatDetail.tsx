@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useEffect } from "react";
-import { useHashParam, useJsonData } from "@/lib/use-data";
+import { useNumericHashParam, useJsonData } from "@/lib/use-data";
 import type { BoatDetail } from "@/lib/data";
 
 function WinRateSparkline({
@@ -71,7 +71,7 @@ function shortenTrophyName(name: string): string {
 }
 
 export default function BoatDetailPanel() {
-  const id = useHashParam();
+  const id = useNumericHashParam();
   const {
     data: boat,
     loading,
@@ -92,12 +92,18 @@ export default function BoatDetailPanel() {
         Loading boat details...
       </div>
     );
-  if (error || !boat)
+  if (error || !boat?.stats)
     return (
       <div className="my-6 p-6 bg-card rounded-lg shadow-sm border border-red-200 text-red-500">
         Failed to load boat data.
       </div>
     );
+
+  const stats = boat.stats;
+  const seasons = boat.seasons ?? [];
+  const trophies = boat.trophies ?? [];
+  // Boats seen only in special events (regattas, championships) have no handicap stats.
+  const hasHandicapStats = stats.total_races > 0 && stats.first_year != null;
 
   return (
     <div ref={panelRef} className="my-6 p-4 md:p-6 bg-card rounded-lg shadow-sm border border-border accent-bar pl-6 md:pl-8 animate-fade-in">
@@ -117,66 +123,79 @@ export default function BoatDetailPanel() {
         </a>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: "Races", value: boat.stats.total_races },
-          { label: "Seasons", value: boat.stats.seasons },
-          { label: "Wins", value: boat.stats.wins },
-          { label: "Podiums", value: boat.stats.podiums },
-        ].map((s) => (
-          <div key={s.label} className="bg-cream rounded-lg p-3 text-center">
-            <div className="text-xl font-bold text-navy">{s.value}</div>
-            <div className="text-xs text-gray-400 uppercase tracking-wider">
-              {s.label}
+      {hasHandicapStats ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "Races", value: stats.total_races },
+            { label: "Seasons", value: stats.seasons },
+            { label: "Wins", value: stats.wins ?? 0 },
+            { label: "Podiums", value: stats.podiums ?? 0 },
+          ].map((s) => (
+            <div key={s.label} className="bg-cream rounded-lg p-3 text-center">
+              <div className="text-xl font-bold text-navy">{s.value}</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wider">
+                {s.label}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mb-6 rounded-lg border border-border bg-cream p-4 text-sm text-gray-600">
+          No handicap results for this boat. It only appears in special
+          events (regattas or championships with outside competitors), which
+          are excluded from the statistics on this site.{" "}
+          <Link href="/methodology/" className="text-navy-light hover:text-gold transition-colors">
+            Methodology
+          </Link>
+        </p>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          <h3 className="font-bold text-navy mb-2 text-sm">Season by Season</h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th className="pb-1">Year</th>
-                <th className="pb-1 text-right">Races</th>
-                <th className="pb-1 text-right">Wins</th>
-                <th className="pb-1 text-right">Avg</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[...boat.seasons].reverse().map((s) => (
-                <tr
-                  key={s.year}
-                  className="border-b border-border/50 last:border-0"
-                >
-                  <td className="py-1.5">
-                    <Link
-                      href={`/seasons/#${s.year}`}
-                      className="text-navy-light hover:text-gold transition-colors"
-                    >
-                      {s.year}
-                    </Link>
-                  </td>
-                  <td className="py-1.5 text-right font-mono">{s.races}</td>
-                  <td className="py-1.5 text-right font-mono">{s.wins}</td>
-                  <td className="py-1.5 text-right font-mono">
-                    {s.avg_finish ?? "\u2014"}
-                  </td>
+        {seasons.length > 0 && (
+          <div>
+            <h3 className="font-bold text-navy mb-2 text-sm">Season by Season</h3>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="pb-1">Year</th>
+                  <th className="pb-1 text-right">Races</th>
+                  <th className="pb-1 text-right">Wins</th>
+                  <th className="pb-1 text-right">Avg</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {[...seasons].reverse().map((s) => (
+                  <tr
+                    key={s.year}
+                    className="border-b border-border/50 last:border-0"
+                  >
+                    <td className="py-1.5">
+                      <Link
+                        href={`/seasons/#${s.year}`}
+                        className="text-navy-light hover:text-gold transition-colors"
+                      >
+                        {s.year}
+                      </Link>
+                    </td>
+                    <td className="py-1.5 text-right font-mono">{s.races}</td>
+                    <td className="py-1.5 text-right font-mono">{s.wins}</td>
+                    <td className="py-1.5 text-right font-mono">
+                      {s.avg_finish ?? "\u2014"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {boat.trophies.length > 0 && (
+        {trophies.length > 0 && (
           <div>
             <h3 className="font-bold text-navy mb-2 text-sm">
-              Trophy Wins ({boat.trophies.length})
+              Trophy Wins ({trophies.length})
             </h3>
             <div className="space-y-0">
-              {boat.trophies.map((t, i) => (
+              {trophies.map((t, i) => (
                 <div
                   key={i}
                   className="flex gap-3 py-1.5 border-b border-border/50 last:border-0 text-sm"
@@ -215,18 +234,21 @@ export default function BoatDetailPanel() {
         </div>
       )}
 
-      {boat.seasons.length >= 2 && (
+      {seasons.length >= 2 && (
         <div className="mt-4 border-t border-border pt-3">
-          <WinRateSparkline seasons={boat.seasons} />
+          <WinRateSparkline seasons={seasons} />
         </div>
       )}
 
       <div className="mt-4 text-xs text-gray-400 border-t border-border pt-3 flex items-center justify-between">
         <span>
-          {boat.stats.avg_finish !== null && (
-            <>Career avg finish: {boat.stats.avg_finish} &middot; </>
+          {stats.avg_finish != null && (
+            <>Career avg finish: {stats.avg_finish}</>
           )}
-          Active {boat.stats.first_year}&ndash;{boat.stats.last_year}
+          {stats.avg_finish != null && stats.first_year != null && <> &middot; </>}
+          {stats.first_year != null && (
+            <>Active {stats.first_year}&ndash;{stats.last_year ?? stats.first_year}</>
+          )}
         </span>
         <Link
           href={`/compare/`}

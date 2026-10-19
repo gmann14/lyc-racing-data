@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getLeaderboards, type LeaderboardEntry } from "@/lib/data";
+import { leaderKey } from "@/lib/analysis-stats";
 import InfoTip from "@/components/InfoTip";
 
 export default function LeaderboardsPage() {
@@ -22,7 +23,7 @@ export default function LeaderboardsPage() {
         .
       </p>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <LeaderboardTable
           title="Most Race Wins"
           rows={lb.most_wins}
@@ -108,7 +109,7 @@ function LeaderboardTable({
   columns: Column[];
 }) {
   return (
-    <div className="bg-card rounded-lg shadow-sm border border-border">
+    <div className="min-w-0 bg-card rounded-lg shadow-sm border border-border">
       <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border">
         {title}
       </h2>
@@ -145,7 +146,7 @@ function LeaderboardTable({
             const displayClass = row.classes && row.classes.length > 1 ? row.classes.join(" / ") : (row.class ?? null);
             return (
               <tr
-                key={`${row.id}-${row.name}`}
+                key={leaderKey(row)}
                 className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
               >
                 <td className="px-1.5 py-2 text-center text-gray-400 font-mono text-xs">
