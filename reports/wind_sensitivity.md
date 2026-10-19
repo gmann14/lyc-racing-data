@@ -1,8 +1,12 @@
 # Wind-Shift Sensitivity Analysis
 
+> **Proxy-certificate simulation** — see `phrf_vs_orc_fixed_course.md`.
+
 If actual on-water wind at LYC was systematically higher than Open-Meteo's afternoon average (Mahone Bay sea breeze funneling, gusts not captured in averages, etc.), how does that change ORC scoring outcomes?
 
 This shifts the wind value used for Triple Number band classification by a constant offset and re-runs the analysis. Same Sonar proxy (Tamar) and same ToT model throughout.
+
+Races without a wind value stay in the assumed Medium band at every shift: 2025 Leeward Island.
 
 ## Headline impact across all 29 races
 
@@ -10,8 +14,8 @@ This shifts the wind value used for Triple Number band classification by a const
 |---|---|---|---|---|---|
 | **+0 kt** | 17 | 12 | 0 | 19 / 29 | 12 / 26 |
 | **+3 kt** | 7 | 19 | 3 | 18 / 29 | 13 / 26 |
-| **+5 kt** | 2 | 15 | 12 | 17 / 29 | 13 / 26 |
-| **+7 kt** | 0 | 10 | 19 | 16 / 29 | 13 / 26 |
+| **+5 kt** | 2 | 15 | 12 | 16 / 29 | 12 / 26 |
+| **+7 kt** | 0 | 10 | 19 | 15 / 29 | 12 / 26 |
 
 ## Per-race effect of wind shift
 
@@ -41,7 +45,7 @@ Bold winners indicate races where the ORC winner changes from one wind shift to 
 | 2020 | Leeward Island | 26/07/20 | 7.3 | low | medium | medium | high | Mojo | Mojo | Mojo | Mojo |
 | 2020 | RG Smith (Tancook) | 06/09/20 | 7.9 | low | medium | medium | high | Paradigm Shift | Paradigm Shift | Paradigm Shift | Paradigm Shift |
 | 2021 | Leeward Island | 25/07/21 | 9.6 | medium | medium | high | high | SOT After | SOT After | SOT After | SOT After |
-| 2021 | RG Smith (Tancook) | 05/09/21 | 5.4 | low | low | medium | medium | Mojo | Mojo | Mojo | Mojo |
+| 2021 | RG Smith (Tancook) | 05/09/21 | 5.4 | low | low | medium | medium | Mojo | Mojo | **Second Chance** | Second Chance |
 | 2022 | Boland's Cup | 24/07/22 | 8.4 | low | medium | medium | high | Mojo | Mojo | Mojo | **Poohsticks** |
 | 2022 | Leeward Island | 21/08/22 | 5.9 | low | low | medium | medium | Shenanagans | Shenanagans | Shenanagans | Shenanagans |
 | 2022 | RG Smith (Tancook) | 04/09/22 | 6.1 | low | medium | medium | medium | Mojo | Mojo | Mojo | Mojo |
@@ -51,23 +55,24 @@ Bold winners indicate races where the ORC winner changes from one wind shift to 
 
 ## ToT ratio drift across wind bands (interpretation aid)
 
-Some class pairs have very flat ToT relationships across wind bands (ratio barely changes); others have meaningful drift. Pairs with flat ratios are insensitive to wind shifts; pairs with drifty ratios can flip winners as wind moves between bands.
+Some class pairs have very flat ToT relationships across wind bands (ratio barely changes); others have meaningful drift. Pairs with flat ratios are insensitive to wind shifts; pairs with drifty ratios can flip winners as wind moves between bands. Drift = max ÷ min − 1, so it does not depend on which class is on top.
 
-| Pair | Low ratio | Med ratio | High ratio | Drift (max - min) |
+| Pair | Low ratio | Med ratio | High ratio | Drift |
 |---|---|---|---|---|
-| J/105 / J/92 | 0.998 | 1.041 | 1.056 | 0.058 |
-| J/105 / Sonar | 1.210 | 1.213 | 1.194 | 0.018 |
-| J/105 / J/100 | 1.011 | 1.005 | 0.993 | 0.019 |
-| J/92 / Sonar | 1.212 | 1.164 | 1.131 | 0.082 |
-| J/100 / Sonar | 1.197 | 1.207 | 1.203 | 0.010 |
-| J/29 OB / Sonar | 1.159 | 1.130 | 1.102 | 0.058 |
-| J/27 / Sonar | 1.133 | 1.110 | 1.092 | 0.041 |
-| Swan 57 / Sonar | 1.339 | 1.339 | 1.312 | 0.027 |
-| C&C 29 / Sonar | 1.204 | 1.171 | 1.139 | 0.065 |
+| J/105 / J/92 | 0.998 | 1.041 | 1.056 | 5.8% |
+| Sonar / J/105 | 0.826 | 0.825 | 0.837 | 1.5% |
+| J/105 / J/100 | 1.011 | 1.005 | 0.993 | 1.9% |
+| J/92 / Sonar | 1.212 | 1.164 | 1.131 | 7.2% |
+| J/100 / Sonar | 1.197 | 1.207 | 1.203 | 0.8% |
+| J/29 O/B / Sonar | 1.159 | 1.130 | 1.102 | 5.3% |
+| J/27 / Sonar | 1.133 | 1.110 | 1.092 | 3.7% |
+| Swan 57 / Sonar | 1.339 | 1.339 | 1.312 | 2.1% |
+| C&C 29-2 / Sonar | 1.070 | 1.041 | 1.012 | 5.7% |
+| C&C 25 / Sonar | 0.996 | 0.969 | 0.935 | 6.6% |
 
-**Interpretation:**
+**Interpretation** (all figures from the tables above):
 
-- **Sonar vs J/105 drift is tiny (0.013)** — the Sonar/J/105 outcome barely depends on wind band. Shifting wind up won't rescue the J/105 from Sonar dominance.
-- **J/92 vs Sonar drift is large (0.082)** — J/92 has a meaningful relative advantage in light wind that erodes in heavy wind. If actual wind was higher than logged, J/92 results would shift.
-- **J/100, J/27, Swan 57 vs J/105 are also flat** — proxy ratios don't reshape with wind.
-- **C&C 25, J/29 OB, J/92 vs J/105 drift more** — these comparisons are wind-band-sensitive.
+- **Sonar vs J/105 drift is 1.5%** (ratio 0.825–0.837). The pairing behind most winner changes barely depends on the band, so shifting the wind cannot undo the proxy certs' fixed Sonar offset.
+- **Winner changes move 12 → 13 → 12 → 12** across shifts of +0, +3, +5, +7 kt, although 28 of 29 races are in a different band at +7 kt.
+- **Most band-sensitive pairs:** J/92 / Sonar 7.2%, C&C 25 / Sonar 6.6%, J/105 / J/92 5.8%. Results between these classes would move if the real wind differed from the Open-Meteo estimate.
+- **Flattest pairs:** J/100 / Sonar 0.8%, Sonar / J/105 1.5%, J/105 / J/100 1.9%.
