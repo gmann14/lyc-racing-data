@@ -1780,7 +1780,17 @@ def main():
         _load_owners(db_path, owners_csv)
 
     from backfill_weather import backfill_weather as _backfill_weather
-    _backfill_weather()
+    _backfill_weather(db_path=db_path)
+
+    # Tides are wiped by --fresh along with everything else; restore them
+    # from enrichment/tide_cache.json (computes only dates missing from it).
+    from backfill_tides import backfill_tides as _backfill_tides
+    try:
+        _backfill_tides(db_path)
+    except FileNotFoundError as exc:
+        # Uncached dates need the gitignored tide training data. Cached dates
+        # are already committed by this point; validate.py flags any gap.
+        print(f"WARNING: tide backfill incomplete: {exc}", file=sys.stderr)
 
     print(f"\nDatabase: {db_path}")
 

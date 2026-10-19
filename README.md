@@ -80,7 +80,7 @@ cd web && npm install
 make test             # Run all 430+ Python tests
 make export           # Re-export JSON from current DB
 make build            # Export + Next.js build
-make fresh            # Full rebuild: wipe DB → reload → weather → tides → export
+make fresh            # Full rebuild: wipe DB → reload (+owners, weather, tides) → export
 make validate         # Pre-deploy sanity checks
 cd web && npm run dev # Dev server at localhost:3000/lyc-racing-data/
 ```
@@ -90,9 +90,7 @@ cd web && npm run dev # Dev server at localhost:3000/lyc-racing-data/
 ```sh
 make fresh            # Or manually:
 source .venv/bin/activate
-python scraper/load_db.py --fresh
-python scraper/backfill_weather.py
-python scraper/backfill_tides.py
+python scraper/load_db.py --fresh   # also loads owners, weather + tides (from cache)
 python scraper/export_json.py
 cd web && npm run build
 ```

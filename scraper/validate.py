@@ -8,20 +8,41 @@ to catch problems before they reach production.
 from __future__ import annotations
 
 import json
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "web" / "public" / "data"
 
+# Minimum file counts in the per-entity directories.
+MIN_BOAT_FILES = 400  # detail + races file per boat
+MIN_EVENT_FILES = 700
+MIN_SEASON_FILES = 20
+
+# Weather/tides are attached per race. A fresh DB load that skips a backfill
+# leaves every race without them while all other checks still pass.
+MIN_RACES_WITH_WEATHER = 1500
+MIN_RACES_WITH_TIDES = 1500
+
+# Absolute macOS/Linux/Windows paths, as they appear inside JSON strings.
+LOCAL_PATH_RE = re.compile(r'"(?:/Users/|/home/|[A-Za-z]:\\\\)')
+
+# Ranked lists whose rows link to a boat page by id.
+LEADERBOARD_LISTS = ("most_wins", "most_seasons", "most_trophies",
+                     "best_win_pct", "best_avg_finish_pct", "most_active")
+PARTICIPATION_LISTS = ("most_races", "longest_streaks")
+
 
 class ValidationError:
-    def __init__(self, check: str, message: str) -> None:
+    def __init__(self, check: str, message: str, level: str = "FAIL") -> None:
         self.check = check
         self.message = message
+        self.level = level
 
     def __str__(self) -> str:
-        return f"  FAIL: [{self.check}] {self.message}"
+        return f"  {self.level}: [{self.check}] {self.message}"
 
 
 def _load_json(path: Path) -> dict | list | None:
@@ -33,21 +54,32 @@ def _load_json(path: Path) -> dict | list | None:
         return None
 
 
-def validate() -> list[ValidationError]:
+def validate(data_dir: Path = DATA_DIR) -> list[ValidationError]:
+    """Return the failing checks for the exported site data."""
+    return run_checks(data_dir)[0]
+
+
+def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[ValidationError]]:
+    """Return (errors, warnings). Warnings flag known data-quality gaps
+    that should not block a deploy yet."""
     errors: list[ValidationError] = []
+    warnings: list[ValidationError] = []
 
     def fail(check: str, msg: str) -> None:
         errors.append(ValidationError(check, msg))
+
+    def warn(check: str, msg: str) -> None:
+        warnings.append(ValidationError(check, msg, level="WARN"))
 
     # 1. Top-level files exist
     for name in ("overview.json", "boats.json", "seasons.json",
                  "leaderboards.json", "trophies.json", "analysis.json",
                  "search-index.json"):
-        if not (DATA_DIR / name).exists():
+        if not (data_dir / name).exists():
             fail("files", f"Missing {name}")
 
     # 2. Overview sanity checks
-    overview = _load_json(DATA_DIR / "overview.json")
+    overview = _load_json(data_dir / "overview.json")
     if overview is None:
         fail("overview", "Cannot load overview.json")
     else:
@@ -59,34 +91,33 @@ def validate() -> list[ValidationError]:
             fail("overview", f"total_results={overview.get('total_results')} (expected >= 9000)")
 
     # 3. Subdirectory file counts
-    boats_dir = DATA_DIR / "boats"
-    events_dir = DATA_DIR / "events"
-    seasons_dir = DATA_DIR / "seasons"
+    boats_dir = data_dir / "boats"
+    events_dir = data_dir / "events"
+    seasons_dir = data_dir / "seasons"
 
     if boats_dir.exists():
         boat_jsons = list(boats_dir.glob("*.json"))
-        # Each boat has a detail file + races file = ~546 for 273 boats
-        if len(boat_jsons) < 400:
-            fail("boats", f"Only {len(boat_jsons)} files in boats/ (expected >= 400)")
+        if len(boat_jsons) < MIN_BOAT_FILES:
+            fail("boats", f"Only {len(boat_jsons)} files in boats/ (expected >= {MIN_BOAT_FILES})")
     else:
         fail("boats", "boats/ directory missing")
 
     if events_dir.exists():
         event_jsons = list(events_dir.glob("*.json"))
-        if len(event_jsons) < 700:
-            fail("events", f"Only {len(event_jsons)} files in events/ (expected >= 700)")
+        if len(event_jsons) < MIN_EVENT_FILES:
+            fail("events", f"Only {len(event_jsons)} files in events/ (expected >= {MIN_EVENT_FILES})")
     else:
         fail("events", "events/ directory missing")
 
     if seasons_dir.exists():
         season_jsons = list(seasons_dir.glob("*.json"))
-        if len(season_jsons) < 20:
-            fail("seasons", f"Only {len(season_jsons)} files in seasons/ (expected >= 20)")
+        if len(season_jsons) < MIN_SEASON_FILES:
+            fail("seasons", f"Only {len(season_jsons)} files in seasons/ (expected >= {MIN_SEASON_FILES})")
     else:
         fail("seasons", "seasons/ directory missing")
 
     # 4. Boats list conformance
-    boats = _load_json(DATA_DIR / "boats.json")
+    boats = _load_json(data_dir / "boats.json")
     if boats is not None:
         if not isinstance(boats, list):
             fail("boats.json", "Expected a JSON array")
@@ -100,7 +131,7 @@ def validate() -> list[ValidationError]:
                     fail("boats.json", f"Missing required field '{field}' in boat entry")
 
     # 5. Leaderboards sanity
-    lb = _load_json(DATA_DIR / "leaderboards.json")
+    lb = _load_json(data_dir / "leaderboards.json")
     if lb is not None:
         for key in ("most_wins", "best_avg_finish_pct", "fleet_by_year"):
             if key not in lb:
@@ -109,7 +140,7 @@ def validate() -> list[ValidationError]:
                 fail("leaderboards", f"'{key}' is empty")
 
     # 6. Trophies sanity
-    trophies = _load_json(DATA_DIR / "trophies.json")
+    trophies = _load_json(data_dir / "trophies.json")
     if trophies is not None:
         if not isinstance(trophies, list):
             fail("trophies", "Expected a JSON array")
@@ -117,25 +148,78 @@ def validate() -> list[ValidationError]:
             fail("trophies", f"Only {len(trophies)} trophies (expected >= 30)")
 
     # 7. Analysis sanity
-    analysis = _load_json(DATA_DIR / "analysis.json")
+    analysis = _load_json(data_dir / "analysis.json")
     if analysis is not None:
         for key in ("fleet_trends", "tns"):
             if key not in analysis:
                 fail("analysis", f"Missing key '{key}'")
 
     # 8. Search index sanity
-    search = _load_json(DATA_DIR / "search-index.json")
+    search = _load_json(data_dir / "search-index.json")
     if search is not None:
         if not isinstance(search, list):
             fail("search", "Expected a JSON array")
         elif len(search) < 500:
             fail("search", f"Only {len(search)} search entries (expected >= 500)")
 
-    return errors
+    # 9. Per-race enrichment coverage and rank sanity
+    if events_dir.exists():
+        races_total = races_with_weather = races_with_tides = 0
+        multi_winner_races: list[str] = []
+        for path in sorted(events_dir.glob("*.json")):
+            event = _load_json(path)
+            if not isinstance(event, dict):
+                fail("events", f"Cannot load {path.name}")
+                continue
+            for race in event.get("races") or []:
+                races_total += 1
+                if race.get("weather"):
+                    races_with_weather += 1
+                if race.get("tides"):
+                    races_with_tides += 1
+                winners = [r for r in race.get("results") or [] if r.get("rank") == 1]
+                if len(winners) > 1:
+                    multi_winner_races.append(f"event {event.get('id')} race {race.get('race_key')}")
+        if races_with_weather < MIN_RACES_WITH_WEATHER:
+            fail("weather", f"Only {races_with_weather}/{races_total} races have weather "
+                 f"(expected >= {MIN_RACES_WITH_WEATHER}); run scraper/backfill_weather.py and re-export")
+        if races_with_tides < MIN_RACES_WITH_TIDES:
+            fail("tides", f"Only {races_with_tides}/{races_total} races have tides "
+                 f"(expected >= {MIN_RACES_WITH_TIDES}); run scraper/backfill_tides.py and re-export")
+        if multi_winner_races:
+            warn("ranks", f"{len(multi_winner_races)} races have more than one rank-1 result "
+                 f"(e.g. {'; '.join(multi_winner_races[:3])})")
+
+    # 10. No local machine paths in published data
+    leaked = [p for p in sorted(data_dir.rglob("*.json"))
+              if LOCAL_PATH_RE.search(p.read_text(errors="replace"))]
+    if leaked:
+        fail("paths", f"{len(leaked)} JSON files contain absolute local paths "
+             f"(e.g. {leaked[0].relative_to(data_dir)})")
+
+    # 11. Ranked lists should not show the same boat twice (rows link by id).
+    # A warning until owner merging attributes results by ownership year.
+    ranked: list[tuple[str, object]] = []
+    if isinstance(lb, dict):
+        ranked += [(f"leaderboards.{key}", lb.get(key)) for key in LEADERBOARD_LISTS]
+    if isinstance(analysis, dict):
+        participation = analysis.get("participation") or {}
+        ranked += [(f"analysis.participation.{key}", participation.get(key)) for key in PARTICIPATION_LISTS]
+    for label, rows in ranked:
+        if not isinstance(rows, list):
+            continue
+        counts = Counter(row.get("id") for row in rows if isinstance(row, dict))
+        dupes = sorted(str(boat_id) for boat_id, n in counts.items() if n > 1)
+        if dupes:
+            warn("ranked-ids", f"{label} lists boat id {', '.join(dupes)} more than once")
+
+    return errors, warnings
 
 
 def main() -> None:
-    errors = validate()
+    errors, warnings = run_checks()
+    for warning in warnings:
+        print(warning)
     if errors:
         print(f"Validation FAILED ({len(errors)} errors):\n")
         for err in errors:

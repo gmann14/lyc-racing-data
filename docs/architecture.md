@@ -39,8 +39,8 @@ Next.js 16 static build (web/) → GitHub Pages
 ### Step 2: Load Database
 - **Script**: `load_db.py [--fresh]`
 - **`--fresh` flag**: Deletes entire `lyc_racing.db` and recreates from scratch
-- **Also runs**: `load_owners.py` (boat_owners.csv) and `backfill_weather()`
-- **Destructive?** YES with `--fresh` — wipes all tables including weather
+- **Also runs**: `load_owners.py` (boat_owners.csv), `backfill_weather()` and `backfill_tides()`
+- **Destructive?** YES with `--fresh` — wipes all tables; weather and tides are then restored from `enrichment/*_cache.json`
 - **Time**: ~5 sec (schema + load) + ~5 sec (weather from cache)
 
 ### Step 3: Backfill Weather (optional standalone)
@@ -66,7 +66,7 @@ Next.js 16 static build (web/) → GitHub Pages
 
 ```
 # Full rebuild (rare, ~15 min)
-load_db --fresh          # Wipes DB, reloads from JSONL, refetches weather
+load_db --fresh          # Wipes DB, reloads from JSONL, restores owners/weather/tides
 export_json              # Wipes data dirs, regenerates all JSON
 npm run build            # Builds static site
 git push                 # Triggers GitHub Pages deploy

@@ -12,7 +12,7 @@
 | `make export` | Re-export JSON from current DB |
 | `make export-only T=trophies` | Export one target only |
 | `make build` | Export + Next.js build |
-| `make fresh` | Full rebuild: wipe DB → reload → export |
+| `make fresh` | Full rebuild: wipe DB → reload (+owners, weather, tides) → export |
 | `make validate` | Pre-deploy sanity checks |
 | `cd web && npx tsc --noEmit` | TypeScript type check |
 | `cd web && npm run dev` | Local dev server at localhost:3000/lyc-racing-data/ |
@@ -142,7 +142,7 @@ Key test files:
 
 ## Common Gotchas
 
-- `load_db --fresh` wipes weather/tides — run `backfill_weather` + `backfill_tides` after
+- `load_db --fresh` wipes the DB, then restores owners, weather and tides itself (from `enrichment/` caches); `validate.py` fails if weather/tides go missing from the export
 - Weather + tides are cached in `enrichment/*.json` — cache survives fresh rebuilds
 - `.DS_Store` in data dirs breaks export — `make clean-ds-store` first
 - Home page shows `handicap_boat_count` (173) not `total_boats` (273)

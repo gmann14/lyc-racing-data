@@ -276,13 +276,13 @@ def save_cache(cache: dict[str, dict]) -> None:
     CACHE_PATH.write_text(json.dumps(cache, indent=1, sort_keys=True, ensure_ascii=False))
 
 
-def backfill_weather(force_fetch: bool = False) -> None:
+def backfill_weather(force_fetch: bool = False, db_path: Path = DB_PATH) -> None:
     """Main entry point: fetch weather and insert into the database.
 
     By default, uses the local cache for dates that already have data.
     Pass ``force_fetch=True`` to re-fetch everything from the API.
     """
-    conn = sqlite3.connect(str(DB_PATH))
+    conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA journal_mode=WAL")
 
     race_dates = get_unique_race_dates(conn)

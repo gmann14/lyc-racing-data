@@ -4,7 +4,7 @@
 #   make export          # Re-export all JSON from current DB (most common)
 #   make export-only T=analysis  # Export just analysis.json
 #   make build           # Export JSON + build Next.js site
-#   make fresh           # Full rebuild: wipe DB, reload, re-export, build
+#   make fresh           # Full rebuild: wipe DB, reload (+owners, weather, tides), re-export
 #   make validate        # Run pre-deploy validation checks
 #   make deploy          # Export + build + validate + push
 #   make test            # Run all Python tests
@@ -23,7 +23,7 @@ help:
 	@echo "  make export          Re-export all JSON from current DB"
 	@echo "  make export-only T=analysis   Export a subset (analysis, boats, events, etc.)"
 	@echo "  make build           Export JSON + build Next.js site"
-	@echo "  make fresh           Full rebuild: wipe DB, reload everything, re-export"
+	@echo "  make fresh           Full rebuild: wipe DB, reload (+owners, weather, tides), re-export"
 	@echo "  make validate        Run pre-deploy validation checks"
 	@echo "  make deploy          Export + build + validate + push to main"
 	@echo "  make test            Run all Python tests"
