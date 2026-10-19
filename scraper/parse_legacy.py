@@ -287,8 +287,15 @@ def _parse_footer(soup: BeautifulSoup) -> tuple[str, str, str]:
 
 def parse_legacy_file(filepath: Path) -> LegacyParsedPage:
     """Parse a single WinRegatta legacy HTML file."""
+    # Store paths relative to the project root so local machine paths never
+    # leak into the published JSON (matches parse_sailwave).
+    try:
+        rel_path = str(filepath.resolve().relative_to(PROJECT_ROOT))
+    except ValueError:
+        rel_path = str(filepath)
+
     page = LegacyParsedPage(
-        source_path=str(filepath),
+        source_path=rel_path,
         year=_extract_year_from_path(filepath),
     )
 

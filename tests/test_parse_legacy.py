@@ -255,6 +255,14 @@ class TestParseLegacyFile:
         assert page.metadata.start_time == "13:30:00"
         assert len(page.errors) == 0
 
+    def test_source_path_outside_project_kept_as_given(self, tmp_path):
+        filepath = tmp_path / "racing1999_2013" / "racing2005" / "bolands.htm"
+        filepath.parent.mkdir(parents=True)
+        filepath.write_text(WINREGATTA_HTML)
+
+        page = parse_legacy_file(filepath)
+        assert page.source_path == str(filepath)
+
 
 class TestLegacyIntegration:
     """Integration tests using real local files."""
@@ -300,6 +308,14 @@ class TestLegacyIntegration:
         page = parse_legacy_file(path)
         assert page.year == 2008
         assert len(page.results) > 0
+
+    def test_source_path_is_project_relative(self):
+        """Published JSON must not carry local machine paths."""
+        path = self._get_file("racing1999_2013/racing2005/bolands_cup.htm")
+        if not path.exists():
+            pytest.skip("Local file not available")
+        page = parse_legacy_file(path)
+        assert page.source_path == "racing1999_2013/racing2005/bolands_cup.htm"
 
     def test_no_empty_boat_names(self):
         """All results should have non-empty boat names."""

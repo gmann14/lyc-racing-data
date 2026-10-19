@@ -2,6 +2,22 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
+## 2026-10-19
+
+### Enrichment
+
+- Restored tide data on race detail pages. It had been missing from every event since 2026-03-11, when a `load_db --fresh` rebuild ran without `backfill_tides`. `load_db --fresh` now restores tides from `enrichment/tide_cache.json` automatically, alongside owners and weather.
+- `load_db --db <path>` now writes weather into that database instead of always using `lyc_racing.db`.
+
+### Published data
+
+- Legacy (1999–2013) event `source_file` values are now project-relative (`racing1999_2013/...`) instead of absolute local paths.
+
+### Validation
+
+- `validate.py` now fails when weather or tides are missing from the exported races, or when any JSON file contains an absolute local path.
+- New warnings (non-blocking) for races with more than one rank-1 result and for ranked lists that show the same boat twice (currently Buzz, pending per-year owner attribution).
+
 ## 2026-03-10
 
 ### Trophy system
