@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isActivePath } from "@/lib/paths";
 
 export default function MobileNav({
   links,
@@ -11,11 +12,13 @@ export default function MobileNav({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Close on route change
-  useEffect(() => {
+  // Close on route change (adjust state during render rather than in an effect)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -73,14 +76,13 @@ export default function MobileNav({
             </div>
             <div className="py-2 px-2">
               {links.map((l) => {
-                const basePath = "/lyc-racing-data";
-                const isActive =
-                  pathname === `${basePath}${l.href}` ||
-                  pathname === `${basePath}${l.href.replace(/\/$/, "")}`;
+                const isActive = isActivePath(pathname, l.href);
                 return (
                   <Link
                     key={l.href}
                     href={l.href}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={() => setOpen(false)}
                     className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive
                         ? "text-gold bg-white/5"

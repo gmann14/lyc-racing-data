@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Crimson_Pro } from "next/font/google";
 import Link from "next/link";
+import DesktopNav from "@/components/DesktopNav";
 import MobileNav from "@/components/MobileNav";
 import SearchOverlay from "@/components/SearchOverlay";
 import "./globals.css";
@@ -63,17 +64,7 @@ function Nav() {
         </Link>
         <div className="flex items-center gap-1 md:gap-6">
           {/* Desktop nav (hidden below md) */}
-          <div className="hidden md:flex items-center gap-6 text-sm">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-white/70 hover:text-gold transition-colors font-medium"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
+          <DesktopNav links={NAV_LINKS} />
           {/* One search instance; it renders its own desktop and mobile triggers */}
           <SearchOverlay />
           {/* Mobile nav (hidden at md and up) */}
