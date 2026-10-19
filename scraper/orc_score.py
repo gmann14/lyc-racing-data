@@ -138,8 +138,9 @@ def load_certs() -> dict[str, CertScoring]:
 def load_boat_cert_map() -> dict[tuple[str, str | None], str]:
     """Read boats.csv → map of (lyc_boat_name, lyc_sail) → cert_ref.
 
-    Sail is included to disambiguate boats with shared names. None matches
-    any sail when there's no exact match.
+    Sail is included to disambiguate boats with shared names. The (name, None)
+    entry is a name-only fallback; resolve_cert only uses it when the sail
+    numbers don't conflict.
     """
     out: dict[tuple[str, str | None], str] = {}
     if not REGISTRY_PATH.exists():
@@ -184,9 +185,18 @@ def resolve_cert(boat_name: str, sail_number: str | None,
                  boat_class: str | None = None,
                  class_cert_map: dict[str, str] | None = None,
                  ) -> CertScoring | None:
-    """Look up cert: exact (name, sail) → name-only → class-based fallback."""
+    """Look up cert: exact (name, sail) → name-only → class-based fallback.
+
+    The name-only step is skipped when both the boat and the registry carry a
+    sail number and none of the registry's sails for that name match: same-name
+    boats (Tsunami, Wandrian, ...) are different hulls and must not share a cert.
+    """
     sail = (sail_number or "").strip() or None
-    ref = boat_cert_map.get((boat_name, sail)) or boat_cert_map.get((boat_name, None))
+    ref = boat_cert_map.get((boat_name, sail))
+    if not ref:
+        registry_sails = {s for (n, s) in boat_cert_map if n == boat_name and s is not None}
+        if sail is None or not registry_sails:
+            ref = boat_cert_map.get((boat_name, None))
     if ref:
         return certs.get(ref)
     if boat_class and class_cert_map:
@@ -245,7 +255,9 @@ class ScoredResult:
     band: str
     orc_corrected_seconds: float | None
     orc_rank: int | None
-    phrf_rank: int | None  # echo for comparison
+    # PHRF rank among the same covered boats ORC ranks (None when not covered),
+    # so the two rank columns always compare like with like.
+    phrf_rank: int | None
 
 
 def score_race(boats: list[BoatResult], course_distance_nm: float,
@@ -255,10 +267,12 @@ def score_race(boats: list[BoatResult], course_distance_nm: float,
                boat_cert_map: dict[tuple[str, str | None], str] | None = None,
                class_cert_map: dict[str, str] | None = None,
                ) -> list[ScoredResult]:
-    """Apply ORC scoring to each boat, return list sorted by corrected time.
+    """Apply ORC scoring to each boat; returns one ScoredResult per input boat.
 
     Boats whose certs are missing are returned with orc_corrected_seconds=None
-    and excluded from the rank ordering.
+    and are excluded from both rank orderings: orc_rank and phrf_rank are
+    1..n over the covered boats only (phrf_rank re-ranks the published PHRF
+    order within that subset).
     """
     if certs is None:
         certs = load_certs()
@@ -286,7 +300,7 @@ def score_race(boats: list[BoatResult], course_distance_nm: float,
                 corrected = score_tod_triple(b.elapsed_seconds, course_distance_nm, cert, band)
             else:
                 raise ValueError(f"unknown method: {method}")
-        scored.append(ScoredResult(b, cert, band, corrected, None, b.published_rank))
+        scored.append(ScoredResult(b, cert, band, corrected, None, None))
 
     # Rank by corrected time (None → ranked nan, exclude from ordering)
     rankable = [s for s in scored if s.orc_corrected_seconds is not None]
@@ -294,4 +308,36 @@ def score_race(boats: list[BoatResult], course_distance_nm: float,
     for i, s in enumerate(rankable, 1):
         s.orc_rank = i
 
+    # Re-rank the published PHRF order within the same subset
+    by_phrf = sorted(rankable, key=_published_order)
+    for i, s in enumerate(by_phrf, 1):
+        s.phrf_rank = i
+
     return scored
+
+
+def _published_order(s: ScoredResult) -> tuple:
+    """Sort key for the published PHRF order: rank, then corrected time, then name."""
+    b = s.boat
+    return (
+        b.published_rank is None,
+        b.published_rank or 0,
+        b.published_corrected_seconds is None,
+        b.published_corrected_seconds or 0,
+        b.boat_name,
+    )
+
+
+def summarize_race(scored: list[ScoredResult]) -> dict:
+    """Compare the PHRF and ORC orderings of one scored race (covered boats only)."""
+    covered = [s for s in scored if s.orc_rank is not None]
+    phrf_winner = next((s.boat.boat_name for s in covered if s.phrf_rank == 1), None)
+    orc_winner = next((s.boat.boat_name for s in covered if s.orc_rank == 1), None)
+    return {
+        "n_covered": len(covered),
+        "rank_changes": sum(1 for s in covered if s.orc_rank != s.phrf_rank),
+        "max_swap": max((abs(s.orc_rank - s.phrf_rank) for s in covered), default=0),
+        "phrf_winner": phrf_winner,
+        "orc_winner": orc_winner,
+        "winner_change": bool(phrf_winner and orc_winner and phrf_winner != orc_winner),
+    }

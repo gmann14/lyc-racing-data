@@ -23,33 +23,47 @@
     "coastal_triple": {
       "high": {
         "tod": 573.9,
-        "tot": 1.1762
+        "tot": 1.0455,
+        "tot_as_printed": 1.1762,
+        "tot_base_as_printed": 675.0
       },
       "low": {
         "tod": 801.5,
-        "tot": 0.8422
+        "tot": 0.7486,
+        "tot_as_printed": 0.8422,
+        "tot_base_as_printed": 675.0
       },
       "medium": {
         "tod": 635.4,
-        "tot": 1.0624
+        "tot": 0.9443,
+        "tot_as_printed": 1.0624,
+        "tot_base_as_printed": 675.0
       }
     },
     "windward_leeward": {
       "tod": 771.8,
-      "tot": 0.8746
+      "tot": 0.7774,
+      "tot_as_printed": 0.8746,
+      "tot_base_as_printed": 675.0
     },
     "windward_leeward_triple": {
       "high": {
         "tod": 683.3,
-        "tot": 0.9879
+        "tot": 0.8781,
+        "tot_as_printed": 0.9879,
+        "tot_base_as_printed": 675.0
       },
       "low": {
         "tod": 1028.2,
-        "tot": 0.6565
+        "tot": 0.5835,
+        "tot_as_printed": 0.6565,
+        "tot_base_as_printed": 675.0
       },
       "medium": {
         "tod": 774.8,
-        "tot": 0.8712
+        "tot": 0.7744,
+        "tot_as_printed": 0.8712,
+        "tot_base_as_printed": 675.0
       }
     }
   },

@@ -2,11 +2,13 @@
 Deep comparison: PHRF vs ORC across various conditions.
 
 Analyzes the per-boat results CSV from analyze_orc_vs_phrf.py and computes:
-  - Spread of corrected times per race (PHRF vs ORC)
+  - Spread of corrected times per race (PHRF vs ORC, same boats)
   - Spread by wind band
-  - Outlier sensitivity (trim slowest N boats)
+  - Outlier sensitivity (trim the boats last in both systems)
   - Per-class systematic bias (which classes win/lose under each system)
   - Rank correlation between PHRF and ORC orderings
+
+The ORC side is a proxy-certificate simulation (see phrf_vs_orc_fixed_course.md).
 
 Output:
     reports/phrf_vs_orc_spread.md
@@ -22,6 +24,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 INPUT_CSV = PROJECT_ROOT / "reports" / "phrf_vs_orc_fixed_course.csv"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+
+SYSTEM_COLUMNS = {"phrf": "phrf_corrected_s", "orc": "orc_corrected_s"}
 
 
 def _f(v):
@@ -49,28 +53,42 @@ def load_rows():
 
 
 def group_by_race(rows):
-    """Return {race_key: [rows]} where race_key = (year, event)."""
+    """Return {race_id: [rows]}."""
     out = defaultdict(list)
     for r in rows:
-        out[(r["year"], r["event"])].append(r)
+        out[r["race_id"]].append(r)
     return out
 
 
-def race_spread_stats(boats_in_race, system: str, trim: int = 0):
-    """For a race, compute spread statistics of corrected times under one system.
+def paired_rows(boats_in_race, trim: int = 0):
+    """Rows with both a published PHRF and a simulated ORC corrected time.
 
-    system: 'phrf' or 'orc'
-    trim: number of slowest boats to drop (outlier handling)
-    Returns dict with spread metrics, or None if not enough data.
+    Both systems' spreads are computed over exactly these boats. ``trim`` drops
+    the boats that finish last on average across both systems — the same boats
+    from both — and only when at least two boats remain.
     """
-    col = "phrf_corrected_s" if system == "phrf" else "orc_corrected_s"
-    times = [_f(r[col]) for r in boats_in_race]
-    times = [t for t in times if t is not None]
-    if len(times) < 2:
-        return None
-    times = sorted(times)
-    if trim > 0 and len(times) > trim + 1:
-        times = times[:-trim]  # drop slowest
+    rows = [r for r in boats_in_race
+            if _f(r["phrf_corrected_s"]) is not None and _f(r["orc_corrected_s"]) is not None]
+    if trim <= 0 or len(rows) <= trim + 1:
+        return rows
+
+    def ranks(col):
+        order = sorted(rows, key=lambda r: _f(r[col]))
+        return {id(r): i for i, r in enumerate(order, 1)}
+
+    p, o = ranks(SYSTEM_COLUMNS["phrf"]), ranks(SYSTEM_COLUMNS["orc"])
+    keep = sorted(rows, key=lambda r: (p[id(r)] + o[id(r)], p[id(r)]))[:-trim]
+    return keep
+
+
+def race_spread_stats(boats_in_race, system: str):
+    """Spread statistics of corrected times under one system for the given rows.
+
+    system: 'phrf' or 'orc'. Callers pass paired_rows() so both systems see
+    the same boats. Returns dict with spread metrics, or None if fewer than 2.
+    """
+    col = SYSTEM_COLUMNS[system]
+    times = sorted(t for t in (_f(r[col]) for r in boats_in_race) if t is not None)
     if len(times) < 2:
         return None
     fastest = times[0]
@@ -83,8 +101,8 @@ def race_spread_stats(boats_in_race, system: str, trim: int = 0):
         "range_pct": 100.0 * (times[-1] - fastest) / fastest,
         "median_gap_s": statistics.median(spreads),
         "mean_gap_s": statistics.mean(spreads),
-        "stdev_s": statistics.stdev(times) if len(times) >= 2 else 0,
-        "stdev_pct": 100.0 * statistics.stdev(times) / statistics.mean(times) if len(times) >= 2 else 0,
+        "stdev_s": statistics.stdev(times),
+        "stdev_pct": 100.0 * statistics.stdev(times) / statistics.mean(times),
     }
 
 
@@ -106,36 +124,60 @@ def rank_agreement(boats_in_race):
     return 1 - (6 * d_sq) / (n * (n * n - 1))
 
 
+def class_winners(boats_in_race):
+    """(PHRF winner row, ORC winner row) among covered boats."""
+    covered = [r for r in boats_in_race if _i(r["orc_rank"]) is not None]
+    phrf = next((r for r in covered if _i(r["phrf_rank_in_covered"]) == 1), None)
+    orc = next((r for r in covered if _i(r["orc_rank"]) == 1), None)
+    return phrf, orc
+
+
+def _pct(v):
+    return f"{v:.1f}%" if v is not None else "—"
+
+
 def main():
     rows = load_rows()
     races = group_by_race(rows)
+    years = sorted({int(r["year"]) for r in rows})
     print(f"Loaded {len(rows)} boat-results across {len(races)} races")
 
     md = []
     md.append("# How does ORC compare to PHRF across conditions?\n\n")
-    md.append("Deeper analysis of the 29 fixed-course Sunday races (2014–2025). For each race we look at:\n\n")
+    md.append("> **Proxy-certificate simulation.** The ORC side uses proxy certificates (same class, "
+              "different boat) — see `phrf_vs_orc_fixed_course.md` for what that means and its caveats.\n\n")
+    md.append(f"Deeper analysis of the {len(races)} fixed-course Sunday races ({years[0]}–{years[-1]}). "
+              f"For each race we look at:\n\n")
     md.append("- **Spread** of corrected times: how compressed/spread out is the corrected fleet?\n")
-    md.append("- **Outlier sensitivity**: does trimming the slowest boat change the picture?\n")
+    md.append("- **Outlier sensitivity**: does trimming the back of the fleet change the picture?\n")
     md.append("- **Wind band breakdown**: does each system behave differently in light/medium/heavy?\n")
     md.append("- **Rank agreement**: how similar are the orderings PHRF and ORC produce?\n")
     md.append("- **Per-class bias**: which classes systematically benefit / suffer under each system?\n\n")
-    md.append("All ORC numbers use Tamar Sonar proxy (the current default).\n")
+    md.append("All ORC numbers use the Tamar Sonar proxy (the current default).\n")
 
     # ---- 1. Overall spread ----
     md.append("\n## 1. Spread of corrected times across the fleet\n\n")
     md.append("Smaller spread = tighter, more competitive corrected results. ")
-    md.append("Range expressed as percent of fastest boat's corrected time so we can compare across courses.\n\n")
+    md.append("Range expressed as percent of fastest boat's corrected time so we can compare across courses. ")
+    md.append("Both systems are measured on the **same boats**: covered boats that also have a published PHRF "
+              "corrected time. Trimming drops the boat(s) that finish last on average across both systems, "
+              "from both.\n\n")
+
+    no_phrf_times = [rs for rs in races.values()
+                     if len([r for r in rs if _i(r["orc_rank"]) is not None]) >= 2
+                     and len(paired_rows(rs)) < 2]
 
     def aggregate_spread(filter_fn=None, trim=0):
         phrf_ranges = []
         orc_ranges = []
         phrf_stdevs = []
         orc_stdevs = []
-        for key, boats in races.items():
+        for boats in races.values():
             if filter_fn and not filter_fn(boats):
                 continue
-            ps = race_spread_stats(boats, "phrf", trim=trim)
-            os_ = race_spread_stats(boats, "orc", trim=trim)
+            paired = paired_rows(boats, trim=trim)
+            ps = race_spread_stats(paired, "phrf")
+            os_ = race_spread_stats(paired, "orc")
             if ps and os_:
                 phrf_ranges.append(ps["range_pct"])
                 orc_ranges.append(os_["range_pct"])
@@ -152,17 +194,19 @@ def main():
     md.append("| Filter | Races | PHRF median range | ORC median range | PHRF median stdev | ORC median stdev |\n")
     md.append("|---|---|---|---|---|---|\n")
     overall = aggregate_spread()
-    md.append(f"| All races, no trim | {overall['n']} | {overall['phrf_range_median']:.1f}% | "
-              f"{overall['orc_range_median']:.1f}% | {overall['phrf_stdev_median']:.1f}% | "
-              f"{overall['orc_stdev_median']:.1f}% |\n")
     trim1 = aggregate_spread(trim=1)
-    md.append(f"| All races, drop slowest | {trim1['n']} | {trim1['phrf_range_median']:.1f}% | "
-              f"{trim1['orc_range_median']:.1f}% | {trim1['phrf_stdev_median']:.1f}% | "
-              f"{trim1['orc_stdev_median']:.1f}% |\n")
     trim2 = aggregate_spread(trim=2)
-    md.append(f"| All races, drop slowest 2 | {trim2['n']} | {trim2['phrf_range_median']:.1f}% | "
-              f"{trim2['orc_range_median']:.1f}% | {trim2['phrf_stdev_median']:.1f}% | "
-              f"{trim2['orc_stdev_median']:.1f}% |\n")
+    for label, agg in [("All races, no trim", overall), ("All races, drop last boat", trim1),
+                       ("All races, drop last 2 boats", trim2)]:
+        md.append(f"| {label} | {agg['n']} | {_pct(agg['phrf_range_median'])} | "
+                  f"{_pct(agg['orc_range_median'])} | {_pct(agg['phrf_stdev_median'])} | "
+                  f"{_pct(agg['orc_stdev_median'])} |\n")
+    n_left_out = len(no_phrf_times)
+    md.append(f"\nRaces need 2+ boats with both times. {n_left_out} "
+              f"{'race' if n_left_out == 1 else 'races'} with 2+ covered boats "
+              f"{'has' if n_left_out == 1 else 'have'} no published PHRF corrected times (pursuit race) and "
+              f"{'is' if n_left_out == 1 else 'are'} left out of the spread tables but still counted in the rank "
+              f"tables below. Trimming only applies where at least two boats remain.\n")
 
     # ---- 2. By wind band ----
     md.append("\n## 2. Spread by wind band\n\n")
@@ -170,24 +214,26 @@ def main():
               "its spread should be smaller.\n\n")
     md.append("| Wind band | Races | PHRF range | ORC range | Δ (ORC − PHRF) | PHRF stdev | ORC stdev |\n")
     md.append("|---|---|---|---|---|---|---|\n")
+    band_spread = {}
     for band in ["low", "medium", "high"]:
         agg = aggregate_spread(filter_fn=lambda b, band=band: b[0]["wind_band"] == band)
+        band_spread[band] = agg
         if agg["n"] == 0:
             md.append(f"| {band} | 0 | — | — | — | — | — |\n")
             continue
         delta = agg["orc_range_median"] - agg["phrf_range_median"]
-        delta_sign = "+" if delta > 0 else ""
         md.append(f"| {band} | {agg['n']} | {agg['phrf_range_median']:.1f}% | "
-                  f"{agg['orc_range_median']:.1f}% | {delta_sign}{delta:.1f}pp | "
+                  f"{agg['orc_range_median']:.1f}% | {delta:+.1f}pp | "
                   f"{agg['phrf_stdev_median']:.1f}% | {agg['orc_stdev_median']:.1f}% |\n")
 
     # ---- 3. Rank agreement ----
     md.append("\n## 3. Rank agreement (Spearman ρ)\n\n")
     md.append("ρ = +1 means PHRF and ORC produce the same ordering. ρ = 0 means random. ")
-    md.append("Negative ρ means inverted ordering. Computed only on the covered subset.\n\n")
+    md.append("Negative ρ means inverted ordering. Computed only on the covered subset, with PHRF re-ranked "
+              "within it.\n\n")
 
     band_rho = defaultdict(list)
-    for key, boats in races.items():
+    for boats in races.values():
         rho = rank_agreement(boats)
         if rho is None:
             continue
@@ -214,44 +260,35 @@ def main():
     md.append("\n## 4. Per-class systematic effect\n\n")
     md.append("For each class, average rank shift (ORC rank − PHRF rank) across all races. ")
     md.append("Negative = ORC ranks this class HIGHER than PHRF does (class benefits from ORC). ")
-    md.append("Positive = ORC ranks this class LOWER (class is hurt by ORC).\n\n")
+    md.append("Positive = ORC ranks this class LOWER (class is hurt by ORC). ")
+    md.append("Wins count the best covered boat under each system.\n\n")
 
     class_shifts = defaultdict(list)
-    class_winner_counts = defaultdict(lambda: {"phrf": 0, "orc": 0, "races": 0})
-    for key, boats in races.items():
-        # Tag each boat with its rank-shift
+    class_winner_counts = defaultdict(lambda: {"phrf": 0, "orc": 0})
+    for boats in races.values():
         for r in boats:
             cls = r["boat_class"] or "Unknown"
             p = _i(r["phrf_rank_in_covered"])
             o = _i(r["orc_rank"])
             if p is not None and o is not None:
                 class_shifts[cls].append(o - p)
-        # Winners
-        phrf_winner = next((r for r in boats if _i(r["phrf_rank_in_covered"]) == 1), None)
-        orc_winner = next((r for r in boats if _i(r["orc_rank"]) == 1), None)
+        phrf_winner, orc_winner = class_winners(boats)
         if phrf_winner:
-            cls = phrf_winner["boat_class"] or "Unknown"
-            class_winner_counts[cls]["phrf"] += 1
+            class_winner_counts[phrf_winner["boat_class"] or "Unknown"]["phrf"] += 1
         if orc_winner:
-            cls = orc_winner["boat_class"] or "Unknown"
-            class_winner_counts[cls]["orc"] += 1
+            class_winner_counts[orc_winner["boat_class"] or "Unknown"]["orc"] += 1
 
     # Show classes with at least 3 boat-races
     md.append("| Class | Boat-races | Mean rank shift | PHRF wins | ORC wins | Δ wins |\n")
     md.append("|---|---|---|---|---|---|\n")
     sorted_classes = sorted(
-        class_shifts.items(),
-        key=lambda x: statistics.mean(x[1]) if x[1] else 0,
+        ((cls, shifts) for cls, shifts in class_shifts.items() if len(shifts) >= 3),
+        key=lambda x: statistics.mean(x[1]),
     )
     for cls, shifts in sorted_classes:
-        if len(shifts) < 3:
-            continue
-        mean_shift = statistics.mean(shifts)
-        sign = "+" if mean_shift > 0 else ""
         w = class_winner_counts[cls]
-        d = w["orc"] - w["phrf"]
-        ds = "+" if d > 0 else ""
-        md.append(f"| {cls} | {len(shifts)} | {sign}{mean_shift:.2f} | {w['phrf']} | {w['orc']} | {ds}{d} |\n")
+        md.append(f"| {cls} | {len(shifts)} | {statistics.mean(shifts):+.2f} | {w['phrf']} | {w['orc']} | "
+                  f"{w['orc'] - w['phrf']:+d} |\n")
     md.append("\n*(Classes with fewer than 3 boat-results across all races omitted.)*\n")
 
     # ---- 5. Per-class effect BY WIND BAND ----
@@ -259,7 +296,7 @@ def main():
     md.append("Does each class do better or worse under ORC in specific conditions?\n\n")
 
     class_band_shifts = defaultdict(lambda: defaultdict(list))
-    for key, boats in races.items():
+    for boats in races.values():
         band = boats[0]["wind_band"] or "unknown"
         for r in boats:
             cls = r["boat_class"] or "Unknown"
@@ -280,58 +317,54 @@ def main():
         cells = []
         for b in ["low", "medium", "high"]:
             vals = bands.get(b, [])
-            if vals:
-                m = statistics.mean(vals)
-                sign = "+" if m > 0 else ""
-                cells.append((len(vals), f"{sign}{m:.2f}"))
-            else:
-                cells.append((0, "—"))
+            cells.append((len(vals), f"{statistics.mean(vals):+.2f}") if vals else (0, "—"))
         md.append(f"| {cls} | {cells[0][0]} | {cells[0][1]} | "
                   f"{cells[1][0]} | {cells[1][1]} | "
                   f"{cells[2][0]} | {cells[2][1]} |\n")
 
-    # ---- Interpretation ----
+    # ---- Interpretation (every number below comes from the tables above) ----
     md.append("\n## Summary observations\n\n")
-
-    # Compute the key numbers we want to talk about
-    rho_low = band_rho.get("low", [])
-    rho_med = band_rho.get("medium", [])
-    rho_high = band_rho.get("high", [])
-
     bullets = []
-    if rho_low and rho_med:
-        rho_high_str = f"{statistics.median(rho_high):.2f}" if rho_high else "n/a"
+
+    rho_meds = {b: statistics.median(band_rho[b]) for b in ("low", "medium", "high") if band_rho.get(b)}
+    if len(rho_meds) >= 2:
+        lowest = min(rho_meds, key=rho_meds.get)
+        parts = ", ".join(f"{rho_meds[b]:+.2f} in {b} wind ({len(band_rho[b])} races)" for b in rho_meds)
+        no_high = "" if "high" in rho_meds else " No race fell in the high band."
         bullets.append(
-            f"**Disagreement is wind-dependent.** Median rank correlation ρ is "
-            f"{statistics.median(rho_low):.2f} in light wind vs "
-            f"{statistics.median(rho_med):.2f} in medium vs "
-            f"{rho_high_str} in high wind. "
-            f"The lower ρ, the less PHRF and ORC agree on ordering."
+            f"**Rank agreement by band.** Median ρ is {parts}; agreement is lowest in {lowest} wind.{no_high} "
+            f"With this few races per band, and different boats sailing in each, that is not evidence that the "
+            f"two systems diverge as the wind changes: under the proxy certs the Sonar/J/105 ToT ratio is nearly "
+            f"flat across bands, and most winner changes come from a fixed Sonar rating offset "
+            f"(see `phrf_vs_orc_fixed_course.md`)."
         )
-    bullets.append(
-        f"**ORC produces a wider spread**, not a tighter one. Median corrected-time range is "
-        f"{overall['orc_range_median']:.1f}% under ORC vs {overall['phrf_range_median']:.1f}% under PHRF. "
-        f"More spread = more separation between fastest and slowest corrected times. PHRF compresses the fleet more tightly."
-    )
-    bullets.append(
-        f"**The spread gap is driven almost entirely by the slowest boat in each race.** Dropping the slowest "
-        f"boat collapses the spreads to nearly identical: PHRF {trim1['phrf_range_median']:.1f}% vs ORC "
-        f"{trim1['orc_range_median']:.1f}%. So ORC isn't structurally wider — it's more punishing to the "
-        f"back-of-fleet boat (probably an under-prepared / non-competitive entry whose elapsed time gets "
-        f"scaled up more heavily by the wind-band coefficient). For competitive racing among the top boats, "
-        f"ORC and PHRF produce similar spread."
-    )
-    bullets.append(
-        f"**Disagreement is greatest in MEDIUM wind, not light.** This is counterintuitive but consistent: "
-        f"in light wind, both systems heavily favor the smaller boats (everyone agrees Sonars win); "
-        f"in medium wind, PHRF gives a single coefficient while ORC's medium-band ToT does something "
-        f"different, producing diverging orderings in 6 of 10 medium-wind races."
-    )
-    bullets.append(
-        f"**Class bias is real and material.** Sonars gain ~1.1 positions on average under ORC and went "
-        f"from 4 PHRF wins to 16 ORC wins (+12). J/105 (Mojo) and J/29 OB lose the most. "
-        f"Caveat: partly an artifact of proxy cert choice — see sonar_sensitivity.md."
-    )
+    if overall["n"]:
+        wider = overall["orc_range_median"] > overall["phrf_range_median"]
+        bullets.append(
+            f"**Spread on the same boats.** Median corrected-time range is {overall['orc_range_median']:.1f}% "
+            f"under the ORC simulation vs {overall['phrf_range_median']:.1f}% under PHRF ({overall['n']} races), "
+            f"so the simulation spreads the fleet {'more' if wider else 'less'} than PHRF does."
+        )
+    if trim1["n"]:
+        bullets.append(
+            f"**Back-of-fleet sensitivity.** Dropping the boat that finishes last in both systems gives "
+            f"PHRF {trim1['phrf_range_median']:.1f}% vs ORC {trim1['orc_range_median']:.1f}%; dropping two gives "
+            f"{trim2['phrf_range_median']:.1f}% vs {trim2['orc_range_median']:.1f}%. The no-trim gap of "
+            f"{overall['orc_range_median'] - overall['phrf_range_median']:+.1f}pp becomes "
+            f"{trim1['orc_range_median'] - trim1['phrf_range_median']:+.1f}pp after one trim, so the difference "
+            f"in spread is concentrated at the back of the fleet."
+        )
+    if sorted_classes:
+        best_cls, best_shifts = sorted_classes[0]
+        worst = [cls for cls, s in sorted_classes[-2:]][::-1]
+        w = class_winner_counts[best_cls]
+        bullets.append(
+            f"**Class bias is material under these proxy certs.** {best_cls} boats gain "
+            f"{-statistics.mean(best_shifts):.1f} places on average and go from {w['phrf']} PHRF wins to "
+            f"{w['orc']} simulated ORC wins ({w['orc'] - w['phrf']:+d}). {' and '.join(worst)} lose the most. "
+            f"This follows from the proxy certs' Sonar/J/105 rating offset, so it is only as reliable as those "
+            f"certs — see `sonar_sensitivity.md`."
+        )
 
     for b in bullets:
         md.append(f"- {b}\n")
@@ -342,9 +375,9 @@ def main():
 
     # Print summary
     print()
-    print(f"Overall median range:  PHRF={overall['phrf_range_median']:.1f}%  ORC={overall['orc_range_median']:.1f}%")
-    hi_str = f"{statistics.median(rho_high):+.2f}" if rho_high else "n/a"
-    print(f"Median ρ:  low={statistics.median(rho_low):+.2f}  med={statistics.median(rho_med):+.2f}  high={hi_str}")
+    print(f"Overall median range (same boats):  PHRF={_pct(overall['phrf_range_median'])}  "
+          f"ORC={_pct(overall['orc_range_median'])}  ({overall['n']} races)")
+    print("Median ρ:  " + "  ".join(f"{b}={m:+.2f}" for b, m in rho_meds.items()))
 
 
 if __name__ == "__main__":

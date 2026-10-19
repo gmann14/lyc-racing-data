@@ -15,124 +15,42 @@ from __future__ import annotations
 import csv
 import json
 import sqlite3
-from copy import deepcopy
+import statistics
 from pathlib import Path
 
+from analyze_orc_vs_phrf import CERTS_DIR, fetch_race_data, phrf_tcf_ratio
 from orc_score import (
-    BoatResult,
     load_boat_cert_map,
     load_certs,
     load_class_cert_map,
-    parse_elapsed_to_seconds,
     score_race,
+    summarize_race,
     wind_band,
 )
-from fetch_race_wind import avg_window
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 RACE_WIND_CACHE_PATH = PROJECT_ROOT / "enrichment" / "race_wind_cache.json"
 
-SUNDAY_WINDOW = (13, 17)
-
-# Three Sonar proxy certs to evaluate
+# Three Sonar proxy certs to evaluate (GPH and issue year come from the certs)
 SONAR_PROXIES = [
-    {
-        "label": "Tamar (ISR-113, baseline)",
-        "ref": "043900036AB",
-        "year": 2024,
-        "gph": 746.5,
-    },
-    {
-        "label": "UN MAR SIN BARRERAS 2023",
-        "ref": "03510002C0S",
-        "year": 2023,
-        "gph": 736.3,
-    },
-    {
-        "label": "UN MAR SIN BARRERAS 2021",
-        "ref": "03510000V13",
-        "year": 2021,
-        "gph": 724.0,
-    },
+    {"label": "Tamar (ISR-113, baseline)", "short": "Tamar", "ref": "043900036AB"},
+    {"label": "UN MAR SIN BARRERAS 2023", "short": "UMSB-2023", "ref": "03510002C0S"},
+    {"label": "UN MAR SIN BARRERAS 2021", "short": "UMSB-2021", "ref": "03510000V13"},
 ]
-
-FIXED_COURSES: dict[str, tuple[str, float]] = {
-    "boland":   ("Boland's Cup", 16.7),
-    "leeward":  ("Leeward Island", 14.2),
-    "tancook":  ("RG Smith (Tancook)", 22.2),
-    "smith":    ("RG Smith (Tancook)", 22.2),
-    "rg smith": ("RG Smith (Tancook)", 22.2),
-}
-
-
-def _match_course(name: str):
-    low = name.lower()
-    for k, info in FIXED_COURSES.items():
-        if k in low:
-            return info
-    return None
-
-
-def _parse_race_date(s):
-    if not s: return None
-    s = s.strip()
-    for sep in ("/", "-"):
-        if sep in s and len(s.split(sep)) == 3:
-            dd, mm, yy = s.split(sep)
-            year = ("20"+yy) if len(yy)==2 else yy
-            return f"{year}-{mm.zfill(2)}-{dd.zfill(2)}"
-    return None
 
 
 def gather_races(conn, race_wind_cache):
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT e.name, e.year, r.id, r.date
-        FROM events e JOIN races r ON r.event_id = e.id
-        WHERE e.year >= 2014 AND e.event_type='trophy'
-          AND (LOWER(e.name) LIKE '%boland%' OR LOWER(e.name) LIKE '%leeward%'
-            OR LOWER(e.name) LIKE '%tancook%' OR LOWER(e.name) LIKE '%smith%')
-        ORDER BY e.year, e.name
-    """)
-    races = cur.fetchall()
-    out = []
-    for event_name, year, race_id, date_str in races:
-        course = _match_course(event_name)
-        if not course: continue
-        course_label, distance = course
-        date_iso = _parse_race_date(date_str)
-        wind_kts = None
-        if date_iso:
-            day = race_wind_cache.get(date_iso, {})
-            day = {int(k): v for k, v in day.items()}
-            if day:
-                w = avg_window(day, *SUNDAY_WINDOW)
-                if w: wind_kts = w["wind_speed_kts_avg"]
-        cur.execute("""
-            SELECT b.name, b.sail_number, b.class, res.phrf_rating,
-                   res.elapsed_time, res.corrected_time, res.rank
-            FROM results res
-            JOIN races r ON res.race_id = r.id
-            JOIN participants p ON res.participant_id = p.id
-            JOIN boats b ON p.boat_id = b.id
-            WHERE r.id = ? ORDER BY res.rank
-        """, (race_id,))
-        boats = []
-        for name, sail, cls, phrf, elapsed, corrected, rank in cur.fetchall():
-            es = parse_elapsed_to_seconds(elapsed)
-            if es is None: continue
-            boats.append(BoatResult(name, sail, cls, phrf, es,
-                                    parse_elapsed_to_seconds(corrected), rank))
-        if boats:
-            out.append((event_name, year, race_id, date_str, course_label,
-                        distance, wind_kts, boats))
-    return out
+    """Races as (event, year, race_id, date, course, distance, wind_kts, boats)."""
+    return [(event_name, year, race_id, date_str, course_label, distance_nm, wind_kts, boats)
+            for (event_name, year, race_id, date_str, _date_iso, course_label, distance_nm,
+                 wind_kts, _afternoon, _daily, _gust, boats, _notes)
+            in fetch_race_data(conn, race_wind_cache)]
 
 
 def run_scenario(sonar_ref: str, races, certs, base_boat_map):
-    """Run scoring with a specific Sonar proxy. Returns list of race summaries."""
+    """Run scoring with a specific Sonar proxy. Returns (race summary, scored) pairs."""
     # Override class map to point Sonar at the chosen ref
     class_map = load_class_cert_map()
     class_map["Sonar"] = sonar_ref
@@ -142,28 +60,23 @@ def run_scenario(sonar_ref: str, races, certs, base_boat_map):
         if v in {p["ref"] for p in SONAR_PROXIES}:
             boat_map[k] = sonar_ref
 
-    summaries = []
+    out = []
     for event_name, year, race_id, date_str, course_label, distance, wind_kts, boats in races:
         scored = score_race(boats, distance, wind_kts, method="tot_triple",
                             certs=certs, boat_cert_map=boat_map,
                             class_cert_map=class_map)
-        covered = [s for s in scored if s.orc_corrected_seconds is not None]
-        covered_phrf = sorted(covered, key=lambda s: (s.boat.published_rank or 999))
-        for i, s in enumerate(covered_phrf, 1):
-            s.phrf_rank = i
-        rank_changes = sum(1 for s in covered if s.orc_rank != s.phrf_rank)
-        phrf_winner = covered_phrf[0].boat.boat_name if covered_phrf else None
-        orc_winner = next((s.boat.boat_name for s in covered if s.orc_rank == 1), None)
-        winner_change = phrf_winner != orc_winner if (phrf_winner and orc_winner) else False
-        summaries.append({
-            "event": event_name, "year": year, "course": course_label,
+        summary = {
+            "race_id": race_id, "event": event_name, "year": year, "course": course_label,
             "date": date_str, "wind_kts": wind_kts, "band": wind_band(wind_kts),
-            "n_boats": len(boats), "n_covered": len(covered),
-            "rank_changes": rank_changes,
-            "phrf_winner": phrf_winner, "orc_winner": orc_winner,
-            "winner_change": winner_change,
-        })
-    return summaries
+            "n_boats": len(boats),
+            **summarize_race(scored),
+        }
+        out.append((summary, scored))
+    return out
+
+
+def _band_tots(cert) -> list[float]:
+    return [cert.coastal_low_tot, cert.coastal_med_tot, cert.coastal_high_tot]
 
 
 def main():
@@ -171,6 +84,7 @@ def main():
     race_wind_cache = json.loads(RACE_WIND_CACHE_PATH.read_text()) if RACE_WIND_CACHE_PATH.exists() else {}
     certs = load_certs()
     boat_map = load_boat_cert_map()
+    j105 = certs[load_class_cert_map()["J/105"]]
 
     conn = sqlite3.connect(DB_PATH)
     races = gather_races(conn, race_wind_cache)
@@ -179,28 +93,40 @@ def main():
     print(f"Loaded {len(races)} fixed-course races")
 
     # Run all 3 scenarios
+    scored_by_ref = {}
     scenarios = {}
     for proxy in SONAR_PROXIES:
         print(f"  scoring with Sonar = {proxy['label']}")
-        scenarios[proxy["ref"]] = run_scenario(proxy["ref"], races, certs, boat_map)
+        scored_by_ref[proxy["ref"]] = run_scenario(proxy["ref"], races, certs, boat_map)
+        scenarios[proxy["ref"]] = [summary for summary, _ in scored_by_ref[proxy["ref"]]]
+
+    # PHRF's effective Sonar/J105 ratio (identical in every scenario)
+    phrf_ratios = phrf_tcf_ratio(scored_by_ref[SONAR_PROXIES[0]["ref"]], "Sonar", "J/105")
+    phrf_ratio = statistics.median(r for _, r in phrf_ratios)
+
+    # Per-proxy cert facts
+    for proxy in SONAR_PROXIES:
+        cert = certs[proxy["ref"]]
+        data = json.loads((CERTS_DIR / f"{proxy['ref']}.json").read_text())
+        proxy["gph"] = cert.gph
+        proxy["issued"] = (data.get("issued_on") or "")[-4:] or "?"
+        proxy["name"] = data.get("name")
+        proxy["ratio"] = [a / b for a, b in zip(_band_tots(cert), _band_tots(j105))]
+        proxy["gap"] = [1 - r / phrf_ratio for r in proxy["ratio"]]
 
     # Cross-scenario comparison
     csv_rows = []
-    md_rows = []
     n_races = len(races)
     # Per-scenario headlines
     headlines = []
     for proxy in SONAR_PROXIES:
         rs = scenarios[proxy["ref"]]
-        rank_change_races = sum(1 for s in rs if s["rank_changes"] > 0)
-        multi = [s for s in rs if s["n_covered"] >= 2]
-        winner_changes = sum(1 for s in rs if s["winner_change"])
         headlines.append({
             "label": proxy["label"],
             "gph": proxy["gph"],
-            "rank_change_races": rank_change_races,
-            "winner_changes": winner_changes,
-            "multi_count": len(multi),
+            "rank_change_races": sum(1 for s in rs if s["rank_changes"] > 0),
+            "winner_changes": sum(1 for s in rs if s["winner_change"]),
+            "multi_count": sum(1 for s in rs if s["n_covered"] >= 2),
         })
 
     # Per-race comparison: ORC winner under each proxy
@@ -208,6 +134,7 @@ def main():
     for i in range(n_races):
         event = scenarios[SONAR_PROXIES[0]["ref"]][i]
         row = {
+            "race_id": event["race_id"],
             "year": event["year"],
             "event": event["event"],
             "course": event["course"],
@@ -237,24 +164,46 @@ def main():
             w.writerows(csv_rows)
         print(f"Wrote {csv_path}")
 
+    refs = [p["ref"] for p in SONAR_PROXIES]
+    sensitive = [r for r in per_race if not r["winners_agree"]]
+    # Proxy giving the Sonar the least credit (highest Sonar/J105 ratio)
+    least = max(SONAR_PROXIES, key=lambda p: statistics.mean(p["ratio"]))
+    back_to_phrf = [r for r in sensitive
+                    if r[f"orc_winner_{refs[0]}"] != r["phrf_winner"]
+                    and r[f"orc_winner_{least['ref']}"] == r["phrf_winner"]]
+    gphs = [p["gph"] for p in SONAR_PROXIES]
+    gph_spread = max(gphs) / min(gphs) - 1
+    same_hull = [p for p in SONAR_PROXIES if p["name"] and
+                 sum(1 for q in SONAR_PROXIES if q["name"] == p["name"]) > 1]
+    flips = [h["winner_changes"] for h in headlines]
+    all_gaps = [g for p in SONAR_PROXIES for g in p["gap"]]
+
     # Markdown report
     md = []
     md.append("# Sonar-Proxy Sensitivity Analysis\n\n")
+    md.append("> **Proxy-certificate simulation** — see `phrf_vs_orc_fixed_course.md`.\n\n")
     md.append("How much does the choice of Sonar proxy certificate change the PHRF-vs-ORC comparison? ")
     md.append("Same races, same wind data, same J/105/J/92/J/27/etc certs — only the Sonar cert changes.\n\n")
 
     md.append("## The three Sonar proxies\n\n")
-    md.append("| Cert | Year | GPH | Coastal Low ToT | Coastal Med ToT | Coastal High ToT |\n")
-    md.append("|---|---|---|---|---|---|\n")
+    md.append("| Cert | Issued | GPH | Coastal Low ToT | Coastal Med ToT | Coastal High ToT | Sonar/J/105 ratio (low/med/high) |\n")
+    md.append("|---|---|---|---|---|---|---|\n")
     for proxy in SONAR_PROXIES:
-        ref = proxy["ref"]
-        cert = certs[ref]
-        md.append(f"| {proxy['label']} | {proxy['year']} | {cert.gph} | "
-                  f"{cert.coastal_low_tot:.4f} | {cert.coastal_med_tot:.4f} | {cert.coastal_high_tot:.4f} |\n")
-    md.append("\nLower GPH = faster boat. Lower ToT = more time-allowance credit.\n")
-    md.append("**The two UN MAR SIN BARRERAS entries are the same physical boat — only the ORC VPP model version changed between 2021 and 2023, shifting the rating by ~1.7%.**\n\n")
+        cert = certs[proxy["ref"]]
+        md.append(f"| {proxy['label']} | {proxy['issued']} | {cert.gph} | "
+                  + " | ".join(f"{t:.4f}" for t in _band_tots(cert)) + " | "
+                  + " / ".join(f"{r:.3f}" for r in proxy["ratio"]) + " |\n")
+    md.append(f"| *PHRF (published)* | — | — | — | — | — | {phrf_ratio:.3f} in every race |\n")
+    md.append("\nLower GPH = faster boat. Lower ToT = more time-allowance credit.\n\n")
+    if len(same_hull) >= 2:
+        a, b = sorted(same_hull, key=lambda p: p["issued"])[:2]
+        md.append(f"**The two {a['name']} entries are the same physical boat** — only the ORC VPP model "
+                  f"changed between {a['issued']} and {b['issued']}, moving GPH from {a['gph']} to {b['gph']} "
+                  f"({(b['gph'] / a['gph'] - 1) * 100:.1f}%). The proxy certs used across the fleet were issued "
+                  f"in different years (see `phrf_vs_orc_fixed_course.md`), so part of any class difference is "
+                  f"model-year drift.\n\n")
 
-    md.append("## Headline impact across 29 races\n\n")
+    md.append(f"## Headline impact across {n_races} races\n\n")
     md.append("| Sonar proxy | GPH | Races with rank changes | Races with winner flips |\n")
     md.append("|---|---|---|---|\n")
     for h in headlines:
@@ -266,35 +215,39 @@ def main():
     md.append("## Races where the Sonar proxy choice changes the ORC winner\n\n")
     md.append("Below: races where at least one of the three proxies produces a different ORC winner. ")
     md.append("If all three proxies agree on the winner, the row is omitted.\n\n")
-    md.append("| Year | Course | Date | Wind (kt) | Band | PHRF winner | Tamar | SBT-2023 | SBT-2021 |\n")
-    md.append("|---|---|---|---|---|---|---|---|---|\n")
-    sensitive = [r for r in per_race if not r["winners_agree"]]
-    refs = [p["ref"] for p in SONAR_PROXIES]
+    md.append("| Year | Course | Date | Wind (kt) | Band | PHRF winner | "
+              + " | ".join(p["short"] for p in SONAR_PROXIES) + " |\n")
+    md.append("|---|---|---|---|---|---|" + "---|" * len(SONAR_PROXIES) + "\n")
     for r in sensitive:
         wstr = f"{r['wind_kts']:.1f}" if r['wind_kts'] is not None else "—"
-        w0 = r[f"orc_winner_{refs[0]}"] or "—"
-        w1 = r[f"orc_winner_{refs[1]}"] or "—"
-        w2 = r[f"orc_winner_{refs[2]}"] or "—"
+        cells = " | ".join(r[f"orc_winner_{ref}"] or "—" for ref in refs)
         md.append(f"| {r['year']} | {r['course']} | {r['date'] or '—'} | {wstr} | {r['band']} | "
-                  f"{r['phrf_winner'] or '—'} | {w0} | {w1} | {w2} |\n")
+                  f"{r['phrf_winner'] or '—'} | {cells} |\n")
 
-    md.append(f"\n**{len(sensitive)} of {n_races} races are sensitive to the Sonar proxy choice** — the ORC winner depends on which Sonar cert we use.\n\n")
+    md.append(f"\n**{len(sensitive)} of {n_races} races are sensitive to the Sonar proxy choice** — the ORC "
+              f"winner depends on which Sonar cert we use.\n\n")
 
     md.append("## How to interpret this\n\n")
-    md.append("**The systematic finding is robust to proxy choice.** Headline winner-flips barely move "
-              "across the three proxies (12 → 12 → 11). The macro story — Sonars often beat J/105s under ORC in light air — "
-              "holds regardless of which Sonar cert we use.\n\n")
-    md.append("**Where the proxy DOES matter is at the boundary cases.** Four races out of 29 have different "
-              "ORC winners depending on which Sonar cert we apply. In two of those (2016 Boland's, 2017 Leeward), "
-              "switching to the fastest Sonar proxy flips the result *back* to the PHRF winner — suggesting "
-              "the Tamar proxy may be over-allocating credit to Sonars in those specific cases.\n\n")
-    md.append("**Practical implication.** The ORC vs PHRF disagreement isn't an artifact of a single bad proxy "
-              "— it's a structural difference between how the two systems handle wind banding. But if LYC ever "
-              "switches scoring methods for real, the choice of which Sonar cert to use as the class default "
-              "(or even better, having actual measured certs for individual boats) would only swing a handful "
-              "of marginal race outcomes per season, not the majority.\n\n")
-    md.append("**The only way to settle which proxy is most accurate** is to log actual race-day winds and "
-              "finish times across a season, then back-fit which proxy's polars best match LYC Sonar performance.\n")
+    md.append(f"**Stable to small proxy changes — which is all this tests.** Winner flips move "
+              f"{' → '.join(str(n) for n in flips)} across the three proxies. But the proxies are close to "
+              f"each other (GPH within {gph_spread * 100:.1f}%) and all three rate the Sonar below PHRF's "
+              f"Sonar/J/105 ratio of {phrf_ratio:.3f}, by {min(all_gaps) * 100:.1f}–{max(all_gaps) * 100:.1f}%. "
+              f"That shared offset is what drives most winner changes (`phrf_vs_orc_fixed_course.md` shows "
+              f"most of them disappear when it is removed), so agreement among these proxies says nothing about "
+              f"whether the offset itself is right for LYC Sonars.\n\n")
+    if sensitive:
+        back_races = ", ".join(f"{r['year']} {r['course']}" for r in back_to_phrf)
+        back = (f" In {len(back_to_phrf)} of them ({back_races}), the proxy that gives the "
+                f"Sonar the least credit ({least['label']}) hands the win back to the PHRF winner."
+                if back_to_phrf else "")
+        md.append(f"**Where the proxy does matter is at the boundary cases.** {len(sensitive)} of {n_races} "
+                  f"races have different ORC winners depending on which Sonar cert we apply.{back}\n\n")
+    md.append("**Practical implication.** Choosing between similar published Sonar certs swings only a few "
+              "marginal results. The open question is the level of the Sonar rating relative to the J/105 (and "
+              "the other classes), which no proxy can answer.\n\n")
+    md.append("**The only way to settle it** is measured certificates for LYC boats, or logging actual "
+              "race-day winds and finish times across a season and back-fitting which ratings match LYC "
+              "performance.\n")
 
     md_path = REPORTS_DIR / "sonar_sensitivity.md"
     md_path.write_text("".join(md))

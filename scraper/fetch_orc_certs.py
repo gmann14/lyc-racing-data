@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -29,6 +31,19 @@ CERTS_DIR = PROJECT_ROOT / "enrichment" / "orc_certs"
 REGISTRY_PATH = CERTS_DIR / "boats.csv"
 
 ORC_BASE = "https://data.orc.org/public/WPub.dll/CC"
+
+SCORING_KEYS = ("coastal", "windward_leeward", "coastal_triple", "windward_leeward_triple")
+TRIPLE_BANDS = ("low", "medium", "high")
+
+# ORC Time-on-Time coefficients satisfy ToD × ToT = 600 (s/NM). Every HTML cert
+# follows that for every option, but the older PDF certs (VPP 2017/2019) print
+# their windward/leeward and triple-number ToT on a 675 base (ToT = 675 / ToD)
+# while their coastal single number is on 600. Coefficients on different bases
+# can't be mixed in one fleet, so parse_cert rescales them to 600.
+TOT_BASE = 600.0
+ALT_TOT_BASES = (675.0,)
+# Relative tolerance: ToT is printed to 4 dp and ToD to 1 dp (~0.02% error).
+TOT_BASE_TOLERANCE = 0.002
 
 
 def _extract_pdf_text(content: bytes) -> str:
@@ -177,11 +192,59 @@ def parse_cert(text: str, ref: str, source_format: str) -> dict:
         if w:
             boat["scoring"]["windward_leeward_triple"] = w
 
+    warnings = normalize_tot_base(boat["scoring"])
+    if warnings:
+        boat["parse_warnings"] = warnings
+
     # Polar table — "Rated boat velocities in knots Wind Velocity 6 kt 8 kt ... Beat Angles X X ... Beat VMG ..."
     boat["polar"] = _parse_polar(t, "Rated boat velocities in knots")
     boat["time_allowances"] = _parse_polar(t, "Time Allowances in secs/NM")
 
     return boat
+
+
+def iter_scoring_entries(scoring: dict):
+    """Yield (label, {"tod", "tot", ...}) for every single/triple scoring entry."""
+    for key in SCORING_KEYS:
+        option = scoring.get(key) or {}
+        if key.endswith("_triple"):
+            for band in TRIPLE_BANDS:
+                if option.get(band):
+                    yield f"{key}.{band}", option[band]
+        elif option:
+            yield key, option
+
+
+def normalize_tot_base(scoring: dict) -> list[str]:
+    """Rescale ToT coefficients printed on a non-600 base to ToT = 600 / ToD.
+
+    Mutates ``scoring`` in place. A rescaled entry keeps the printed value as
+    ``tot_as_printed`` and its base as ``tot_base_as_printed``. Returns warnings
+    for entries whose ToD × ToT matches no known base (likely a mis-parse).
+    """
+    warnings: list[str] = []
+    for label, entry in iter_scoring_entries(scoring):
+        tod, tot = entry.get("tod"), entry.get("tot")
+        if not tod or not tot:
+            continue
+        product = tod * tot
+        if abs(product / TOT_BASE - 1) <= TOT_BASE_TOLERANCE:
+            continue
+        base = next((b for b in ALT_TOT_BASES
+                     if abs(product / b - 1) <= TOT_BASE_TOLERANCE), None)
+        if base is None:
+            warnings.append(f"{label}: ToD x ToT = {product:.1f}, expected {TOT_BASE:.0f}")
+            continue
+        entry["tot_as_printed"] = tot
+        entry["tot_base_as_printed"] = base
+        entry["tot"] = round(TOT_BASE / tod, 4)
+    return warnings
+
+
+def has_scoring(data: dict) -> bool:
+    """True when a parsed cert has at least one scoring option."""
+    scoring = data.get("scoring") or {}
+    return any(scoring.get(k) for k in SCORING_KEYS)
 
 
 _POLAR_ROW_LABELS = [
@@ -252,12 +315,19 @@ def load_registry() -> list[dict]:
 
 
 def save_cert(ref: str, data: dict) -> Path:
+    """Write a cert JSON atomically (temp file + rename) so a crash can't truncate it."""
     CERTS_DIR.mkdir(parents=True, exist_ok=True)
     # Slugify ref for filename (slashes in country/sail format)
     fname = ref.replace("/", "_") + ".json"
     out = CERTS_DIR / fname
-    with out.open("w") as f:
-        json.dump(data, f, indent=2, sort_keys=True)
+    fd, tmp = tempfile.mkstemp(dir=CERTS_DIR, prefix=f".{fname}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            json.dump(data, f, indent=2, sort_keys=True)
+        os.replace(tmp, out)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
     return out
 
 
@@ -274,21 +344,34 @@ def main(argv: list[str]) -> int:
             r["cert_ref"] for r in registry
             if r.get("cert_ref") and not r["cert_ref"].startswith("manual_")
         })
+    if not refs:
+        print("Nothing to fetch.")
+        return 0
 
     print(f"Fetching {len(refs)} cert(s)...")
+    saved = 0
     for ref in refs:
         try:
             data = fetch(ref)
+            # A page without a scoring section (an error page, a redirect to a
+            # login/human-check page) must never replace a good cached cert.
+            if not has_scoring(data):
+                raise ValueError(f"no scoring section parsed from the {data.get('source_format')} "
+                                 f"response; cached cert left untouched")
             out = save_cert(ref, data)
+            saved += 1
             class_ = data.get("boat_class") or "?"
             gph = data.get("gph")
             coastal = data.get("scoring", {}).get("coastal", {}).get("tot")
             print(f"  ✓ {ref:20s}  class={class_:20s}  GPH={gph}  Coastal ToT={coastal}  → {out.name}")
+            for warning in data.get("parse_warnings", []):
+                print(f"    ! {ref}: {warning}", file=sys.stderr)
         except Exception as e:
             print(f"  ✗ {ref}: {e}", file=sys.stderr)
         time.sleep(0.5)  # be polite
 
-    return 0
+    print(f"Saved {saved}/{len(refs)} cert(s).")
+    return 0 if saved else 1
 
 
 if __name__ == "__main__":
