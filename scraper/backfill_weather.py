@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -57,74 +56,6 @@ WMO_CONDITIONS: dict[int, str] = {
     95: "Thunderstorm",
 }
 
-# Date formats used in the races table (all DD/MM based)
-DATE_FORMATS = (
-    "%d/%m/%y",
-    "%d/%m/%Y",
-    "%d-%m-%y",
-    "%d-%m-%Y",
-    "%d/%B/%Y",
-    "%d/%b/%Y",
-)
-
-
-def _fix_year(dt: datetime) -> datetime:
-    """Fix 2-digit year pivot: anything after 2025 is shifted back 100 years."""
-    if dt.year > 2025:
-        return dt.replace(year=dt.year - 100)
-    return dt
-
-
-# Additional formats: YY-MM-DD (some 2007-2008 dates use this)
-ALT_FORMATS = (
-    "%y-%m-%d",
-    "%m-%d-%y",
-    "%m/%d/%y",
-)
-
-
-def parse_race_date(value: str | None, event_year: int | None = None) -> datetime | None:
-    """Parse the mixed date formats stored in the races table.
-
-    Most dates are DD/MM/YY or DD-MM-YY, but some 2007-2008 dash dates
-    use MM-DD-YY. When event_year is provided, we use it to validate
-    and try alternate formats if the primary parse gives the wrong year.
-    """
-    if not value or not value.strip():
-        return None
-    text = " ".join(value.split()).strip()
-    # Skip known non-date values
-    if text.lower() in ("pos", "position", ""):
-        return None
-
-    # Try standard DD/MM formats first
-    for fmt in DATE_FORMATS:
-        try:
-            dt = _fix_year(datetime.strptime(text, fmt))
-            if event_year is None or dt.year == event_year:
-                return dt
-        except ValueError:
-            continue
-
-    # If DD/MM didn't match the event year, try alternate formats
-    if event_year is not None:
-        for fmt in ALT_FORMATS:
-            try:
-                dt = _fix_year(datetime.strptime(text, fmt))
-                if dt.year == event_year:
-                    return dt
-            except ValueError:
-                continue
-
-    # Last resort: return whatever DD/MM parsed (even if year mismatch)
-    for fmt in DATE_FORMATS:
-        try:
-            return _fix_year(datetime.strptime(text, fmt))
-        except ValueError:
-            continue
-    return None
-
-
 def parse_start_time(value: str | None) -> int:
     """Extract the hour from a start_time like '18:36:00'. Returns default if unparseable."""
     if not value or not value.strip():
@@ -143,28 +74,21 @@ def get_unique_race_dates(conn: sqlite3.Connection) -> dict[str, int]:
     """
     Query all unique race dates from handicap events (tns + trophy).
 
-    Returns a dict mapping ISO date string (YYYY-MM-DD) to the most
-    common start hour for that date.
+    Uses races.race_date, which load_db normalises to YYYY-MM-DD. Returns a
+    dict mapping ISO date string to the most common start hour for that date.
     """
     rows = conn.execute(
         """
-        SELECT r.date, r.start_time, e.year
+        SELECT r.race_date, r.start_time
         FROM races r
         JOIN events e ON r.event_id = e.id
         WHERE e.event_type IN ('tns', 'trophy')
-          AND r.date IS NOT NULL
+          AND r.race_date IS NOT NULL
         """
     ).fetchall()
 
     date_hours: dict[str, list[int]] = {}
-    for raw_date, start_time, event_year in rows:
-        parsed = parse_race_date(raw_date, event_year)
-        if parsed is None:
-            continue
-        # Skip dates outside the valid racing range (bad source data)
-        if parsed.year < 1999 or parsed.year > 2025:
-            continue
-        iso = parsed.strftime("%Y-%m-%d")
+    for iso, start_time in rows:
         hour = parse_start_time(start_time)
         date_hours.setdefault(iso, []).append(hour)
 
@@ -250,6 +174,7 @@ def extract_weather_for_date(
 
     return {
         "date": target_date,
+        "hour": target_hour,
         "temp_c": _safe_get("temperature_2m", idx),
         "wind_speed_kmh": _safe_get("wind_speed_10m", idx),
         "wind_direction_deg": int(wind_dir) if wind_dir is not None else None,
@@ -318,8 +243,12 @@ def backfill_weather(force_fetch: bool = False, db_path: Path = DB_PATH) -> None
         conn.commit()
         print(f"Loaded {cached_count} dates from local cache.")
 
-    # Determine which dates still need fetching
-    missing_dates = {d: h for d, h in race_dates.items() if d not in cache}
+    # Fetch dates not cached yet, or cached for a different start hour.
+    # Entries written before the hour was recorded are trusted as-is.
+    missing_dates = {
+        d: h for d, h in race_dates.items()
+        if d not in cache or cache[d].get("hour", h) != h
+    }
     if not missing_dates:
         print("All dates covered by cache. No API calls needed.")
         conn.close()

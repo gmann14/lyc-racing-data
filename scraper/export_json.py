@@ -89,59 +89,6 @@ def _load_tide_lookup(conn: sqlite3.Connection) -> dict[str, list[dict]]:
     return result
 
 
-def _parse_race_date_to_iso(raw_date: str | None, event_year: int | None = None) -> str | None:
-    """Parse mixed race date formats to ISO YYYY-MM-DD string.
-
-    Handles DD/MM/YY, DD/MM/YYYY, DD-MM-YY, M/D/YY, M/D/YYYY and various
-    typos (e.g. 2020 instead of 2003). When event_year is provided and the
-    parsed year doesn't match, substitutes event_year.
-    """
-    if not raw_date or not raw_date.strip():
-        return None
-    text = raw_date.strip()
-    if text.lower() in ("pos", "position"):
-        return None
-    from datetime import datetime
-
-    formats = ("%d/%m/%y", "%d/%m/%Y", "%d-%m-%y", "%d-%m-%Y")
-    alt_formats = ("%y-%m-%d", "%m-%d-%y", "%m/%d/%y", "%m/%d/%Y")
-
-    # First pass: try all formats, accept if year matches event_year
-    for fmt in (*formats, *alt_formats):
-        try:
-            dt = datetime.strptime(text, fmt)
-            if dt.year > 2025:
-                dt = dt.replace(year=dt.year - 100)
-            if event_year is None or dt.year == event_year:
-                return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-
-    # Second pass: if year doesn't match, force event_year (fixes 2020 typos)
-    if event_year is not None:
-        for fmt in (*formats, *alt_formats):
-            try:
-                dt = datetime.strptime(text, fmt)
-                if dt.year > 2025:
-                    dt = dt.replace(year=dt.year - 100)
-                # Year mismatch — likely a typo; use event_year instead
-                dt = dt.replace(year=event_year)
-                return dt.strftime("%Y-%m-%d")
-            except ValueError:
-                continue
-
-    # Final fallback without year validation
-    for fmt in formats:
-        try:
-            dt = datetime.strptime(text, fmt)
-            if dt.year > 2025:
-                dt = dt.replace(year=dt.year - 100)
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            continue
-    return None
-
-
 def _elapsed_to_seconds(t: str | None) -> int | None:
     """Parse elapsed time string (H:MM:SS or 00 H:MM:SS) to total seconds."""
     if not t or not t.strip():
@@ -800,7 +747,7 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int,
 
     # Races
     race_rows = conn.execute(f"""
-        SELECT r.id, r.race_key, r.race_number, r.date, r.start_time,
+        SELECT r.id, r.race_key, r.race_number, r.date, r.race_date, r.start_time,
                r.wind_direction, r.wind_speed_knots, r.course, r.distance_nm, r.notes,
                r.event_id
         FROM races r
@@ -843,9 +790,9 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int,
         race["results"] = sorted(race["results"], key=lambda item: (item["rank"] is None, item["rank"] or 9999))
         # Attach weather data if available
         race["weather"] = None
-        if weather_lookup and race.get("date"):
-            iso_date = _parse_race_date_to_iso(race["date"], event.get("year"))
-            if iso_date and iso_date in weather_lookup:
+        iso_date = race.get("race_date")
+        if weather_lookup and iso_date:
+            if iso_date in weather_lookup:
                 w = weather_lookup[iso_date]
                 race["weather"] = {
                     "temp_c": w["temp_c"],
@@ -857,10 +804,8 @@ def export_event_detail(conn: sqlite3.Connection, event_id: int,
                 }
         # Attach tide data if available
         race["tides"] = None
-        if tide_lookup and race.get("date"):
-            iso_date = _parse_race_date_to_iso(race["date"], event.get("year"))
-            if iso_date and iso_date in tide_lookup:
-                race["tides"] = tide_lookup[iso_date]
+        if tide_lookup and iso_date and iso_date in tide_lookup:
+            race["tides"] = tide_lookup[iso_date]
 
     data = {**event, "standings": standings, "races": races}
     _write_json(OUTPUT_DIR / "events" / f"{event_id}.json", data)
@@ -2058,7 +2003,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
         if course_info:
             # Query all finishers with elapsed times for pace analysis
             perf_rows = conn.execute(f"""
-                SELECT e.year, e.id as event_id, rc.date,
+                SELECT e.year, e.id as event_id, rc.race_date,
                        res.elapsed_time, res.rank,
                        b.name as boat_name, p.display_name, res.status
                 FROM results res
@@ -2074,7 +2019,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
             for row in perf_rows:
                 year = row["year"]
                 if year not in yearly_data:
-                    iso_date = _parse_race_date_to_iso(row["date"], year)
+                    iso_date = row["race_date"]
                     weather = weather_lookup.get(iso_date) if iso_date else None
                     yearly_data[year] = {
                         "year": year,
@@ -2665,7 +2610,7 @@ def export_analysis(conn: sqlite3.Connection) -> None:
     tns_excl_params = tuple(excl_only) if excl_only else ()
     tns_by_year = conn.execute(f"""
         SELECT e.year, e.month,
-               COUNT(DISTINCT r.date) as race_nights,
+               COUNT(DISTINCT COALESCE(r.race_date, r.date)) as race_nights,
                COUNT(DISTINCT b.id) as unique_boats,
                COUNT(DISTINCT res.id) as total_results
         FROM results res

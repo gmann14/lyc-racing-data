@@ -110,6 +110,16 @@ class TestHelpers:
     def test_extract_start_time_no_match(self):
         assert _extract_start_time("No time here") is None
 
+    def test_extract_start_time_compact(self):
+        caption = "Start: B, Finishes: Finish time, Time: 133000Start: A, Finishes: Finish time"
+        assert _extract_start_time(caption) == "13:30:00"
+
+    def test_extract_start_time_hours_minutes(self):
+        assert _extract_start_time("Start: IOD, Finishes: Place, Time: 13:01") == "13:01:00"
+
+    def test_extract_start_time_not_a_time(self):
+        assert _extract_start_time("Start: Sonar, Finishes: Place, Time: Abandoned") is None
+
     def test_normalize_sail_number(self):
         assert _normalize_sail_number(" # 34142 ") == "34142"
 
@@ -152,6 +162,70 @@ class TestHelpers:
         assert "Sailwave" not in name
 
 
+def _sample_sailwave_page() -> dict:
+    """One-race June TNS page in the shape parse_sailwave writes."""
+    return {
+        "source_path": "racing2014_2025/racing2025/june_TNS.htm",
+        "year": 2025,
+        "title": "Sailwave results for LYC Handicap at June Thursday Night Series 2025",
+        "h1": "LYC Handicap",
+        "h2": "June Thursday Night Series",
+        "results_date": "Results are final",
+        "participant_type": "boat",
+        "summaries": [{
+            "scope": "overall",
+            "scope_title": None,
+            "caption": "Sailed: 4, Discards: 1",
+            "metadata": {"sailed": 4, "discards": 1},
+            "race_columns": [
+                {"index": 9, "race_key": "r1", "date": "05/06/25"},
+                {"index": 10, "race_key": "r2", "date": "12/06/25"},
+            ],
+            "rows": [{
+                "rank": "1st",
+                "fleet": "A",
+                "division": "P",
+                "boat": "Poohsticks",
+                "boat_class": "J92",
+                "sail_number": "8",
+                "club": "LYC",
+                "phrf_rating": "96",
+                "total": "3.0",
+                "nett": "3.0",
+                "participant_type": "boat",
+                "scores": [
+                    {"race_key": "r1", "race_date": "05/06/25", "raw_text": "1.0", "points": 1.0, "status": None, "is_discarded": False},
+                    {"race_key": "r2", "race_date": "12/06/25", "raw_text": "2.0", "points": 2.0, "status": None, "is_discarded": False},
+                ]
+            }]
+        }],
+        "races": [{
+            "race_key": "r1",
+            "date": "05/06/25",
+            "caption": "Start: Start 1, Time: 18:32:00",
+            "rows": [{
+                "rank": "1",
+                "fleet": "A",
+                "division": "P",
+                "boat": "Poohsticks",
+                "boat_class": "J92",
+                "sail_number": "8",
+                "club": "LYC",
+                "phrf_rating": "96",
+                "start_time": "18:32:00",
+                "finish_time": "19:27:24",
+                "elapsed_time": "0:55:24",
+                "corrected_time": "1:02:00",
+                "bcr": "96",
+                "points": "1.0",
+                "status": None,
+                "participant_type": "boat",
+            }]
+        }],
+        "errors": [],
+    }
+
+
 class TestDatabaseLoaderUnit:
     def test_create_schema(self, tmp_path):
         db_path = tmp_path / "test.db"
@@ -177,66 +251,7 @@ class TestDatabaseLoaderUnit:
         loader = DatabaseLoader(db_path)
         loader.create_schema()
 
-        page = {
-            "source_path": "racing2014_2025/racing2025/june_TNS.htm",
-            "year": 2025,
-            "title": "Sailwave results for LYC Handicap at June Thursday Night Series 2025",
-            "h1": "LYC Handicap",
-            "h2": "June Thursday Night Series",
-            "results_date": "Results are final",
-            "participant_type": "boat",
-            "summaries": [{
-                "scope": "overall",
-                "scope_title": None,
-                "caption": "Sailed: 4, Discards: 1",
-                "metadata": {"sailed": 4, "discards": 1},
-                "race_columns": [
-                    {"index": 9, "race_key": "r1", "date": "05/06/25"},
-                    {"index": 10, "race_key": "r2", "date": "12/06/25"},
-                ],
-                "rows": [{
-                    "rank": "1st",
-                    "fleet": "A",
-                    "division": "P",
-                    "boat": "Poohsticks",
-                    "boat_class": "J92",
-                    "sail_number": "8",
-                    "club": "LYC",
-                    "phrf_rating": "96",
-                    "total": "3.0",
-                    "nett": "3.0",
-                    "participant_type": "boat",
-                    "scores": [
-                        {"race_key": "r1", "race_date": "05/06/25", "raw_text": "1.0", "points": 1.0, "status": None, "is_discarded": False},
-                        {"race_key": "r2", "race_date": "12/06/25", "raw_text": "2.0", "points": 2.0, "status": None, "is_discarded": False},
-                    ]
-                }]
-            }],
-            "races": [{
-                "race_key": "r1",
-                "date": "05/06/25",
-                "caption": "Start: Start 1, Time: 18:32:00",
-                "rows": [{
-                    "rank": "1",
-                    "fleet": "A",
-                    "division": "P",
-                    "boat": "Poohsticks",
-                    "boat_class": "J92",
-                    "sail_number": "8",
-                    "club": "LYC",
-                    "phrf_rating": "96",
-                    "start_time": "18:32:00",
-                    "finish_time": "19:27:24",
-                    "elapsed_time": "0:55:24",
-                    "corrected_time": "1:02:00",
-                    "bcr": "96",
-                    "points": "1.0",
-                    "status": None,
-                    "participant_type": "boat",
-                }]
-            }],
-            "errors": [],
-        }
+        page = _sample_sailwave_page()
 
         event_id = loader.load_parsed_page(page)
         loader.conn.commit()
@@ -262,6 +277,19 @@ class TestDatabaseLoaderUnit:
         races = loader.conn.execute("SELECT * FROM races").fetchall()
         assert len(races) == 1
 
+        loader.close()
+
+    def test_load_all_parsed_assigns_iso_race_dates(self, tmp_path):
+        parsed_dir = tmp_path / "parsed"
+        parsed_dir.mkdir()
+        (parsed_dir / "sailwave_parsed.jsonl").write_text(json.dumps(_sample_sailwave_page()) + "\n")
+
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        loader.load_all_parsed(parsed_dir)
+
+        race = loader.conn.execute("SELECT date, race_date, start_time FROM races").fetchone()
+        assert tuple(race) == ("05/06/25", "2025-06-05", "18:32:00")
         loader.close()
 
     def test_load_page_reuses_existing_source_page_id_for_duplicate_path(self, tmp_path):

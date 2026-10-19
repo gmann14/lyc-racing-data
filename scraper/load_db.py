@@ -15,6 +15,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+try:
+    from scraper.race_dates import assign_race_dates, normalize_start_time
+except ImportError:
+    from race_dates import assign_race_dates, normalize_start_time
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 PARSED_DIR = PROJECT_ROOT / "scraper" / "parsed"
@@ -339,6 +344,7 @@ CREATE TABLE IF NOT EXISTS races (
     race_key TEXT,
     race_number INTEGER,
     date TEXT,
+    race_date TEXT,
     start_time TEXT,
     wind_direction TEXT,
     wind_speed_knots REAL,
@@ -425,6 +431,7 @@ CREATE INDEX IF NOT EXISTS idx_source_pages_event ON source_pages(event_id);
 CREATE INDEX IF NOT EXISTS idx_source_pages_year ON source_pages(year);
 CREATE INDEX IF NOT EXISTS idx_races_event ON races(event_id);
 CREATE INDEX IF NOT EXISTS idx_races_date ON races(date);
+CREATE INDEX IF NOT EXISTS idx_races_race_date ON races(race_date);
 CREATE INDEX IF NOT EXISTS idx_results_participant ON results(participant_id);
 CREATE INDEX IF NOT EXISTS idx_results_race ON results(race_id);
 CREATE INDEX IF NOT EXISTS idx_series_scores_event ON series_scores(event_id);
@@ -804,12 +811,15 @@ def _safe_int(val: str | None) -> int | None:
 
 
 def _extract_start_time(caption: str | None) -> str | None:
-    """Extract start time from race caption."""
+    """Extract the first start time from a race caption as HH:MM:SS.
+
+    Captions write it as "Time: 18:32:00", "Time: 13:01" or "Time: 133000".
+    """
     if not caption:
         return None
-    match = re.search(r"Time:\s*(\d{1,2}:\d{2}:\d{2})", caption)
+    match = re.search(r"Time:\s*(\d{1,2}:\d{2}(?::\d{2})?|\d{6})", caption)
     if match:
-        return match.group(1)
+        return normalize_start_time(match.group(1))
     return None
 
 
@@ -1632,7 +1642,7 @@ class DatabaseLoader:
                date, start_time, notes)
                VALUES (?, ?, ?, ?, ?, ?, ?)""",
             (event_id, source_page_id, f"r{race_number or 1}", race_number,
-             race_date, start_time if start_time else None,
+             race_date, normalize_start_time(start_time),
              wind_note if wind_note else None)
         )
         race_id = cursor.lastrowid
@@ -1709,7 +1719,12 @@ class DatabaseLoader:
                 self.load_legacy_page(page)
 
         stats = self.reconcile_entities()
+        date_stats = assign_race_dates(self.conn)
         self.conn.commit()
+        print(
+            f"Race dates: {date_stats['dated']} dated, {date_stats['undated']} undated "
+            f"(month-first seasons: {date_stats['month_first_years']})"
+        )
         self._print_load_report()
         print("\nReconciliation:")
         for key, value in stats.items():

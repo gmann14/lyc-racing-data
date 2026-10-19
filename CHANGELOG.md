@@ -4,6 +4,14 @@ This file tracks changes to archive logic that materially affect published stats
 
 ## 2026-10-19
 
+### Race dates
+
+- Race dates are now normalised once at load into `races.race_date` (ISO), shared by the export and the weather/tide backfills (`scraper/race_dates.py`). Day/month order is detected per season.
+- Corrected 53 race dates in 2000, 2001, 2002 and 2006 that had been read day-first (e.g. `7/6/00` was 7 June; it is 6 July). These races now show weather and tides for the right day.
+- Dated 57 more races, mostly 2009–2010 Thursday nights written as "July 30" or "Jun03". 94% of dated TNS races now fall on a Thursday.
+- Start times written as `133000` or `13:01` are now read, so Sunday trophy races sample weather at their real start hour instead of 18:00. Weather cache entries now record the hour they were sampled at and are refetched when it changes.
+- TNS race-night counts use the normalised date, so a typo'd duplicate (e.g. `15/09/2020` beside `15/09/2005`) no longer counts as an extra night.
+
 ### Enrichment
 
 - Restored tide data on race detail pages. It had been missing from every event since 2026-03-11, when a `load_db --fresh` rebuild ran without `backfill_tides`. `load_db --fresh` now restores tides from `enrichment/tide_cache.json` automatically, alongside owners and weather.

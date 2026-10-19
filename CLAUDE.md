@@ -52,6 +52,7 @@ Next.js 16 static build → GitHub Pages
 | `classify_sources.py` | Detect HTML format type |
 | `load_db.py` | Load JSONL → SQLite with entity reconciliation |
 | `load_owners.py` | Load enrichment/boat_owners.csv → DB |
+| `race_dates.py` | Normalise raw race dates/start times → `races.race_date` (ISO) |
 | `export_json.py` | Export DB → JSON (the big one, ~120KB) |
 | `backfill_weather.py` | Fetch/cache historical weather |
 | `backfill_tides.py` | Compute/cache tide predictions |
@@ -105,7 +106,7 @@ The default stat scope excludes special events (regattas, championships with ext
 
 - `seasons` — one row per year
 - `events` — 751 events with name, type, year, source
-- `races` — 1,403 races with date, wind, course, distance
+- `races` — 1,403 races with raw `date`, normalised `race_date` (ISO), start time, wind, course, distance
 - `results` — 11,610 individual race results
 - `series_standings` — series-level rankings with points
 - `boats` — 273 boats with class, sail number, club
@@ -157,4 +158,4 @@ Key test files:
 - **Awesome 2.0 → SOT After → So-Gnarly**: same hull, tracked across owners
 - **Same-name different boats**: Tsunami, Wandrian, Buccaneer, No Name — match on name+sail, not just name
 - **Historical trophy data**: Goes back to 1947 from club records PDF
-- **Early 2000s TNS**: Some dates had typos (2020 instead of 2003), corrected by year-substitution logic
+- **Race dates**: never parse `races.date` directly — use `races.race_date`. `race_dates.py` detects day/month order per season (2000–2002 and 2006 are month/day), handles month names and 2007's YY-MM-DD, and replaces year typos (2020 in a 2003–2005 event) with the event year

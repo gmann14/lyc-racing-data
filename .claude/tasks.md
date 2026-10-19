@@ -13,7 +13,9 @@
 Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 
 ### Track A — data pipeline correctness
-- [ ] Normalize race dates once at load (ISO `race_date` + `start_time`): legacy 2000/2001/2002/2006 are month/day but parsed day/month; 2009/2010 and "R1".."R15" dates unparseable; drop the `year > 2025` cap; export and weather/tide backfills share one parser.
+- [ ] Remaining undated races: championship "R1".."R15" columns (dates sit in Sailwave race headers like "08/08 at 11:42"; `parse_sailwave.py` misses them), 2009/2010 trophy pages with no date at all (Blue Banner, Absolute Last…), "22/0/24", "80/09/2012".
+- [ ] 2016 `June_TNS.htm` carries 2017 dates (`080617`) and identical start times to 2017's June TNS — check whether the 2016 page is a copy of 2017.
+- [ ] Switch `analyze_orc_vs_phrf.py` from its own date parser to `races.race_date`.
 - [ ] Capture Sailwave status codes (DNF/OCS/DSQ/DNS/RAF… live in the Elapsed column; all 9,066 Sailwave results have NULL status).
 - [ ] Load legacy multi-race series pages as real races/standings instead of silently dropping 1,335 rows via `INSERT OR IGNORE`.
 - [ ] Keep legacy TNS race nights in leaderboards/boat stats (only 405 of 1,734 legacy TNS results survive the variant filter).
@@ -39,3 +41,4 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [x] Created project task source of truth.
 - [x] Full codebase review and improvement proposal (2026-10-19).
 - [x] Restore tides (`load_db --fresh` now runs `backfill_tides`), project-relative legacy source paths, validate.py checks for weather/tides/local paths (2026-10-19).
+- [x] Normalise race dates once at load (`races.race_date`, `scraper/race_dates.py`); export and weather/tide backfills share it; start times from `133000`/`13:01` captions; hour-aware weather cache (2026-10-19).
