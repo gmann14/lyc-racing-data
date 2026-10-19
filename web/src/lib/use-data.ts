@@ -110,3 +110,12 @@ function getServerHashSnapshot(): string | null {
 export function useHashParam(): string | null {
   return useSyncExternalStore(subscribeToHash, getHashSnapshot, getServerHashSnapshot);
 }
+
+/**
+ * Read a numeric id from the URL hash (e.g. #42 → "42"). Anything else
+ * (e.g. a crafted "#../overview") is ignored so it never reaches a fetch path.
+ */
+export function useNumericHashParam(): string | null {
+  const hash = useHashParam();
+  return hash && /^\d+$/.test(hash) ? hash : null;
+}

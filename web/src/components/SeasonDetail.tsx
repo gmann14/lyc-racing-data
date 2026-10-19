@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
-import { useHashParam, useJsonData } from "@/lib/use-data";
+import { useNumericHashParam, useJsonData } from "@/lib/use-data";
 import type { SeasonDetail, EventSummary, EventDetail, Standing } from "@/lib/data";
 
 const MONTH_ORDER: Record<string, number> = {
@@ -367,7 +367,7 @@ function EventTable({
 }
 
 export default function SeasonDetailPanel() {
-  const year = useHashParam();
+  const year = useNumericHashParam();
   const {
     data: season,
     loading,
