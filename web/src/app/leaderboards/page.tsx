@@ -145,7 +145,7 @@ function LeaderboardTable({
             const displayClass = row.classes && row.classes.length > 1 ? row.classes.join(" / ") : (row.class ?? null);
             return (
               <tr
-                key={`${row.id}-${row.name}`}
+                key={`${row.owner ?? ""}|${row.id}`}
                 className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
               >
                 <td className="px-1.5 py-2 text-center text-gray-400 font-mono text-xs">

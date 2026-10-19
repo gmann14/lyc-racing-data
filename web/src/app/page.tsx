@@ -84,7 +84,7 @@ export default function HomePage() {
                   : b.name;
                 return (
                   <div
-                    key={b.id}
+                    key={`${b.owner ?? ""}|${b.id}`}
                     className="flex items-center gap-2 text-xs"
                   >
                     <Link

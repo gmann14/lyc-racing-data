@@ -399,6 +399,7 @@ export interface ParticipationLeader {
   first_year: number;
   last_year: number;
   wins: number;
+  owner?: string | null;
   boat_ids?: number[];
   boat_names?: string[];
   classes?: string[];
@@ -407,6 +408,7 @@ export interface ParticipationLeader {
 export interface StreakLeader {
   id: number;
   name: string;
+  owner?: string | null;
   streak: number;
   start: number;
   end: number;
