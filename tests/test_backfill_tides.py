@@ -39,7 +39,7 @@ def db(tmp_path):
         );
         CREATE TABLE races (
             id INTEGER PRIMARY KEY, event_id INTEGER,
-            date TEXT, start_time TEXT, race_number INTEGER
+            date TEXT, start_time TEXT, race_number INTEGER, race_date TEXT
         );
         CREATE TABLE results (
             id INTEGER PRIMARY KEY, race_id INTEGER, boat_id INTEGER,
@@ -54,8 +54,8 @@ def db(tmp_path):
 
         INSERT INTO seasons VALUES (1, 2024);
         INSERT INTO events VALUES (1, 1, 2024, 'tns', 'test.htm', 'TNS July');
-        INSERT INTO races VALUES (1, 1, '04/07/24', '18:30:00', 1);
-        INSERT INTO races VALUES (2, 1, '11/07/24', '18:30:00', 2);
+        INSERT INTO races VALUES (1, 1, '04/07/24', '18:30:00', 1, '2024-07-04');
+        INSERT INTO races VALUES (2, 1, '11/07/24', '18:30:00', 2, '2024-07-11');
     """)
     conn.commit()
     conn.close()
@@ -274,7 +274,8 @@ class TestBackfillTidesIntegration:
         conn = sqlite3.connect(str(db_path))
         conn.executescript("""
             CREATE TABLE events (id INTEGER PRIMARY KEY, year INTEGER, event_type TEXT);
-            CREATE TABLE races (id INTEGER PRIMARY KEY, event_id INTEGER, date TEXT, start_time TEXT);
+            CREATE TABLE races (id INTEGER PRIMARY KEY, event_id INTEGER, date TEXT, start_time TEXT,
+                                race_date TEXT);
             CREATE TABLE tides (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 date TEXT NOT NULL, time TEXT NOT NULL,

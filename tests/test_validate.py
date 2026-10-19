@@ -28,6 +28,8 @@ def _race(race_id: int, *, weather: bool = True, tides: bool = True,
     return {
         "id": race_id,
         "race_key": f"r{race_id}",
+        "date": "04/07/20",
+        "race_date": "2020-07-04",
         "results": results,
         "weather": {"temp_c": 20.0} if weather else None,
         "tides": [{"time": "12:00", "height_m": 1.5, "type": "high"}] if tides else None,
@@ -45,7 +47,8 @@ def _build_site(data_dir: Path, *, weather: bool = True, tides: bool = True) -> 
     for i in range(N_EVENT_FILES):
         races = [_race(i * 10 + n, weather=weather, tides=tides) for n in range(N_RACES_PER_EVENT)]
         _write(data_dir / "events" / f"{i}.json",
-               {"id": i, "source_file": f"racing2014_2025/racing2020/e{i}.htm", "races": races})
+               {"id": i, "year": 2020, "event_type": "tns",
+                "source_file": f"racing2014_2025/racing2020/e{i}.htm", "races": races})
     _write(data_dir / "seasons.json", [{"year": year} for year in range(1999, 2026)])
     for year in range(1999, 2026):
         _write(data_dir / "seasons" / f"{year}.json", {"year": year})
@@ -128,6 +131,33 @@ class TestLocalPaths:
         assert "paths" not in _checks(errors)
 
 
+class TestRaceDates:
+    def _set_first_race(self, site: Path, **fields: object) -> None:
+        path = site / "events" / "0.json"
+        event = json.loads(path.read_text())
+        event["races"][0].update(fields)
+        _write(path, event)
+
+    def test_date_outside_event_year_fails(self, site: Path) -> None:
+        self._set_first_race(site, race_date="2021-07-04")
+        errors, _ = run_checks(site)
+        assert "race-dates" in _checks(errors)
+
+    def test_off_season_date_warns(self, site: Path) -> None:
+        self._set_first_race(site, race_date="2020-01-07")
+        errors, warnings = run_checks(site)
+        assert errors == []
+        assert "race-dates" in _checks(warnings)
+
+    def test_undated_handicap_race_warns(self, site: Path) -> None:
+        self._set_first_race(site, date="R1", race_date=None)
+        errors, warnings = run_checks(site)
+        assert errors == []
+        assert [w.message for w in warnings if w.check == "race-dates"] == [
+            "1 TNS/trophy races have no readable date"
+        ]
+
+
 class TestWarnings:
     def test_duplicate_ranked_id_warns_without_failing(self, site: Path) -> None:
         rows = [{"id": 64, "owner": "A"}, {"id": 64, "owner": "B"}, {"id": 1}]
@@ -143,7 +173,7 @@ class TestWarnings:
 
     def test_multiple_rank_one_in_race_warns(self, site: Path) -> None:
         races = [_race(1, winners=3)] + [_race(n) for n in range(2, N_RACES_PER_EVENT + 1)]
-        _write(site / "events" / "1.json", {"id": 1, "races": races})
+        _write(site / "events" / "1.json", {"id": 1, "year": 2020, "event_type": "tns", "races": races})
         errors, warnings = run_checks(site)
         assert errors == []
         assert "ranks" in _checks(warnings)

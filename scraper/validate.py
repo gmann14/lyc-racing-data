@@ -26,6 +26,10 @@ MIN_SEASON_FILES = 20
 MIN_RACES_WITH_WEATHER = 1500
 MIN_RACES_WITH_TIDES = 1500
 
+# Handicap racing runs May-October; dates outside are likely misread.
+SAILING_MONTHS = range(5, 11)
+HANDICAP_EVENT_TYPES = ("tns", "trophy")
+
 # Absolute macOS/Linux/Windows paths, as they appear inside JSON strings.
 LOCAL_PATH_RE = re.compile(r'"(?:/Users/|/home/|[A-Za-z]:\\\\)')
 
@@ -166,6 +170,9 @@ def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[V
     if events_dir.exists():
         races_total = races_with_weather = races_with_tides = 0
         multi_winner_races: list[str] = []
+        wrong_year_dates: list[str] = []
+        off_season_dates: list[str] = []
+        undated_handicap_races = 0
         for path in sorted(events_dir.glob("*.json")):
             event = _load_json(path)
             if not isinstance(event, dict):
@@ -173,6 +180,15 @@ def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[V
                 continue
             for race in event.get("races") or []:
                 races_total += 1
+                race_date = race.get("race_date")
+                label = f"event {event.get('id')} race {race.get('race_key')} ({race.get('date')!r} -> {race_date})"
+                if race_date:
+                    if event.get("year") and race_date[:4] != str(event["year"]):
+                        wrong_year_dates.append(label)
+                    elif int(race_date[5:7]) not in SAILING_MONTHS:
+                        off_season_dates.append(label)
+                elif event.get("event_type") in HANDICAP_EVENT_TYPES:
+                    undated_handicap_races += 1
                 if race.get("weather"):
                     races_with_weather += 1
                 if race.get("tides"):
@@ -186,6 +202,14 @@ def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[V
         if races_with_tides < MIN_RACES_WITH_TIDES:
             fail("tides", f"Only {races_with_tides}/{races_total} races have tides "
                  f"(expected >= {MIN_RACES_WITH_TIDES}); run scraper/backfill_tides.py and re-export")
+        if wrong_year_dates:
+            fail("race-dates", f"{len(wrong_year_dates)} race dates fall outside their event's year "
+                 f"(e.g. {'; '.join(wrong_year_dates[:3])})")
+        if off_season_dates:
+            warn("race-dates", f"{len(off_season_dates)} race dates fall outside May-October "
+                 f"(e.g. {'; '.join(off_season_dates[:3])})")
+        if undated_handicap_races:
+            warn("race-dates", f"{undated_handicap_races} TNS/trophy races have no readable date")
         if multi_winner_races:
             warn("ranks", f"{len(multi_winner_races)} races have more than one rank-1 result "
                  f"(e.g. {'; '.join(multi_winner_races[:3])})")

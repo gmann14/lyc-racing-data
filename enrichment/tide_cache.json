@@ -1148,6 +1148,66 @@
    "type": "low"
   }
  ],
+ "2000-06-01": [
+  {
+   "date": "2000-06-01",
+   "height_m": 0.134,
+   "source": "harmonic-model",
+   "time": "01:52",
+   "type": "low"
+  },
+  {
+   "date": "2000-06-01",
+   "height_m": 1.841,
+   "source": "harmonic-model",
+   "time": "07:49",
+   "type": "high"
+  },
+  {
+   "date": "2000-06-01",
+   "height_m": 0.296,
+   "source": "harmonic-model",
+   "time": "14:03",
+   "type": "low"
+  },
+  {
+   "date": "2000-06-01",
+   "height_m": 2.096,
+   "source": "harmonic-model",
+   "time": "20:02",
+   "type": "high"
+  }
+ ],
+ "2000-06-04": [
+  {
+   "date": "2000-06-04",
+   "height_m": -0.073,
+   "source": "harmonic-model",
+   "time": "04:27",
+   "type": "low"
+  },
+  {
+   "date": "2000-06-04",
+   "height_m": 1.832,
+   "source": "harmonic-model",
+   "time": "10:19",
+   "type": "high"
+  },
+  {
+   "date": "2000-06-04",
+   "height_m": 0.287,
+   "source": "harmonic-model",
+   "time": "16:40",
+   "type": "low"
+  },
+  {
+   "date": "2000-06-04",
+   "height_m": 2.024,
+   "source": "harmonic-model",
+   "time": "22:27",
+   "type": "high"
+  }
+ ],
  "2000-06-07": [
   {
    "date": "2000-06-07",
@@ -1205,6 +1265,36 @@
    "height_m": 0.402,
    "source": "harmonic-model",
    "time": "20:48",
+   "type": "low"
+  }
+ ],
+ "2000-06-11": [
+  {
+   "date": "2000-06-11",
+   "height_m": 1.462,
+   "source": "harmonic-model",
+   "time": "04:31",
+   "type": "high"
+  },
+  {
+   "date": "2000-06-11",
+   "height_m": 0.328,
+   "source": "harmonic-model",
+   "time": "11:14",
+   "type": "low"
+  },
+  {
+   "date": "2000-06-11",
+   "height_m": 1.615,
+   "source": "harmonic-model",
+   "time": "17:05",
+   "type": "high"
+  },
+  {
+   "date": "2000-06-11",
+   "height_m": 0.321,
+   "source": "harmonic-model",
+   "time": "23:53",
    "type": "low"
   }
  ],
@@ -1349,6 +1439,89 @@
    "source": "harmonic-model",
    "time": "18:46",
    "type": "high"
+  }
+ ],
+ "2000-07-02": [
+  {
+   "date": "2000-07-02",
+   "height_m": -0.046,
+   "source": "harmonic-model",
+   "time": "03:18",
+   "type": "low"
+  },
+  {
+   "date": "2000-07-02",
+   "height_m": 1.858,
+   "source": "harmonic-model",
+   "time": "09:13",
+   "type": "high"
+  },
+  {
+   "date": "2000-07-02",
+   "height_m": 0.262,
+   "source": "harmonic-model",
+   "time": "15:30",
+   "type": "low"
+  },
+  {
+   "date": "2000-07-02",
+   "height_m": 2.085,
+   "source": "harmonic-model",
+   "time": "21:21",
+   "type": "high"
+  }
+ ],
+ "2000-07-06": [
+  {
+   "date": "2000-07-06",
+   "height_m": 0.003,
+   "source": "harmonic-model",
+   "time": "06:55",
+   "type": "low"
+  },
+  {
+   "date": "2000-07-06",
+   "height_m": 1.689,
+   "source": "harmonic-model",
+   "time": "12:38",
+   "type": "high"
+  },
+  {
+   "date": "2000-07-06",
+   "height_m": 0.276,
+   "source": "harmonic-model",
+   "time": "19:20",
+   "type": "low"
+  }
+ ],
+ "2000-07-08": [
+  {
+   "date": "2000-07-08",
+   "height_m": 1.552,
+   "source": "harmonic-model",
+   "time": "01:49",
+   "type": "high"
+  },
+  {
+   "date": "2000-07-08",
+   "height_m": 0.212,
+   "source": "harmonic-model",
+   "time": "08:48",
+   "type": "low"
+  },
+  {
+   "date": "2000-07-08",
+   "height_m": 1.588,
+   "source": "harmonic-model",
+   "time": "14:29",
+   "type": "high"
+  },
+  {
+   "date": "2000-07-08",
+   "height_m": 0.325,
+   "source": "harmonic-model",
+   "time": "21:25",
+   "type": "low"
   }
  ],
  "2000-07-09": [
@@ -1554,6 +1727,29 @@
    "type": "high"
   }
  ],
+ "2000-08-04": [
+  {
+   "date": "2000-08-04",
+   "height_m": 0.029,
+   "source": "harmonic-model",
+   "time": "06:27",
+   "type": "low"
+  },
+  {
+   "date": "2000-08-04",
+   "height_m": 1.736,
+   "source": "harmonic-model",
+   "time": "12:10",
+   "type": "high"
+  },
+  {
+   "date": "2000-08-04",
+   "height_m": 0.178,
+   "source": "harmonic-model",
+   "time": "18:53",
+   "type": "low"
+  }
+ ],
  "2000-08-06": [
   {
    "date": "2000-08-06",
@@ -1612,6 +1808,29 @@
    "source": "harmonic-model",
    "time": "21:56",
    "type": "low"
+  }
+ ],
+ "2000-08-10": [
+  {
+   "date": "2000-08-10",
+   "height_m": 1.307,
+   "source": "harmonic-model",
+   "time": "05:55",
+   "type": "high"
+  },
+  {
+   "date": "2000-08-10",
+   "height_m": 0.601,
+   "source": "harmonic-model",
+   "time": "11:58",
+   "type": "low"
+  },
+  {
+   "date": "2000-08-10",
+   "height_m": 1.548,
+   "source": "harmonic-model",
+   "time": "17:54",
+   "type": "high"
   }
  ],
  "2000-08-19": [
@@ -1792,6 +2011,36 @@
    "source": "harmonic-model",
    "time": "23:16",
    "type": "low"
+  }
+ ],
+ "2000-09-10": [
+  {
+   "date": "2000-09-10",
+   "height_m": 0.402,
+   "source": "harmonic-model",
+   "time": "00:46",
+   "type": "low"
+  },
+  {
+   "date": "2000-09-10",
+   "height_m": 1.473,
+   "source": "harmonic-model",
+   "time": "07:03",
+   "type": "high"
+  },
+  {
+   "date": "2000-09-10",
+   "height_m": 0.618,
+   "source": "harmonic-model",
+   "time": "12:58",
+   "type": "low"
+  },
+  {
+   "date": "2000-09-10",
+   "height_m": 1.581,
+   "source": "harmonic-model",
+   "time": "18:58",
+   "type": "high"
   }
  ],
  "2000-09-16": [
@@ -2103,6 +2352,66 @@
    "type": "low"
   }
  ],
+ "2001-06-03": [
+  {
+   "date": "2001-06-03",
+   "height_m": 0.222,
+   "source": "harmonic-model",
+   "time": "00:57",
+   "type": "low"
+  },
+  {
+   "date": "2001-06-03",
+   "height_m": 1.62,
+   "source": "harmonic-model",
+   "time": "06:49",
+   "type": "high"
+  },
+  {
+   "date": "2001-06-03",
+   "height_m": 0.342,
+   "source": "harmonic-model",
+   "time": "13:11",
+   "type": "low"
+  },
+  {
+   "date": "2001-06-03",
+   "height_m": 1.822,
+   "source": "harmonic-model",
+   "time": "19:02",
+   "type": "high"
+  }
+ ],
+ "2001-06-07": [
+  {
+   "date": "2001-06-07",
+   "height_m": 0.055,
+   "source": "harmonic-model",
+   "time": "04:06",
+   "type": "low"
+  },
+  {
+   "date": "2001-06-07",
+   "height_m": 1.545,
+   "source": "harmonic-model",
+   "time": "09:59",
+   "type": "high"
+  },
+  {
+   "date": "2001-06-07",
+   "height_m": 0.414,
+   "source": "harmonic-model",
+   "time": "16:09",
+   "type": "low"
+  },
+  {
+   "date": "2001-06-07",
+   "height_m": 1.76,
+   "source": "harmonic-model",
+   "time": "21:58",
+   "type": "high"
+  }
+ ],
  "2001-06-09": [
   {
    "date": "2001-06-09",
@@ -2131,6 +2440,29 @@
    "source": "harmonic-model",
    "time": "23:23",
    "type": "high"
+  }
+ ],
+ "2001-06-10": [
+  {
+   "date": "2001-06-10",
+   "height_m": 0.196,
+   "source": "harmonic-model",
+   "time": "06:16",
+   "type": "low"
+  },
+  {
+   "date": "2001-06-10",
+   "height_m": 1.41,
+   "source": "harmonic-model",
+   "time": "12:10",
+   "type": "high"
+  },
+  {
+   "date": "2001-06-10",
+   "height_m": 0.558,
+   "source": "harmonic-model",
+   "time": "18:26",
+   "type": "low"
   }
  ],
  "2001-06-14": [
@@ -2306,6 +2638,59 @@
    "type": "low"
   }
  ],
+ "2001-07-01": [
+  {
+   "date": "2001-07-01",
+   "height_m": 1.48,
+   "source": "harmonic-model",
+   "time": "05:34",
+   "type": "high"
+  },
+  {
+   "date": "2001-07-01",
+   "height_m": 0.427,
+   "source": "harmonic-model",
+   "time": "12:01",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-01",
+   "height_m": 1.705,
+   "source": "harmonic-model",
+   "time": "17:49",
+   "type": "high"
+  }
+ ],
+ "2001-07-05": [
+  {
+   "date": "2001-07-05",
+   "height_m": 0.125,
+   "source": "harmonic-model",
+   "time": "03:06",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-05",
+   "height_m": 1.524,
+   "source": "harmonic-model",
+   "time": "09:01",
+   "type": "high"
+  },
+  {
+   "date": "2001-07-05",
+   "height_m": 0.465,
+   "source": "harmonic-model",
+   "time": "15:08",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-05",
+   "height_m": 1.755,
+   "source": "harmonic-model",
+   "time": "20:58",
+   "type": "high"
+  }
+ ],
  "2001-07-06": [
   {
    "date": "2001-07-06",
@@ -2364,6 +2749,66 @@
    "source": "harmonic-model",
    "time": "22:19",
    "type": "high"
+  }
+ ],
+ "2001-07-08": [
+  {
+   "date": "2001-07-08",
+   "height_m": 0.164,
+   "source": "harmonic-model",
+   "time": "05:04",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-08",
+   "height_m": 1.496,
+   "source": "harmonic-model",
+   "time": "11:01",
+   "type": "high"
+  },
+  {
+   "date": "2001-07-08",
+   "height_m": 0.497,
+   "source": "harmonic-model",
+   "time": "17:11",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-08",
+   "height_m": 1.574,
+   "source": "harmonic-model",
+   "time": "22:57",
+   "type": "high"
+  }
+ ],
+ "2001-07-12": [
+  {
+   "date": "2001-07-12",
+   "height_m": 1.425,
+   "source": "harmonic-model",
+   "time": "00:54",
+   "type": "high"
+  },
+  {
+   "date": "2001-07-12",
+   "height_m": 0.399,
+   "source": "harmonic-model",
+   "time": "07:33",
+   "type": "low"
+  },
+  {
+   "date": "2001-07-12",
+   "height_m": 1.501,
+   "source": "harmonic-model",
+   "time": "13:37",
+   "type": "high"
+  },
+  {
+   "date": "2001-07-12",
+   "height_m": 0.605,
+   "source": "harmonic-model",
+   "time": "20:07",
+   "type": "low"
   }
  ],
  "2001-07-15": [
@@ -2516,6 +2961,36 @@
    "type": "low"
   }
  ],
+ "2001-08-02": [
+  {
+   "date": "2001-08-02",
+   "height_m": 0.213,
+   "source": "harmonic-model",
+   "time": "02:05",
+   "type": "low"
+  },
+  {
+   "date": "2001-08-02",
+   "height_m": 1.486,
+   "source": "harmonic-model",
+   "time": "08:05",
+   "type": "high"
+  },
+  {
+   "date": "2001-08-02",
+   "height_m": 0.517,
+   "source": "harmonic-model",
+   "time": "14:10",
+   "type": "low"
+  },
+  {
+   "date": "2001-08-02",
+   "height_m": 1.696,
+   "source": "harmonic-model",
+   "time": "20:01",
+   "type": "high"
+  }
+ ],
  "2001-08-07": [
   {
    "date": "2001-08-07",
@@ -2544,6 +3019,29 @@
    "source": "harmonic-model",
    "time": "23:05",
    "type": "high"
+  }
+ ],
+ "2001-08-09": [
+  {
+   "date": "2001-08-09",
+   "height_m": 0.327,
+   "source": "harmonic-model",
+   "time": "06:08",
+   "type": "low"
+  },
+  {
+   "date": "2001-08-09",
+   "height_m": 1.578,
+   "source": "harmonic-model",
+   "time": "12:14",
+   "type": "high"
+  },
+  {
+   "date": "2001-08-09",
+   "height_m": 0.488,
+   "source": "harmonic-model",
+   "time": "18:34",
+   "type": "low"
   }
  ],
  "2001-08-23": [
@@ -2629,6 +3127,66 @@
    "type": "high"
   }
  ],
+ "2001-09-03": [
+  {
+   "date": "2001-09-03",
+   "height_m": 0.242,
+   "source": "harmonic-model",
+   "time": "03:22",
+   "type": "low"
+  },
+  {
+   "date": "2001-09-03",
+   "height_m": 1.65,
+   "source": "harmonic-model",
+   "time": "09:28",
+   "type": "high"
+  },
+  {
+   "date": "2001-09-03",
+   "height_m": 0.421,
+   "source": "harmonic-model",
+   "time": "15:37",
+   "type": "low"
+  },
+  {
+   "date": "2001-09-03",
+   "height_m": 1.642,
+   "source": "harmonic-model",
+   "time": "21:31",
+   "type": "high"
+  }
+ ],
+ "2001-09-06": [
+  {
+   "date": "2001-09-06",
+   "height_m": 0.292,
+   "source": "harmonic-model",
+   "time": "04:57",
+   "type": "low"
+  },
+  {
+   "date": "2001-09-06",
+   "height_m": 1.677,
+   "source": "harmonic-model",
+   "time": "11:02",
+   "type": "high"
+  },
+  {
+   "date": "2001-09-06",
+   "height_m": 0.364,
+   "source": "harmonic-model",
+   "time": "17:20",
+   "type": "low"
+  },
+  {
+   "date": "2001-09-06",
+   "height_m": 1.58,
+   "source": "harmonic-model",
+   "time": "23:14",
+   "type": "high"
+  }
+ ],
  "2001-09-08": [
   {
    "date": "2001-09-08",
@@ -2649,6 +3207,36 @@
    "height_m": 0.407,
    "source": "harmonic-model",
    "time": "18:50",
+   "type": "low"
+  }
+ ],
+ "2001-09-10": [
+  {
+   "date": "2001-09-10",
+   "height_m": 1.47,
+   "source": "harmonic-model",
+   "time": "01:29",
+   "type": "high"
+  },
+  {
+   "date": "2001-09-10",
+   "height_m": 0.602,
+   "source": "harmonic-model",
+   "time": "07:50",
+   "type": "low"
+  },
+  {
+   "date": "2001-09-10",
+   "height_m": 1.677,
+   "source": "harmonic-model",
+   "time": "13:47",
+   "type": "high"
+  },
+  {
+   "date": "2001-09-10",
+   "height_m": 0.461,
+   "source": "harmonic-model",
+   "time": "20:53",
    "type": "low"
   }
  ],
@@ -3030,6 +3618,36 @@
    "type": "high"
   }
  ],
+ "2002-06-09": [
+  {
+   "date": "2002-06-09",
+   "height_m": 0.334,
+   "source": "harmonic-model",
+   "time": "01:51",
+   "type": "low"
+  },
+  {
+   "date": "2002-06-09",
+   "height_m": 1.552,
+   "source": "harmonic-model",
+   "time": "07:56",
+   "type": "high"
+  },
+  {
+   "date": "2002-06-09",
+   "height_m": 0.489,
+   "source": "harmonic-model",
+   "time": "13:49",
+   "type": "low"
+  },
+  {
+   "date": "2002-06-09",
+   "height_m": 1.84,
+   "source": "harmonic-model",
+   "time": "19:58",
+   "type": "high"
+  }
+ ],
  "2002-06-13": [
   {
    "date": "2002-06-13",
@@ -3177,6 +3795,149 @@
    "height_m": 0.521,
    "source": "harmonic-model",
    "time": "19:43",
+   "type": "low"
+  }
+ ],
+ "2002-07-04": [
+  {
+   "date": "2002-07-04",
+   "height_m": 1.274,
+   "source": "harmonic-model",
+   "time": "03:49",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-04",
+   "height_m": 0.561,
+   "source": "harmonic-model",
+   "time": "10:13",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-04",
+   "height_m": 1.54,
+   "source": "harmonic-model",
+   "time": "16:23",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-04",
+   "height_m": 0.571,
+   "source": "harmonic-model",
+   "time": "23:05",
+   "type": "low"
+  }
+ ],
+ "2002-07-08": [
+  {
+   "date": "2002-07-08",
+   "height_m": 0.33,
+   "source": "harmonic-model",
+   "time": "01:23",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-08",
+   "height_m": 1.549,
+   "source": "harmonic-model",
+   "time": "07:28",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-08",
+   "height_m": 0.541,
+   "source": "harmonic-model",
+   "time": "13:21",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-08",
+   "height_m": 1.865,
+   "source": "harmonic-model",
+   "time": "19:28",
+   "type": "high"
+  }
+ ],
+ "2002-07-11": [
+  {
+   "date": "2002-07-11",
+   "height_m": 0.078,
+   "source": "harmonic-model",
+   "time": "03:44",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-11",
+   "height_m": 1.729,
+   "source": "harmonic-model",
+   "time": "09:43",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-11",
+   "height_m": 0.401,
+   "source": "harmonic-model",
+   "time": "15:49",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-11",
+   "height_m": 1.969,
+   "source": "harmonic-model",
+   "time": "21:44",
+   "type": "high"
+  }
+ ],
+ "2002-07-14": [
+  {
+   "date": "2002-07-14",
+   "height_m": 0.081,
+   "source": "harmonic-model",
+   "time": "06:13",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-14",
+   "height_m": 1.742,
+   "source": "harmonic-model",
+   "time": "12:01",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-14",
+   "height_m": 0.357,
+   "source": "harmonic-model",
+   "time": "18:31",
+   "type": "low"
+  }
+ ],
+ "2002-07-18": [
+  {
+   "date": "2002-07-18",
+   "height_m": 1.544,
+   "source": "harmonic-model",
+   "time": "03:04",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-18",
+   "height_m": 0.409,
+   "source": "harmonic-model",
+   "time": "09:56",
+   "type": "low"
+  },
+  {
+   "date": "2002-07-18",
+   "height_m": 1.678,
+   "source": "harmonic-model",
+   "time": "15:35",
+   "type": "high"
+  },
+  {
+   "date": "2002-07-18",
+   "height_m": 0.332,
+   "source": "harmonic-model",
+   "time": "22:37",
    "type": "low"
   }
  ],
@@ -3360,6 +4121,36 @@
    "type": "high"
   }
  ],
+ "2002-08-25": [
+  {
+   "date": "2002-08-25",
+   "height_m": 0.203,
+   "source": "harmonic-model",
+   "time": "04:38",
+   "type": "low"
+  },
+  {
+   "date": "2002-08-25",
+   "height_m": 1.635,
+   "source": "harmonic-model",
+   "time": "10:36",
+   "type": "high"
+  },
+  {
+   "date": "2002-08-25",
+   "height_m": 0.358,
+   "source": "harmonic-model",
+   "time": "16:57",
+   "type": "low"
+  },
+  {
+   "date": "2002-08-25",
+   "height_m": 1.552,
+   "source": "harmonic-model",
+   "time": "22:44",
+   "type": "high"
+  }
+ ],
  "2002-08-28": [
   {
    "date": "2002-08-28",
@@ -3381,6 +4172,96 @@
    "source": "harmonic-model",
    "time": "18:48",
    "type": "low"
+  }
+ ],
+ "2002-08-29": [
+  {
+   "date": "2002-08-29",
+   "height_m": 1.37,
+   "source": "harmonic-model",
+   "time": "00:34",
+   "type": "high"
+  },
+  {
+   "date": "2002-08-29",
+   "height_m": 0.496,
+   "source": "harmonic-model",
+   "time": "06:43",
+   "type": "low"
+  },
+  {
+   "date": "2002-08-29",
+   "height_m": 1.541,
+   "source": "harmonic-model",
+   "time": "12:56",
+   "type": "high"
+  },
+  {
+   "date": "2002-08-29",
+   "height_m": 0.505,
+   "source": "harmonic-model",
+   "time": "19:35",
+   "type": "low"
+  }
+ ],
+ "2002-09-01": [
+  {
+   "date": "2002-09-01",
+   "height_m": 1.329,
+   "source": "harmonic-model",
+   "time": "03:13",
+   "type": "high"
+  },
+  {
+   "date": "2002-09-01",
+   "height_m": 0.716,
+   "source": "harmonic-model",
+   "time": "09:34",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-01",
+   "height_m": 1.597,
+   "source": "harmonic-model",
+   "time": "15:27",
+   "type": "high"
+  },
+  {
+   "date": "2002-09-01",
+   "height_m": 0.498,
+   "source": "harmonic-model",
+   "time": "22:38",
+   "type": "low"
+  }
+ ],
+ "2002-09-05": [
+  {
+   "date": "2002-09-05",
+   "height_m": 0.213,
+   "source": "harmonic-model",
+   "time": "01:22",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-05",
+   "height_m": 1.751,
+   "source": "harmonic-model",
+   "time": "07:23",
+   "type": "high"
+  },
+  {
+   "date": "2002-09-05",
+   "height_m": 0.406,
+   "source": "harmonic-model",
+   "time": "13:34",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-05",
+   "height_m": 1.964,
+   "source": "harmonic-model",
+   "time": "19:31",
+   "type": "high"
   }
  ],
  "2002-09-06": [
@@ -3413,6 +4294,36 @@
    "type": "high"
   }
  ],
+ "2002-09-08": [
+  {
+   "date": "2002-09-08",
+   "height_m": 0.005,
+   "source": "harmonic-model",
+   "time": "03:46",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-08",
+   "height_m": 1.984,
+   "source": "harmonic-model",
+   "time": "09:39",
+   "type": "high"
+  },
+  {
+   "date": "2002-09-08",
+   "height_m": 0.093,
+   "source": "harmonic-model",
+   "time": "16:04",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-08",
+   "height_m": 2.019,
+   "source": "harmonic-model",
+   "time": "21:57",
+   "type": "high"
+  }
+ ],
  "2002-09-15": [
   {
    "date": "2002-09-15",
@@ -3441,6 +4352,36 @@
    "source": "harmonic-model",
    "time": "23:07",
    "type": "low"
+  }
+ ],
+ "2002-09-19": [
+  {
+   "date": "2002-09-19",
+   "height_m": 0.243,
+   "source": "harmonic-model",
+   "time": "01:44",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-19",
+   "height_m": 1.586,
+   "source": "harmonic-model",
+   "time": "07:46",
+   "type": "high"
+  },
+  {
+   "date": "2002-09-19",
+   "height_m": 0.43,
+   "source": "harmonic-model",
+   "time": "14:03",
+   "type": "low"
+  },
+  {
+   "date": "2002-09-19",
+   "height_m": 1.633,
+   "source": "harmonic-model",
+   "time": "19:53",
+   "type": "high"
   }
  ],
  "2002-09-22": [
@@ -3503,6 +4444,29 @@
    "type": "high"
   }
  ],
+ "2003-06-05": [
+  {
+   "date": "2003-06-05",
+   "height_m": 0.282,
+   "source": "harmonic-model",
+   "time": "06:51",
+   "type": "low"
+  },
+  {
+   "date": "2003-06-05",
+   "height_m": 1.493,
+   "source": "harmonic-model",
+   "time": "12:44",
+   "type": "high"
+  },
+  {
+   "date": "2003-06-05",
+   "height_m": 0.631,
+   "source": "harmonic-model",
+   "time": "18:58",
+   "type": "low"
+  }
+ ],
  "2003-06-06": [
   {
    "date": "2003-06-06",
@@ -3561,6 +4525,36 @@
    "source": "harmonic-model",
    "time": "22:09",
    "type": "low"
+  }
+ ],
+ "2003-06-12": [
+  {
+   "date": "2003-06-12",
+   "height_m": 0.184,
+   "source": "harmonic-model",
+   "time": "00:57",
+   "type": "low"
+  },
+  {
+   "date": "2003-06-12",
+   "height_m": 1.744,
+   "source": "harmonic-model",
+   "time": "06:50",
+   "type": "high"
+  },
+  {
+   "date": "2003-06-12",
+   "height_m": 0.35,
+   "source": "harmonic-model",
+   "time": "13:10",
+   "type": "low"
+  },
+  {
+   "date": "2003-06-12",
+   "height_m": 1.995,
+   "source": "harmonic-model",
+   "time": "19:04",
+   "type": "high"
   }
  ],
  "2003-06-15": [
@@ -3796,6 +4790,36 @@
    "type": "high"
   }
  ],
+ "2003-07-13": [
+  {
+   "date": "2003-07-13",
+   "height_m": 0.029,
+   "source": "harmonic-model",
+   "time": "02:31",
+   "type": "low"
+  },
+  {
+   "date": "2003-07-13",
+   "height_m": 1.682,
+   "source": "harmonic-model",
+   "time": "08:27",
+   "type": "high"
+  },
+  {
+   "date": "2003-07-13",
+   "height_m": 0.386,
+   "source": "harmonic-model",
+   "time": "14:40",
+   "type": "low"
+  },
+  {
+   "date": "2003-07-13",
+   "height_m": 1.951,
+   "source": "harmonic-model",
+   "time": "20:30",
+   "type": "high"
+  }
+ ],
  "2003-07-17": [
   {
    "date": "2003-07-17",
@@ -4027,6 +5051,36 @@
    "source": "harmonic-model",
    "time": "22:46",
    "type": "low"
+  }
+ ],
+ "2003-08-24": [
+  {
+   "date": "2003-08-24",
+   "height_m": 0.432,
+   "source": "harmonic-model",
+   "time": "00:26",
+   "type": "low"
+  },
+  {
+   "date": "2003-08-24",
+   "height_m": 1.437,
+   "source": "harmonic-model",
+   "time": "06:42",
+   "type": "high"
+  },
+  {
+   "date": "2003-08-24",
+   "height_m": 0.675,
+   "source": "harmonic-model",
+   "time": "12:28",
+   "type": "low"
+  },
+  {
+   "date": "2003-08-24",
+   "height_m": 1.679,
+   "source": "harmonic-model",
+   "time": "18:31",
+   "type": "high"
   }
  ],
  "2003-08-28": [
@@ -4382,6 +5436,36 @@
    "type": "high"
   }
  ],
+ "2004-06-17": [
+  {
+   "date": "2004-06-17",
+   "height_m": 0.256,
+   "source": "harmonic-model",
+   "time": "03:00",
+   "type": "low"
+  },
+  {
+   "date": "2004-06-17",
+   "height_m": 1.439,
+   "source": "harmonic-model",
+   "time": "09:02",
+   "type": "high"
+  },
+  {
+   "date": "2004-06-17",
+   "height_m": 0.571,
+   "source": "harmonic-model",
+   "time": "14:50",
+   "type": "low"
+  },
+  {
+   "date": "2004-06-17",
+   "height_m": 1.701,
+   "source": "harmonic-model",
+   "time": "20:53",
+   "type": "high"
+  }
+ ],
  "2004-06-24": [
   {
    "date": "2004-06-24",
@@ -4409,6 +5493,36 @@
    "height_m": 0.598,
    "source": "harmonic-model",
    "time": "20:02",
+   "type": "low"
+  }
+ ],
+ "2004-06-27": [
+  {
+   "date": "2004-06-27",
+   "height_m": 1.555,
+   "source": "harmonic-model",
+   "time": "03:36",
+   "type": "high"
+  },
+  {
+   "date": "2004-06-27",
+   "height_m": 0.481,
+   "source": "harmonic-model",
+   "time": "10:17",
+   "type": "low"
+  },
+  {
+   "date": "2004-06-27",
+   "height_m": 1.767,
+   "source": "harmonic-model",
+   "time": "16:10",
+   "type": "high"
+  },
+  {
+   "date": "2004-06-27",
+   "height_m": 0.421,
+   "source": "harmonic-model",
+   "time": "23:02",
    "type": "low"
   }
  ],
@@ -4741,6 +5855,36 @@
    "height_m": 1.757,
    "source": "harmonic-model",
    "time": "17:23",
+   "type": "high"
+  }
+ ],
+ "2004-08-28": [
+  {
+   "date": "2004-08-28",
+   "height_m": 0.155,
+   "source": "harmonic-model",
+   "time": "01:24",
+   "type": "low"
+  },
+  {
+   "date": "2004-08-28",
+   "height_m": 1.658,
+   "source": "harmonic-model",
+   "time": "07:23",
+   "type": "high"
+  },
+  {
+   "date": "2004-08-28",
+   "height_m": 0.417,
+   "source": "harmonic-model",
+   "time": "13:37",
+   "type": "low"
+  },
+  {
+   "date": "2004-08-28",
+   "height_m": 1.883,
+   "source": "harmonic-model",
+   "time": "19:26",
    "type": "high"
   }
  ],
@@ -5556,6 +6700,36 @@
    "type": "low"
   }
  ],
+ "2005-08-28": [
+  {
+   "date": "2005-08-28",
+   "height_m": 1.227,
+   "source": "harmonic-model",
+   "time": "04:02",
+   "type": "high"
+  },
+  {
+   "date": "2005-08-28",
+   "height_m": 0.624,
+   "source": "harmonic-model",
+   "time": "10:24",
+   "type": "low"
+  },
+  {
+   "date": "2005-08-28",
+   "height_m": 1.487,
+   "source": "harmonic-model",
+   "time": "16:07",
+   "type": "high"
+  },
+  {
+   "date": "2005-08-28",
+   "height_m": 0.372,
+   "source": "harmonic-model",
+   "time": "23:22",
+   "type": "low"
+  }
+ ],
  "2005-09-01": [
   {
    "date": "2005-09-01",
@@ -5865,6 +7039,246 @@
    "type": "high"
   }
  ],
+ "2006-06-11": [
+  {
+   "date": "2006-06-11",
+   "height_m": 0.186,
+   "source": "harmonic-model",
+   "time": "02:35",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-11",
+   "height_m": 1.635,
+   "source": "harmonic-model",
+   "time": "08:41",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-11",
+   "height_m": 0.506,
+   "source": "harmonic-model",
+   "time": "14:38",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-11",
+   "height_m": 1.9,
+   "source": "harmonic-model",
+   "time": "20:39",
+   "type": "high"
+  }
+ ],
+ "2006-06-18": [
+  {
+   "date": "2006-06-18",
+   "height_m": 1.627,
+   "source": "harmonic-model",
+   "time": "01:38",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-18",
+   "height_m": 0.261,
+   "source": "harmonic-model",
+   "time": "08:40",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-18",
+   "height_m": 1.657,
+   "source": "harmonic-model",
+   "time": "14:24",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-18",
+   "height_m": 0.448,
+   "source": "harmonic-model",
+   "time": "21:16",
+   "type": "low"
+  }
+ ],
+ "2006-06-22": [
+  {
+   "date": "2006-06-22",
+   "height_m": 0.262,
+   "source": "harmonic-model",
+   "time": "00:15",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-22",
+   "height_m": 1.5,
+   "source": "harmonic-model",
+   "time": "06:03",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-22",
+   "height_m": 0.465,
+   "source": "harmonic-model",
+   "time": "12:21",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-22",
+   "height_m": 1.811,
+   "source": "harmonic-model",
+   "time": "18:12",
+   "type": "high"
+  }
+ ],
+ "2006-06-25": [
+  {
+   "date": "2006-06-25",
+   "height_m": 0.083,
+   "source": "harmonic-model",
+   "time": "02:52",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-25",
+   "height_m": 1.528,
+   "source": "harmonic-model",
+   "time": "08:45",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-25",
+   "height_m": 0.458,
+   "source": "harmonic-model",
+   "time": "14:49",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-25",
+   "height_m": 1.854,
+   "source": "harmonic-model",
+   "time": "20:43",
+   "type": "high"
+  }
+ ],
+ "2006-06-29": [
+  {
+   "date": "2006-06-29",
+   "height_m": 0.162,
+   "source": "harmonic-model",
+   "time": "05:50",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-29",
+   "height_m": 1.47,
+   "source": "harmonic-model",
+   "time": "11:41",
+   "type": "high"
+  },
+  {
+   "date": "2006-06-29",
+   "height_m": 0.473,
+   "source": "harmonic-model",
+   "time": "17:58",
+   "type": "low"
+  },
+  {
+   "date": "2006-06-29",
+   "height_m": 1.541,
+   "source": "harmonic-model",
+   "time": "23:40",
+   "type": "high"
+  }
+ ],
+ "2006-07-02": [
+  {
+   "date": "2006-07-02",
+   "height_m": 1.374,
+   "source": "harmonic-model",
+   "time": "01:05",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-02",
+   "height_m": 0.407,
+   "source": "harmonic-model",
+   "time": "07:47",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-02",
+   "height_m": 1.443,
+   "source": "harmonic-model",
+   "time": "13:47",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-02",
+   "height_m": 0.584,
+   "source": "harmonic-model",
+   "time": "20:19",
+   "type": "low"
+  }
+ ],
+ "2006-07-06": [
+  {
+   "date": "2006-07-06",
+   "height_m": 1.351,
+   "source": "harmonic-model",
+   "time": "04:41",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-06",
+   "height_m": 0.648,
+   "source": "harmonic-model",
+   "time": "10:54",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-06",
+   "height_m": 1.63,
+   "source": "harmonic-model",
+   "time": "16:57",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-06",
+   "height_m": 0.468,
+   "source": "harmonic-model",
+   "time": "23:45",
+   "type": "low"
+  }
+ ],
+ "2006-07-08": [
+  {
+   "date": "2006-07-08",
+   "height_m": 0.372,
+   "source": "harmonic-model",
+   "time": "00:36",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-08",
+   "height_m": 1.502,
+   "source": "harmonic-model",
+   "time": "06:41",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-08",
+   "height_m": 0.615,
+   "source": "harmonic-model",
+   "time": "12:38",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-08",
+   "height_m": 1.805,
+   "source": "harmonic-model",
+   "time": "18:40",
+   "type": "high"
+  }
+ ],
  "2006-07-09": [
   {
    "date": "2006-07-09",
@@ -5893,6 +7307,172 @@
    "source": "harmonic-model",
    "time": "19:30",
    "type": "high"
+  }
+ ],
+ "2006-07-13": [
+  {
+   "date": "2006-07-13",
+   "height_m": -0.007,
+   "source": "harmonic-model",
+   "time": "04:44",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-13",
+   "height_m": 1.802,
+   "source": "harmonic-model",
+   "time": "10:40",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-13",
+   "height_m": 0.334,
+   "source": "harmonic-model",
+   "time": "17:00",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-13",
+   "height_m": 1.914,
+   "source": "harmonic-model",
+   "time": "22:44",
+   "type": "high"
+  }
+ ],
+ "2006-07-16": [
+  {
+   "date": "2006-07-16",
+   "height_m": 1.74,
+   "source": "harmonic-model",
+   "time": "00:24",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-16",
+   "height_m": 0.154,
+   "source": "harmonic-model",
+   "time": "07:16",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-16",
+   "height_m": 1.746,
+   "source": "harmonic-model",
+   "time": "13:02",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-16",
+   "height_m": 0.323,
+   "source": "harmonic-model",
+   "time": "19:49",
+   "type": "low"
+  }
+ ],
+ "2006-07-20": [
+  {
+   "date": "2006-07-20",
+   "height_m": 1.381,
+   "source": "harmonic-model",
+   "time": "04:40",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-20",
+   "height_m": 0.536,
+   "source": "harmonic-model",
+   "time": "11:07",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-20",
+   "height_m": 1.684,
+   "source": "harmonic-model",
+   "time": "16:52",
+   "type": "high"
+  }
+ ],
+ "2006-07-27": [
+  {
+   "date": "2006-07-27",
+   "height_m": 0.165,
+   "source": "harmonic-model",
+   "time": "04:39",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-27",
+   "height_m": 1.554,
+   "source": "harmonic-model",
+   "time": "10:32",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-27",
+   "height_m": 0.414,
+   "source": "harmonic-model",
+   "time": "16:46",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-27",
+   "height_m": 1.618,
+   "source": "harmonic-model",
+   "time": "22:34",
+   "type": "high"
+  }
+ ],
+ "2006-07-30": [
+  {
+   "date": "2006-07-30",
+   "height_m": 0.34,
+   "source": "harmonic-model",
+   "time": "06:16",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-30",
+   "height_m": 1.518,
+   "source": "harmonic-model",
+   "time": "12:19",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-30",
+   "height_m": 0.481,
+   "source": "harmonic-model",
+   "time": "18:39",
+   "type": "low"
+  }
+ ],
+ "2006-07-31": [
+  {
+   "date": "2006-07-31",
+   "height_m": 1.412,
+   "source": "harmonic-model",
+   "time": "00:25",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-31",
+   "height_m": 0.427,
+   "source": "harmonic-model",
+   "time": "06:48",
+   "type": "low"
+  },
+  {
+   "date": "2006-07-31",
+   "height_m": 1.508,
+   "source": "harmonic-model",
+   "time": "12:55",
+   "type": "high"
+  },
+  {
+   "date": "2006-07-31",
+   "height_m": 0.516,
+   "source": "harmonic-model",
+   "time": "19:22",
+   "type": "low"
   }
  ],
  "2006-08-06": [
@@ -5955,6 +7535,149 @@
    "type": "high"
   }
  ],
+ "2006-08-10": [
+  {
+   "date": "2006-08-10",
+   "height_m": -0.008,
+   "source": "harmonic-model",
+   "time": "03:33",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-10",
+   "height_m": 1.899,
+   "source": "harmonic-model",
+   "time": "09:31",
+   "type": "high"
+  },
+  {
+   "date": "2006-08-10",
+   "height_m": 0.239,
+   "source": "harmonic-model",
+   "time": "15:49",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-10",
+   "height_m": 2.003,
+   "source": "harmonic-model",
+   "time": "21:39",
+   "type": "high"
+  }
+ ],
+ "2006-08-24": [
+  {
+   "date": "2006-08-24",
+   "height_m": 0.221,
+   "source": "harmonic-model",
+   "time": "03:32",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-24",
+   "height_m": 1.613,
+   "source": "harmonic-model",
+   "time": "09:28",
+   "type": "high"
+  },
+  {
+   "date": "2006-08-24",
+   "height_m": 0.391,
+   "source": "harmonic-model",
+   "time": "15:41",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-24",
+   "height_m": 1.648,
+   "source": "harmonic-model",
+   "time": "21:34",
+   "type": "high"
+  }
+ ],
+ "2006-08-29": [
+  {
+   "date": "2006-08-29",
+   "height_m": 0.465,
+   "source": "harmonic-model",
+   "time": "05:58",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-29",
+   "height_m": 1.573,
+   "source": "harmonic-model",
+   "time": "12:09",
+   "type": "high"
+  },
+  {
+   "date": "2006-08-29",
+   "height_m": 0.43,
+   "source": "harmonic-model",
+   "time": "18:37",
+   "type": "low"
+  }
+ ],
+ "2006-08-31": [
+  {
+   "date": "2006-08-31",
+   "height_m": 1.366,
+   "source": "harmonic-model",
+   "time": "01:18",
+   "type": "high"
+  },
+  {
+   "date": "2006-08-31",
+   "height_m": 0.652,
+   "source": "harmonic-model",
+   "time": "07:22",
+   "type": "low"
+  },
+  {
+   "date": "2006-08-31",
+   "height_m": 1.566,
+   "source": "harmonic-model",
+   "time": "13:31",
+   "type": "high"
+  },
+  {
+   "date": "2006-08-31",
+   "height_m": 0.499,
+   "source": "harmonic-model",
+   "time": "20:32",
+   "type": "low"
+  }
+ ],
+ "2006-09-03": [
+  {
+   "date": "2006-09-03",
+   "height_m": 1.429,
+   "source": "harmonic-model",
+   "time": "04:38",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-03",
+   "height_m": 0.717,
+   "source": "harmonic-model",
+   "time": "10:58",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-03",
+   "height_m": 1.675,
+   "source": "harmonic-model",
+   "time": "16:42",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-03",
+   "height_m": 0.366,
+   "source": "harmonic-model",
+   "time": "23:47",
+   "type": "low"
+  }
+ ],
  "2006-09-07": [
   {
    "date": "2006-09-07",
@@ -5983,6 +7706,179 @@
    "source": "harmonic-model",
    "time": "20:32",
    "type": "high"
+  }
+ ],
+ "2006-09-10": [
+  {
+   "date": "2006-09-10",
+   "height_m": 0.045,
+   "source": "harmonic-model",
+   "time": "04:40",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-10",
+   "height_m": 1.994,
+   "source": "harmonic-model",
+   "time": "10:31",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-10",
+   "height_m": 0.024,
+   "source": "harmonic-model",
+   "time": "17:09",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-10",
+   "height_m": 1.837,
+   "source": "harmonic-model",
+   "time": "22:57",
+   "type": "high"
+  }
+ ],
+ "2006-09-14": [
+  {
+   "date": "2006-09-14",
+   "height_m": 1.4,
+   "source": "harmonic-model",
+   "time": "01:40",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-14",
+   "height_m": 0.498,
+   "source": "harmonic-model",
+   "time": "08:17",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-14",
+   "height_m": 1.621,
+   "source": "harmonic-model",
+   "time": "13:52",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-14",
+   "height_m": 0.249,
+   "source": "harmonic-model",
+   "time": "21:14",
+   "type": "low"
+  }
+ ],
+ "2006-09-17": [
+  {
+   "date": "2006-09-17",
+   "height_m": 1.323,
+   "source": "harmonic-model",
+   "time": "05:34",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-17",
+   "height_m": 0.598,
+   "source": "harmonic-model",
+   "time": "11:43",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-17",
+   "height_m": 1.519,
+   "source": "harmonic-model",
+   "time": "17:30",
+   "type": "high"
+  }
+ ],
+ "2006-09-21": [
+  {
+   "date": "2006-09-21",
+   "height_m": 0.307,
+   "source": "harmonic-model",
+   "time": "02:24",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-21",
+   "height_m": 1.636,
+   "source": "harmonic-model",
+   "time": "08:24",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-21",
+   "height_m": 0.401,
+   "source": "harmonic-model",
+   "time": "14:39",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-21",
+   "height_m": 1.618,
+   "source": "harmonic-model",
+   "time": "20:35",
+   "type": "high"
+  }
+ ],
+ "2006-09-25": [
+  {
+   "date": "2006-09-25",
+   "height_m": 0.39,
+   "source": "harmonic-model",
+   "time": "04:19",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-25",
+   "height_m": 1.671,
+   "source": "harmonic-model",
+   "time": "10:25",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-25",
+   "height_m": 0.301,
+   "source": "harmonic-model",
+   "time": "16:47",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-25",
+   "height_m": 1.519,
+   "source": "harmonic-model",
+   "time": "22:48",
+   "type": "high"
+  }
+ ],
+ "2006-09-28": [
+  {
+   "date": "2006-09-28",
+   "height_m": 1.433,
+   "source": "harmonic-model",
+   "time": "00:07",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-28",
+   "height_m": 0.603,
+   "source": "harmonic-model",
+   "time": "06:02",
+   "type": "low"
+  },
+  {
+   "date": "2006-09-28",
+   "height_m": 1.616,
+   "source": "harmonic-model",
+   "time": "12:12",
+   "type": "high"
+  },
+  {
+   "date": "2006-09-28",
+   "height_m": 0.393,
+   "source": "harmonic-model",
+   "time": "19:03",
+   "type": "low"
   }
  ],
  "2006-10-08": [
@@ -7758,6 +9654,901 @@
    "height_m": 1.654,
    "source": "harmonic-model",
    "time": "17:39",
+   "type": "high"
+  }
+ ],
+ "2009-06-04": [
+  {
+   "date": "2009-06-04",
+   "height_m": 0.256,
+   "source": "harmonic-model",
+   "time": "00:38",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-04",
+   "height_m": 1.464,
+   "source": "harmonic-model",
+   "time": "06:33",
+   "type": "high"
+  },
+  {
+   "date": "2009-06-04",
+   "height_m": 0.465,
+   "source": "harmonic-model",
+   "time": "12:45",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-04",
+   "height_m": 1.729,
+   "source": "harmonic-model",
+   "time": "18:37",
+   "type": "high"
+  }
+ ],
+ "2009-06-11": [
+  {
+   "date": "2009-06-11",
+   "height_m": 0.223,
+   "source": "harmonic-model",
+   "time": "05:28",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-11",
+   "height_m": 1.446,
+   "source": "harmonic-model",
+   "time": "11:30",
+   "type": "high"
+  },
+  {
+   "date": "2009-06-11",
+   "height_m": 0.581,
+   "source": "harmonic-model",
+   "time": "17:33",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-11",
+   "height_m": 1.528,
+   "source": "harmonic-model",
+   "time": "23:21",
+   "type": "high"
+  }
+ ],
+ "2009-06-18": [
+  {
+   "date": "2009-06-18",
+   "height_m": 1.501,
+   "source": "harmonic-model",
+   "time": "04:23",
+   "type": "high"
+  },
+  {
+   "date": "2009-06-18",
+   "height_m": 0.531,
+   "source": "harmonic-model",
+   "time": "10:51",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-18",
+   "height_m": 1.796,
+   "source": "harmonic-model",
+   "time": "16:50",
+   "type": "high"
+  },
+  {
+   "date": "2009-06-18",
+   "height_m": 0.396,
+   "source": "harmonic-model",
+   "time": "23:41",
+   "type": "low"
+  }
+ ],
+ "2009-06-25": [
+  {
+   "date": "2009-06-25",
+   "height_m": -0.069,
+   "source": "harmonic-model",
+   "time": "05:01",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-25",
+   "height_m": 1.788,
+   "source": "harmonic-model",
+   "time": "10:51",
+   "type": "high"
+  },
+  {
+   "date": "2009-06-25",
+   "height_m": 0.271,
+   "source": "harmonic-model",
+   "time": "17:15",
+   "type": "low"
+  },
+  {
+   "date": "2009-06-25",
+   "height_m": 1.932,
+   "source": "harmonic-model",
+   "time": "22:58",
+   "type": "high"
+  }
+ ],
+ "2009-07-02": [
+  {
+   "date": "2009-07-02",
+   "height_m": 1.34,
+   "source": "harmonic-model",
+   "time": "05:11",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-02",
+   "height_m": 0.525,
+   "source": "harmonic-model",
+   "time": "11:29",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-02",
+   "height_m": 1.619,
+   "source": "harmonic-model",
+   "time": "17:19",
+   "type": "high"
+  }
+ ],
+ "2009-07-09": [
+  {
+   "date": "2009-07-09",
+   "height_m": 0.203,
+   "source": "harmonic-model",
+   "time": "04:22",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-09",
+   "height_m": 1.538,
+   "source": "harmonic-model",
+   "time": "10:26",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-09",
+   "height_m": 0.522,
+   "source": "harmonic-model",
+   "time": "16:27",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-09",
+   "height_m": 1.617,
+   "source": "harmonic-model",
+   "time": "22:19",
+   "type": "high"
+  }
+ ],
+ "2009-07-16": [
+  {
+   "date": "2009-07-16",
+   "height_m": 1.464,
+   "source": "harmonic-model",
+   "time": "02:43",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-16",
+   "height_m": 0.569,
+   "source": "harmonic-model",
+   "time": "09:14",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-16",
+   "height_m": 1.728,
+   "source": "harmonic-model",
+   "time": "15:12",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-16",
+   "height_m": 0.468,
+   "source": "harmonic-model",
+   "time": "22:15",
+   "type": "low"
+  }
+ ],
+ "2009-07-23": [
+  {
+   "date": "2009-07-23",
+   "height_m": -0.062,
+   "source": "harmonic-model",
+   "time": "03:50",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-23",
+   "height_m": 1.858,
+   "source": "harmonic-model",
+   "time": "09:42",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-23",
+   "height_m": 0.198,
+   "source": "harmonic-model",
+   "time": "16:03",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-23",
+   "height_m": 2.015,
+   "source": "harmonic-model",
+   "time": "21:52",
+   "type": "high"
+  }
+ ],
+ "2009-07-30": [
+  {
+   "date": "2009-07-30",
+   "height_m": 1.289,
+   "source": "harmonic-model",
+   "time": "03:28",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-30",
+   "height_m": 0.537,
+   "source": "harmonic-model",
+   "time": "10:02",
+   "type": "low"
+  },
+  {
+   "date": "2009-07-30",
+   "height_m": 1.537,
+   "source": "harmonic-model",
+   "time": "15:44",
+   "type": "high"
+  },
+  {
+   "date": "2009-07-30",
+   "height_m": 0.339,
+   "source": "harmonic-model",
+   "time": "22:56",
+   "type": "low"
+  }
+ ],
+ "2009-08-06": [
+  {
+   "date": "2009-08-06",
+   "height_m": 0.238,
+   "source": "harmonic-model",
+   "time": "03:15",
+   "type": "low"
+  },
+  {
+   "date": "2009-08-06",
+   "height_m": 1.609,
+   "source": "harmonic-model",
+   "time": "09:23",
+   "type": "high"
+  },
+  {
+   "date": "2009-08-06",
+   "height_m": 0.489,
+   "source": "harmonic-model",
+   "time": "15:24",
+   "type": "low"
+  },
+  {
+   "date": "2009-08-06",
+   "height_m": 1.67,
+   "source": "harmonic-model",
+   "time": "21:20",
+   "type": "high"
+  }
+ ],
+ "2009-08-27": [
+  {
+   "date": "2009-08-27",
+   "height_m": 1.329,
+   "source": "harmonic-model",
+   "time": "01:50",
+   "type": "high"
+  },
+  {
+   "date": "2009-08-27",
+   "height_m": 0.504,
+   "source": "harmonic-model",
+   "time": "08:26",
+   "type": "low"
+  },
+  {
+   "date": "2009-08-27",
+   "height_m": 1.529,
+   "source": "harmonic-model",
+   "time": "14:05",
+   "type": "high"
+  },
+  {
+   "date": "2009-08-27",
+   "height_m": 0.324,
+   "source": "harmonic-model",
+   "time": "21:20",
+   "type": "low"
+  }
+ ],
+ "2009-09-03": [
+  {
+   "date": "2009-09-03",
+   "height_m": 0.314,
+   "source": "harmonic-model",
+   "time": "02:05",
+   "type": "low"
+  },
+  {
+   "date": "2009-09-03",
+   "height_m": 1.64,
+   "source": "harmonic-model",
+   "time": "08:17",
+   "type": "high"
+  },
+  {
+   "date": "2009-09-03",
+   "height_m": 0.489,
+   "source": "harmonic-model",
+   "time": "14:19",
+   "type": "low"
+  },
+  {
+   "date": "2009-09-03",
+   "height_m": 1.662,
+   "source": "harmonic-model",
+   "time": "20:19",
+   "type": "high"
+  }
+ ],
+ "2009-09-10": [
+  {
+   "date": "2009-09-10",
+   "height_m": 1.565,
+   "source": "harmonic-model",
+   "time": "00:10",
+   "type": "high"
+  },
+  {
+   "date": "2009-09-10",
+   "height_m": 0.486,
+   "source": "harmonic-model",
+   "time": "06:24",
+   "type": "low"
+  },
+  {
+   "date": "2009-09-10",
+   "height_m": 1.758,
+   "source": "harmonic-model",
+   "time": "12:25",
+   "type": "high"
+  },
+  {
+   "date": "2009-09-10",
+   "height_m": 0.35,
+   "source": "harmonic-model",
+   "time": "19:21",
+   "type": "low"
+  }
+ ],
+ "2009-09-17": [
+  {
+   "date": "2009-09-17",
+   "height_m": 0.159,
+   "source": "harmonic-model",
+   "time": "01:29",
+   "type": "low"
+  },
+  {
+   "date": "2009-09-17",
+   "height_m": 1.803,
+   "source": "harmonic-model",
+   "time": "07:22",
+   "type": "high"
+  },
+  {
+   "date": "2009-09-17",
+   "height_m": 0.245,
+   "source": "harmonic-model",
+   "time": "13:47",
+   "type": "low"
+  },
+  {
+   "date": "2009-09-17",
+   "height_m": 1.9,
+   "source": "harmonic-model",
+   "time": "19:40",
+   "type": "high"
+  }
+ ],
+ "2010-06-03": [
+  {
+   "date": "2010-06-03",
+   "height_m": 1.388,
+   "source": "harmonic-model",
+   "time": "00:55",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-03",
+   "height_m": 0.34,
+   "source": "harmonic-model",
+   "time": "07:45",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-03",
+   "height_m": 1.42,
+   "source": "harmonic-model",
+   "time": "13:44",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-03",
+   "height_m": 0.606,
+   "source": "harmonic-model",
+   "time": "20:18",
+   "type": "low"
+  }
+ ],
+ "2010-06-10": [
+  {
+   "date": "2010-06-10",
+   "height_m": 0.32,
+   "source": "harmonic-model",
+   "time": "01:10",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-10",
+   "height_m": 1.58,
+   "source": "harmonic-model",
+   "time": "07:11",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-10",
+   "height_m": 0.506,
+   "source": "harmonic-model",
+   "time": "13:10",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-10",
+   "height_m": 1.909,
+   "source": "harmonic-model",
+   "time": "19:16",
+   "type": "high"
+  }
+ ],
+ "2010-06-13": [
+  {
+   "date": "2010-06-13",
+   "height_m": 0.061,
+   "source": "harmonic-model",
+   "time": "03:35",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-13",
+   "height_m": 1.744,
+   "source": "harmonic-model",
+   "time": "09:33",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-13",
+   "height_m": 0.387,
+   "source": "harmonic-model",
+   "time": "15:41",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-13",
+   "height_m": 2.003,
+   "source": "harmonic-model",
+   "time": "21:36",
+   "type": "high"
+  }
+ ],
+ "2010-06-17": [
+  {
+   "date": "2010-06-17",
+   "height_m": 1.814,
+   "source": "harmonic-model",
+   "time": "00:04",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-17",
+   "height_m": 0.115,
+   "source": "harmonic-model",
+   "time": "07:04",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-17",
+   "height_m": 1.703,
+   "source": "harmonic-model",
+   "time": "12:47",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-17",
+   "height_m": 0.37,
+   "source": "harmonic-model",
+   "time": "19:28",
+   "type": "low"
+  }
+ ],
+ "2010-06-24": [
+  {
+   "date": "2010-06-24",
+   "height_m": 0.167,
+   "source": "harmonic-model",
+   "time": "01:26",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-24",
+   "height_m": 1.507,
+   "source": "harmonic-model",
+   "time": "07:24",
+   "type": "high"
+  },
+  {
+   "date": "2010-06-24",
+   "height_m": 0.487,
+   "source": "harmonic-model",
+   "time": "13:32",
+   "type": "low"
+  },
+  {
+   "date": "2010-06-24",
+   "height_m": 1.793,
+   "source": "harmonic-model",
+   "time": "19:22",
+   "type": "high"
+  }
+ ],
+ "2010-07-01": [
+  {
+   "date": "2010-07-01",
+   "height_m": 0.26,
+   "source": "harmonic-model",
+   "time": "06:17",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-01",
+   "height_m": 1.506,
+   "source": "harmonic-model",
+   "time": "12:18",
+   "type": "high"
+  },
+  {
+   "date": "2010-07-01",
+   "height_m": 0.518,
+   "source": "harmonic-model",
+   "time": "18:41",
+   "type": "low"
+  }
+ ],
+ "2010-07-08": [
+  {
+   "date": "2010-07-08",
+   "height_m": 1.475,
+   "source": "harmonic-model",
+   "time": "05:45",
+   "type": "high"
+  },
+  {
+   "date": "2010-07-08",
+   "height_m": 0.597,
+   "source": "harmonic-model",
+   "time": "11:52",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-08",
+   "height_m": 1.827,
+   "source": "harmonic-model",
+   "time": "17:54",
+   "type": "high"
+  }
+ ],
+ "2010-07-15": [
+  {
+   "date": "2010-07-15",
+   "height_m": 0.003,
+   "source": "harmonic-model",
+   "time": "05:47",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-15",
+   "height_m": 1.839,
+   "source": "harmonic-model",
+   "time": "11:34",
+   "type": "high"
+  },
+  {
+   "date": "2010-07-15",
+   "height_m": 0.208,
+   "source": "harmonic-model",
+   "time": "18:08",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-15",
+   "height_m": 1.847,
+   "source": "harmonic-model",
+   "time": "23:48",
+   "type": "high"
+  }
+ ],
+ "2010-07-22": [
+  {
+   "date": "2010-07-22",
+   "height_m": 0.249,
+   "source": "harmonic-model",
+   "time": "00:20",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-22",
+   "height_m": 1.395,
+   "source": "harmonic-model",
+   "time": "06:19",
+   "type": "high"
+  },
+  {
+   "date": "2010-07-22",
+   "height_m": 0.552,
+   "source": "harmonic-model",
+   "time": "12:29",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-22",
+   "height_m": 1.665,
+   "source": "harmonic-model",
+   "time": "18:16",
+   "type": "high"
+  }
+ ],
+ "2010-07-29": [
+  {
+   "date": "2010-07-29",
+   "height_m": 0.229,
+   "source": "harmonic-model",
+   "time": "05:01",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-29",
+   "height_m": 1.598,
+   "source": "harmonic-model",
+   "time": "11:05",
+   "type": "high"
+  },
+  {
+   "date": "2010-07-29",
+   "height_m": 0.427,
+   "source": "harmonic-model",
+   "time": "17:21",
+   "type": "low"
+  },
+  {
+   "date": "2010-07-29",
+   "height_m": 1.518,
+   "source": "harmonic-model",
+   "time": "23:08",
+   "type": "high"
+  }
+ ],
+ "2010-08-05": [
+  {
+   "date": "2010-08-05",
+   "height_m": 1.4,
+   "source": "harmonic-model",
+   "time": "04:03",
+   "type": "high"
+  },
+  {
+   "date": "2010-08-05",
+   "height_m": 0.668,
+   "source": "harmonic-model",
+   "time": "10:25",
+   "type": "low"
+  },
+  {
+   "date": "2010-08-05",
+   "height_m": 1.723,
+   "source": "harmonic-model",
+   "time": "16:18",
+   "type": "high"
+  },
+  {
+   "date": "2010-08-05",
+   "height_m": 0.421,
+   "source": "harmonic-model",
+   "time": "23:26",
+   "type": "low"
+  }
+ ],
+ "2010-08-19": [
+  {
+   "date": "2010-08-19",
+   "height_m": 1.318,
+   "source": "harmonic-model",
+   "time": "04:54",
+   "type": "high"
+  },
+  {
+   "date": "2010-08-19",
+   "height_m": 0.577,
+   "source": "harmonic-model",
+   "time": "11:16",
+   "type": "low"
+  },
+  {
+   "date": "2010-08-19",
+   "height_m": 1.54,
+   "source": "harmonic-model",
+   "time": "16:57",
+   "type": "high"
+  }
+ ],
+ "2010-08-26": [
+  {
+   "date": "2010-08-26",
+   "height_m": 0.259,
+   "source": "harmonic-model",
+   "time": "03:52",
+   "type": "low"
+  },
+  {
+   "date": "2010-08-26",
+   "height_m": 1.676,
+   "source": "harmonic-model",
+   "time": "09:57",
+   "type": "high"
+  },
+  {
+   "date": "2010-08-26",
+   "height_m": 0.367,
+   "source": "harmonic-model",
+   "time": "16:12",
+   "type": "low"
+  },
+  {
+   "date": "2010-08-26",
+   "height_m": 1.585,
+   "source": "harmonic-model",
+   "time": "22:06",
+   "type": "high"
+  }
+ ],
+ "2010-09-02": [
+  {
+   "date": "2010-09-02",
+   "height_m": 1.396,
+   "source": "harmonic-model",
+   "time": "02:26",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-02",
+   "height_m": 0.684,
+   "source": "harmonic-model",
+   "time": "08:51",
+   "type": "low"
+  },
+  {
+   "date": "2010-09-02",
+   "height_m": 1.662,
+   "source": "harmonic-model",
+   "time": "14:42",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-02",
+   "height_m": 0.464,
+   "source": "harmonic-model",
+   "time": "21:59",
+   "type": "low"
+  }
+ ],
+ "2010-09-12": [
+  {
+   "date": "2010-09-12",
+   "height_m": 0.172,
+   "source": "harmonic-model",
+   "time": "05:44",
+   "type": "low"
+  },
+  {
+   "date": "2010-09-12",
+   "height_m": 1.875,
+   "source": "harmonic-model",
+   "time": "11:28",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-12",
+   "height_m": 0.025,
+   "source": "harmonic-model",
+   "time": "18:19",
+   "type": "low"
+  }
+ ],
+ "2010-09-16": [
+  {
+   "date": "2010-09-16",
+   "height_m": 1.312,
+   "source": "harmonic-model",
+   "time": "03:11",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-16",
+   "height_m": 0.562,
+   "source": "harmonic-model",
+   "time": "09:50",
+   "type": "low"
+  },
+  {
+   "date": "2010-09-16",
+   "height_m": 1.468,
+   "source": "harmonic-model",
+   "time": "15:20",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-16",
+   "height_m": 0.306,
+   "source": "harmonic-model",
+   "time": "22:34",
+   "type": "low"
+  }
+ ],
+ "2010-09-23": [
+  {
+   "date": "2010-09-23",
+   "height_m": 0.334,
+   "source": "harmonic-model",
+   "time": "02:43",
+   "type": "low"
+  },
+  {
+   "date": "2010-09-23",
+   "height_m": 1.723,
+   "source": "harmonic-model",
+   "time": "08:51",
+   "type": "high"
+  },
+  {
+   "date": "2010-09-23",
+   "height_m": 0.353,
+   "source": "harmonic-model",
+   "time": "15:07",
+   "type": "low"
+  },
+  {
+   "date": "2010-09-23",
+   "height_m": 1.6,
+   "source": "harmonic-model",
+   "time": "21:06",
    "type": "high"
   }
  ],
@@ -12091,6 +14882,36 @@
    "type": "high"
   }
  ],
+ "2016-06-08": [
+  {
+   "date": "2016-06-08",
+   "height_m": -0.074,
+   "source": "harmonic-model",
+   "time": "05:39",
+   "type": "low"
+  },
+  {
+   "date": "2016-06-08",
+   "height_m": 1.657,
+   "source": "harmonic-model",
+   "time": "11:24",
+   "type": "high"
+  },
+  {
+   "date": "2016-06-08",
+   "height_m": 0.273,
+   "source": "harmonic-model",
+   "time": "17:54",
+   "type": "low"
+  },
+  {
+   "date": "2016-06-08",
+   "height_m": 1.784,
+   "source": "harmonic-model",
+   "time": "23:32",
+   "type": "high"
+  }
+ ],
  "2016-06-12": [
   {
    "date": "2016-06-12",
@@ -12382,6 +15203,36 @@
    "source": "harmonic-model",
    "time": "22:54",
    "type": "low"
+  }
+ ],
+ "2016-08-02": [
+  {
+   "date": "2016-08-02",
+   "height_m": 0.047,
+   "source": "harmonic-model",
+   "time": "02:34",
+   "type": "low"
+  },
+  {
+   "date": "2016-08-02",
+   "height_m": 1.683,
+   "source": "harmonic-model",
+   "time": "08:26",
+   "type": "high"
+  },
+  {
+   "date": "2016-08-02",
+   "height_m": 0.302,
+   "source": "harmonic-model",
+   "time": "14:44",
+   "type": "low"
+  },
+  {
+   "date": "2016-08-02",
+   "height_m": 1.895,
+   "source": "harmonic-model",
+   "time": "20:33",
+   "type": "high"
   }
  ],
  "2016-08-04": [
@@ -12827,6 +15678,36 @@
    "type": "high"
   }
  ],
+ "2017-06-08": [
+  {
+   "date": "2017-06-08",
+   "height_m": 0.271,
+   "source": "harmonic-model",
+   "time": "02:32",
+   "type": "low"
+  },
+  {
+   "date": "2017-06-08",
+   "height_m": 1.502,
+   "source": "harmonic-model",
+   "time": "08:30",
+   "type": "high"
+  },
+  {
+   "date": "2017-06-08",
+   "height_m": 0.471,
+   "source": "harmonic-model",
+   "time": "14:30",
+   "type": "low"
+  },
+  {
+   "date": "2017-06-08",
+   "height_m": 1.724,
+   "source": "harmonic-model",
+   "time": "20:31",
+   "type": "high"
+  }
+ ],
  "2017-06-11": [
   {
    "date": "2017-06-11",
@@ -12855,6 +15736,36 @@
    "source": "harmonic-model",
    "time": "22:16",
    "type": "high"
+  }
+ ],
+ "2017-06-15": [
+  {
+   "date": "2017-06-15",
+   "height_m": 1.603,
+   "source": "harmonic-model",
+   "time": "00:14",
+   "type": "high"
+  },
+  {
+   "date": "2017-06-15",
+   "height_m": 0.321,
+   "source": "harmonic-model",
+   "time": "07:03",
+   "type": "low"
+  },
+  {
+   "date": "2017-06-15",
+   "height_m": 1.561,
+   "source": "harmonic-model",
+   "time": "12:59",
+   "type": "high"
+  },
+  {
+   "date": "2017-06-15",
+   "height_m": 0.591,
+   "source": "harmonic-model",
+   "time": "19:25",
+   "type": "low"
   }
  ],
  "2017-06-22": [
@@ -15874,6 +18785,36 @@
    "type": "low"
   }
  ],
+ "2021-07-22": [
+  {
+   "date": "2021-07-22",
+   "height_m": 0.4,
+   "source": "chs-api",
+   "time": "01:22",
+   "type": "low"
+  },
+  {
+   "date": "2021-07-22",
+   "height_m": 1.9,
+   "source": "chs-api",
+   "time": "07:21",
+   "type": "high"
+  },
+  {
+   "date": "2021-07-22",
+   "height_m": 0.8,
+   "source": "chs-api",
+   "time": "13:29",
+   "type": "low"
+  },
+  {
+   "date": "2021-07-22",
+   "height_m": 2.3,
+   "source": "chs-api",
+   "time": "19:21",
+   "type": "high"
+  }
+ ],
  "2021-07-25": [
   {
    "date": "2021-07-25",
@@ -17435,6 +20376,36 @@
    "height_m": 1.844,
    "source": "chs-api",
    "time": "23:19",
+   "type": "high"
+  }
+ ],
+ "2024-08-01": [
+  {
+   "date": "2024-08-01",
+   "height_m": 0.223,
+   "source": "chs-api",
+   "time": "00:44",
+   "type": "low"
+  },
+  {
+   "date": "2024-08-01",
+   "height_m": 1.405,
+   "source": "chs-api",
+   "time": "06:51",
+   "type": "high"
+  },
+  {
+   "date": "2024-08-01",
+   "height_m": 0.572,
+   "source": "chs-api",
+   "time": "12:49",
+   "type": "low"
+  },
+  {
+   "date": "2024-08-01",
+   "height_m": 1.728,
+   "source": "chs-api",
+   "time": "18:38",
    "type": "high"
   }
  ],
