@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { useNumericHashParam, useJsonData } from "@/lib/use-data";
-import type { SeasonDetail, EventSummary, EventDetail, Standing } from "@/lib/data";
+import type { SeasonDetail, EventSummary, EventDetail } from "@/lib/data";
+import { formatScope, groupStandingsByScope } from "@/lib/standings";
 
 const MONTH_ORDER: Record<string, number> = {
   january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
@@ -21,41 +22,6 @@ function sortByMonth(events: EventSummary[]): EventSummary[] {
 
 function formatReason(reason: string): string {
   return reason.replaceAll("_", " ");
-}
-
-const SCOPE_TOKEN_LABELS: Record<string, string> = {
-  ifds: "IFDS",
-  iod: "IOD",
-  lts: "LTS",
-  mr: "mR",
-};
-
-/** "a_fleet" → "A Fleet", "laser_4_7_fleet" → "Laser 4.7 Fleet", "2015_year" → "2015". */
-function formatScope(scope: string): string {
-  if (scope === "overall") return "Overall";
-  return scope
-    .replace(/(\d)_(\d)/g, "$1.$2")
-    .replace(/_year$/, "")
-    .split("_")
-    .filter((t) => t.length > 0)
-    .map((t) => SCOPE_TOKEN_LABELS[t] ?? t.charAt(0).toUpperCase() + t.slice(1))
-    .join(" ");
-}
-
-/** Group standings by summary_scope, overall first, other scopes in data order. */
-function groupStandingsByScope(
-  standings: Standing[],
-): Array<{ scope: string; rows: Standing[] }> {
-  const groups = new Map<string, Standing[]>();
-  for (const s of standings) {
-    const scope = s.summary_scope || "overall";
-    const rows = groups.get(scope);
-    if (rows) rows.push(s);
-    else groups.set(scope, [s]);
-  }
-  return Array.from(groups, ([scope, rows]) => ({ scope, rows })).sort(
-    (a, b) => Number(b.scope === "overall") - Number(a.scope === "overall"),
-  );
 }
 
 function windDirectionLabel(deg: number): string {

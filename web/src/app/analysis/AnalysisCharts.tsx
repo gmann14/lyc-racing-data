@@ -17,6 +17,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { AnalysisData } from "@/lib/data";
+import { KMH_PER_KNOT, leaderKey, leaderName, topBy, weightedMonthlyAvg } from "@/lib/analysis-stats";
 
 // Theme colors matching the site's navy/gold palette
 const NAVY = "#0f1d35";
@@ -79,39 +80,6 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
       <div className="p-5">{children}</div>
     </div>
   );
-}
-
-const KMH_PER_KNOT = 1.852;
-
-/** Owner-merged rows can share a boat id (e.g. Buzz under two owners). */
-function leaderKey(row: { id: number; owner?: string | null }): string {
-  return `${row.owner ?? ""}|${row.id}`;
-}
-
-function leaderName(row: { name: string; boat_names?: string[] }): string {
-  return row.boat_names && row.boat_names.length > 1 ? row.boat_names.join(" / ") : row.name;
-}
-
-/** Highest value of `metric` and the boat(s) holding it. */
-function topBy<T extends { name: string; boat_names?: string[] }>(
-  rows: T[],
-  metric: (row: T) => number,
-): { value: number; holders: string } | null {
-  if (rows.length === 0) return null;
-  const value = Math.max(...rows.map(metric));
-  const leaders = rows.filter((r) => metric(r) === value).map(leaderName);
-  const holders = leaders.length <= 2 ? leaders.join(" & ") : `${leaders.length} boats`;
-  return { value, holders };
-}
-
-/** Average of a per-month value weighted by that month's race days. */
-function weightedMonthlyAvg<T extends { race_days: number }>(
-  months: T[],
-  value: (m: T) => number,
-): number | null {
-  const totalDays = months.reduce((s, m) => s + (m.race_days ?? 0), 0);
-  if (totalDays <= 0) return null;
-  return months.reduce((s, m) => s + value(m) * (m.race_days ?? 0), 0) / totalDays;
 }
 
 function ChartTooltipContent({ active, payload, label, formatter }: {

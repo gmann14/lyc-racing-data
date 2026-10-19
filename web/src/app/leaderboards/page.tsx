@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getLeaderboards, type LeaderboardEntry } from "@/lib/data";
+import { leaderKey } from "@/lib/analysis-stats";
 import InfoTip from "@/components/InfoTip";
 
 export default function LeaderboardsPage() {
@@ -145,7 +146,7 @@ function LeaderboardTable({
             const displayClass = row.classes && row.classes.length > 1 ? row.classes.join(" / ") : (row.class ?? null);
             return (
               <tr
-                key={`${row.owner ?? ""}|${row.id}`}
+                key={leaderKey(row)}
                 className="border-b border-border/50 last:border-0 hover:bg-cream/50 transition-colors"
               >
                 <td className="px-1.5 py-2 text-center text-gray-400 font-mono text-xs">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getOverview, getLeaderboards } from "@/lib/data";
+import { leaderKey } from "@/lib/analysis-stats";
 
 export default function HomePage() {
   const overview = getOverview();
@@ -84,7 +85,7 @@ export default function HomePage() {
                   : b.name;
                 return (
                   <div
-                    key={`${b.owner ?? ""}|${b.id}`}
+                    key={leaderKey(b)}
                     className="flex items-center gap-2 text-xs"
                   >
                     <Link
