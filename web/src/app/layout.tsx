@@ -28,11 +28,8 @@ export const metadata: Metadata = {
   title: "LYC Racing Archive",
   description:
     "27 years of Lunenburg Yacht Club racing history — results, leaderboards, and boat profiles from 1999 to 2025.",
-  icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
-    shortcut: "/icon.png",
-  },
+  // Favicons come from app/icon.png and app/apple-icon.png, which Next.js
+  // links with the basePath applied.
 };
 
 const NAV_LINKS = [
