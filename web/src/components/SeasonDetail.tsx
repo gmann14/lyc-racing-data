@@ -316,7 +316,11 @@ function EventRow({
       {isExpanded && (
         <tr>
           <td colSpan={showMonth ? 4 : 3} className="p-0">
-            <EventRaceDetail eventId={event.id} />
+            {/* w-0 + min-w-full stops wide race tables from stretching the
+                parent table on phones; they scroll inside their own wrapper */}
+            <div className="w-0 min-w-full">
+              <EventRaceDetail eventId={event.id} />
+            </div>
           </td>
         </tr>
       )}

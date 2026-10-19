@@ -22,7 +22,7 @@ export default function LeaderboardsPage() {
         .
       </p>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <LeaderboardTable
           title="Most Race Wins"
           rows={lb.most_wins}
@@ -108,7 +108,7 @@ function LeaderboardTable({
   columns: Column[];
 }) {
   return (
-    <div className="bg-card rounded-lg shadow-sm border border-border">
+    <div className="min-w-0 bg-card rounded-lg shadow-sm border border-border">
       <h2 className="text-lg font-bold text-navy px-5 py-4 border-b border-border">
         {title}
       </h2>
