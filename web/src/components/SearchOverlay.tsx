@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { normalizePath } from "@/lib/paths";
 
 interface SearchEntry {
   /** "boat" | "event" | "season" */
@@ -35,24 +36,56 @@ export default function SearchOverlay() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState<SearchEntry[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Close on route change
-  useEffect(() => {
+  // Close on route change (adjust state during render rather than in an effect)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setOpen(false);
     setQuery("");
-  }, [pathname]);
+    setActiveIdx(0);
+  }
+
+  const openSearch = useCallback(() => {
+    setLoadError(false);
+    setOpen(true);
+  }, []);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setQuery("");
+    setActiveIdx(0);
+  }, []);
+
+  const updateQuery = (value: string) => {
+    setQuery(value);
+    setActiveIdx(0);
+  };
 
   // Load index on first open
   useEffect(() => {
     if (!open || index) return;
+    let cancelled = false;
     fetch("/lyc-racing-data/data/search-index.json")
-      .then((r) => r.json())
-      .then((data) => setIndex(data as SearchEntry[]))
-      .catch(() => {});
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: unknown) => {
+        if (!cancelled) setIndex(Array.isArray(data) ? (data as SearchEntry[]) : []);
+      })
+      .catch((err: unknown) => {
+        console.error("Failed to load search index", err);
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [open, index]);
 
   // Focus input when opened
@@ -67,33 +100,35 @@ export default function SearchOverlay() {
     function handler(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setOpen((v) => !v);
+        if (open) close();
+        else openSearch();
       }
       if (e.key === "Escape" && open) {
-        setOpen(false);
-        setQuery("");
+        close();
       }
     }
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [open]);
+  }, [open, close, openSearch]);
 
   // Filter results
   const results = useFilteredResults(index, query);
   const flatResults = results.flatMap((g) => g.items);
 
-  // Reset active index when results change
-  useEffect(() => {
-    setActiveIdx(0);
-  }, [query]);
-
   const navigate = useCallback(
     (entry: SearchEntry) => {
-      setOpen(false);
-      setQuery("");
-      router.push(entry.u);
+      close();
+      const [targetPath, targetHash] = entry.u.split("#");
+      if (targetHash && normalizePath(targetPath) === normalizePath(pathname ?? "")) {
+        // Same page: router.push() only calls history.pushState, which never
+        // fires hashchange, so the detail panel wouldn't update. Setting the
+        // hash directly does.
+        window.location.hash = targetHash;
+      } else {
+        router.push(entry.u);
+      }
     },
-    [router],
+    [close, pathname, router],
   );
 
   const handleKeyDown = useCallback(
@@ -117,7 +152,7 @@ export default function SearchOverlay() {
       {/* Search trigger button (desktop) */}
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
         className="hidden md:inline-flex items-center gap-1.5 text-white/50 hover:text-white/80 transition-colors text-sm"
         aria-label="Search"
       >
@@ -130,7 +165,7 @@ export default function SearchOverlay() {
       {/* Search trigger button (mobile) */}
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openSearch}
         className="md:hidden text-white/70 hover:text-white p-1.5 transition-colors"
         aria-label="Search"
       >
@@ -145,10 +180,7 @@ export default function SearchOverlay() {
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"
-            onClick={() => {
-              setOpen(false);
-              setQuery("");
-            }}
+            onClick={close}
           />
           {/* Modal */}
           <div className="relative max-w-lg mx-auto mt-[10vh] bg-card rounded-xl shadow-2xl border border-border overflow-hidden animate-fade-in">
@@ -161,7 +193,7 @@ export default function SearchOverlay() {
                 ref={inputRef}
                 type="text"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => updateQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search boats, events, seasons..."
                 className="flex-1 bg-transparent text-foreground placeholder:text-gray-400 outline-none text-sm"
@@ -173,9 +205,15 @@ export default function SearchOverlay() {
 
             {/* Results */}
             <div className="max-h-[60vh] overflow-y-auto">
-              {!index && (
+              {!index && !loadError && (
                 <div className="px-4 py-8 text-center text-gray-400 text-sm">
                   Loading...
+                </div>
+              )}
+
+              {!index && loadError && (
+                <div className="px-4 py-8 text-center text-red-600 text-sm">
+                  Search is unavailable right now. Please try again later.
                 </div>
               )}
 

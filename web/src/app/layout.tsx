@@ -61,22 +61,22 @@ function Nav() {
             LYC Racing
           </span>
         </Link>
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6 text-sm">
-          {NAV_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-white/70 hover:text-gold transition-colors font-medium"
-            >
-              {l.label}
-            </Link>
-          ))}
+        <div className="flex items-center gap-1 md:gap-6">
+          {/* Desktop nav (hidden below md) */}
+          <div className="hidden md:flex items-center gap-6 text-sm">
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="text-white/70 hover:text-gold transition-colors font-medium"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </div>
+          {/* One search instance; it renders its own desktop and mobile triggers */}
           <SearchOverlay />
-        </div>
-        {/* Mobile nav */}
-        <div className="flex items-center gap-1 md:hidden">
-          <SearchOverlay />
+          {/* Mobile nav (hidden at md and up) */}
           <MobileNav links={NAV_LINKS} />
         </div>
       </div>
