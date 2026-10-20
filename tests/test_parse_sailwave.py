@@ -415,6 +415,62 @@ class TestParseRaceTable:
         assert detail.rows[0].boat_class == "J29"
 
 
+class TestStatusDetection:
+    @pytest.mark.parametrize("raw, expected", [
+        ("(6.0 RAF)", "RAF"),
+        ("12.0 DNE", "DNE"),
+        ("(4.0 ARB)", "ARB"),
+        ("(10.0 dnf)", "DNF"),
+        ("RDGa", "RDG"),
+    ])
+    def test_score_text_codes(self, raw, expected):
+        assert _parse_score_text(raw)["status"] == expected
+
+    @pytest.mark.parametrize("elapsed, expected", [
+        ("DNF", "DNF"),
+        ("dnf", "DNF"),
+        ("OCS", "OCS"),
+        ("RAF", "RAF"),
+        ("RDGa", "RDG"),
+        ("0:55:24", None),
+    ])
+    def test_race_status_from_elapsed_column(self, elapsed, expected):
+        html = f"""
+        <table class="racetable">
+          <tr class="titlerow">
+            <th>Rank</th><th>Boat</th><th>Finish</th><th>Elapsed</th><th>Points</th>
+          </tr>
+          <tr class="racerow">
+            <td>7</td><td>Topaz</td><td></td><td>{elapsed}</td><td>16.0</td>
+          </tr>
+        </table>
+        """
+        table = BeautifulSoup(html, "lxml").find("table")
+        row = _parse_race_table(table, "r1", None).rows[0]
+        assert row.status == expected
+        assert row.rank == "7"
+
+    def test_race_status_from_points_column(self):
+        html = """
+        <table class="racetable">
+          <tr class="titlerow"><th>Rank</th><th>Boat</th><th>Points</th></tr>
+          <tr class="racerow"><td>9</td><td>Topaz</td><td>15.0 DSQ</td></tr>
+        </table>
+        """
+        table = BeautifulSoup(html, "lxml").find("table")
+        assert _parse_race_table(table, "r1", None).rows[0].status == "DSQ"
+
+    def test_boat_names_are_not_statuses(self):
+        html = """
+        <table class="racetable">
+          <tr class="titlerow"><th>Rank</th><th>Boat</th><th>Elapsed</th><th>Points</th></tr>
+          <tr class="racerow"><td>1</td><td>Retriever</td><td>0:55:24</td><td>1.0</td></tr>
+        </table>
+        """
+        table = BeautifulSoup(html, "lxml").find("table")
+        assert _parse_race_table(table, "r1", None).rows[0].status is None
+
+
 class TestOldSailwaveDetection:
     def test_detects_old_style_race_table(self):
         soup = BeautifulSoup(OLD_SAILWAVE_RACE_HTML, "lxml")

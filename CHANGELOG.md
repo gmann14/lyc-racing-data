@@ -2,6 +2,15 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
+## 2026-10-20
+
+### Result status codes
+
+- Sailwave (2014–2025) results now record their status. Sailwave writes DNF/OCS/DSQ/DNS/RAF/RDG in the race table's Elapsed column, which the parser never read, so all 9,066 Sailwave results had no status. 232 race results gained one: DNF 149, OCS 40, DNS 14, RAF 13, DSQ 10, RDG 6. Series scores also gained RAF, DNE and ARB.
+- Status codes are now matched case-insensitively and as whole codes, with a one-letter suffix allowed (`dnf` → DNF, `RDGa` → RDG).
+- Effects: Sailwave DNS races leave race counts (e.g. Sly Fox/Mojo 433 → 430; handicap results 4,375 → 4,364). Leaderboard average finish no longer includes Sailwave non-finishers. Event pages show DNF/OCS/DSQ instead of the placeholder rank. Fixed-course trophy pages count Sailwave DNFs.
+- Unchanged: the boat page's podium and average-finish figures still use non-finishers' placeholder ranks, pending a decision on one average-finish definition.
+
 ## 2026-10-19
 
 ### Race dates
