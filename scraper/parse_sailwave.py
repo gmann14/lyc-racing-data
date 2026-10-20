@@ -106,7 +106,22 @@ class ParsedPage:
 
 
 # Known status codes in Sailwave scores
-STATUS_CODES = {"DNS", "DNC", "DNF", "OCS", "DSQ", "RET", "DPI", "UFD", "BFD", "SCP", "RDG", "ZFP"}
+STATUS_CODES = {
+    "DNS", "DNC", "DNF", "OCS", "DSQ", "RET", "RAF", "DNE", "DGM", "DPI", "UFD",
+    "BFD", "SCP", "NSC", "RDG", "ARB", "ZFP", "TLE",
+}
+
+# A whole code, any case, optionally with a one-letter suffix ("RDGa", "dnf").
+_STATUS_RE = re.compile(
+    r"(?<![A-Za-z])(" + "|".join(sorted(STATUS_CODES)) + r")[A-Za-z]?(?![A-Za-z])",
+    re.IGNORECASE,
+)
+
+
+def _detect_status(text: str | None) -> str | None:
+    """Return the status code in a score or timing cell, e.g. 'DNF' from '(10.0 dnf)'."""
+    match = _STATUS_RE.search(text or "")
+    return match.group(1).upper() if match else None
 
 
 def _parse_score_text(raw: str) -> dict:
@@ -127,11 +142,7 @@ def _parse_score_text(raw: str) -> dict:
         result["is_discarded"] = True
         text = text[1:-1].strip()
 
-    # Check for status codes
-    for code in STATUS_CODES:
-        if code in text.upper():
-            result["status"] = code
-            break
+    result["status"] = _detect_status(text)
 
     # Extract numeric points
     nums = re.findall(r"[\d.]+", text)
@@ -453,13 +464,13 @@ def _parse_race_table(table: Tag, race_key: str, caption_text: str | None) -> Ra
         if "bcr" in header_map:
             row.bcr = _clean_text(cells[header_map["bcr"]])
         if "points" in header_map:
-            points_text = _clean_text(cells[header_map["points"]])
-            row.points = points_text
-            # Check for status in points
-            for code in STATUS_CODES:
-                if code in points_text.upper():
-                    row.status = code
-                    break
+            row.points = _clean_text(cells[header_map["points"]])
+        # Sailwave writes DNF/OCS/DSQ... in the Elapsed column; older pages
+        # put it in Points.
+        for cell_text in (row.points, row.elapsed_time, row.corrected_time, row.finish_time):
+            row.status = _detect_status(cell_text)
+            if row.status:
+                break
 
         row.boat = _fallback_participant_name(row.boat, row.sail_number, bow_number)
 
