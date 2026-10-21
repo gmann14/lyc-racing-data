@@ -17,11 +17,10 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [ ] 2016 `June_TNS.htm` carries 2017 dates (`080617`) and identical start times to 2017's June TNS — check whether the 2016 page is a copy of 2017.
 - [ ] Switch `analyze_orc_vs_phrf.py` from its own date parser to `races.race_date`.
 - [ ] Load legacy multi-race series pages as real races/standings instead of silently dropping 1,335 rows via `INSERT OR IGNORE`.
-- [ ] Keep legacy TNS race nights in leaderboards/boat stats (only 405 of 1,734 legacy TNS results survive the variant filter).
-- [ ] One shared "counted results" base query (dedup + variant + special-event + no-show) for every metric; one average-finish definition.
 - [ ] Owner attribution by (boat, year) with a single merge helper (Buzz double-listed); then promote validate.py `ranked-ids` warning to a failure.
 - [ ] Group duplicate source files (bolands/bowlands 2023, bolands_V5/bolands_cup 2002, rum_race/rum_racehtm 2015); NULL-rank fallback (2010/2020 Aug TNS).
-- [ ] Trophies: single trophy-win definition for leaderboard + boat page, fleet-aware winner pick, name-map gaps, CSV vs DB precedence, no later-owner backfill for historical winners.
+- [ ] Trophies page (`trophies.json`): fleet-aware winner pick, name-map gaps, CSV vs DB precedence, no later-owner backfill for historical winners.
+- [ ] Load pre-2014 TNS series standings (legacy `_series.htm` pages are parsed but not loaded) so those 39 series get a winner.
 - [ ] Cache canonical-group computations in export (~263s → <90s).
 
 ### Track D — docs & strategy (after Track A)
@@ -32,14 +31,15 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 ### Decisions needed
 - [ ] Does LYC own any keelboats (club Sonars/IODs)?
 - [ ] Is Tuesday white-sail racing separate from Thursday TNS, and is it recorded anywhere?
-- [ ] What counts as a trophy win? DB vs club trophy record conflicts: which is authoritative?
+- [ ] TNS series scored only by division/fleet (46 since 2014): does each division winner get a trophy, or one overall?
+- [ ] DB vs club trophy record conflicts (e.g. Boland's 2023/24): which is authoritative?
 - [ ] Confirm candidate boat merges (Odyssey variants, Westwind II variants, Tsunami 98 / Tsunami 3 98, VTac/V-tack, …).
-- [ ] Average finish and podiums: exclude non-finishers (DNF/OCS/DSQ/RET/RAF placeholder ranks) on the boat page too, as the leaderboard already does?
 
 ## Done
 
 - [x] Created project task source of truth.
 - [x] Full codebase review and improvement proposal (2026-10-19).
 - [x] Restore tides (`load_db --fresh` now runs `backfill_tides`), project-relative legacy source paths, validate.py checks for weather/tides/local paths (2026-10-19).
+- [x] Shared `counted_results` base for every statistic: pre-2014 TNS nights counted, overall/fleet/series copies collapsed, one average-finish/podium definition (races finished), one trophy-win rule for leaderboard + boat page (2026-10-20).
 - [x] Capture Sailwave status codes from the Elapsed column (232 race results), shared case-insensitive status detector for race and series scores (2026-10-20).
 - [x] Normalise race dates once at load (`races.race_date`, `scraper/race_dates.py`); export and weather/tide backfills share it; start times from `133000`/`13:01` captions; hour-aware weather cache (2026-10-19).

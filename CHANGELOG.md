@@ -4,6 +4,16 @@ This file tracks changes to archive logic that materially affect published stats
 
 ## 2026-10-20
 
+### Counted results (one base for every statistic)
+
+- Every statistic now reads one table of counted results: each boat's result in each race, once. Pages that repeat a race (overall, fleet, A/B and series views) are collapsed per boat, preferring the overall page. Previously whole "variant" pages were dropped instead.
+- **Pre-2014 Thursday nights now count.** Each night had its own page, and all but one per month were being dropped: only 405 of 1,734 legacy TNS results counted; now 1,415 do (the rest were series-page copies). Examples: Poohsticks 418 → 517 races and 109 → 146 wins; Sly Fox/Mojo 430 → 518 races; handicap results 4,364 → 5,219; handicap boats 166 → 173.
+- **One definition everywhere.** Races sailed exclude DNS/DNC. Wins, podiums and average finish count only races finished (DNF/OCS/DSQ have no place). The boat page previously averaged placeholder ranks for non-finishers. Fleet sizes, seasons, streaks and return rates now also exclude DNS/DNC-only entries.
+- **Trophy wins: one per Sunday trophy race and per monthly Thursday series.** The winner is the single boat ranked first overall, or the single first finisher of a one-race event without standings. The leaderboard and boat pages now share this rule. Fleet and division wins no longer count as separate trophies, and Sunday trophy races without standings now count, including 1999–2013. Poohsticks 28 → 40. Not counted yet: 46 Thursday series since 2014 scored only by division or fleet, and the 39 pre-2014 Thursday series (their standings aren't loaded).
+- Leaderboards are merged by owner before being cut to the top 25, so merged boats are no longer dropped early.
+- The head-to-head race logs use one race id per race across all pages, so boats in the same race always match.
+- June 2003 now shows 3 Thursday nights instead of 4: on night 1 every boat was scored DNC.
+
 ### Result status codes
 
 - Sailwave (2014–2025) results now record their status. Sailwave writes DNF/OCS/DSQ/DNS/RAF/RDG in the race table's Elapsed column, which the parser never read, so all 9,066 Sailwave results had no status. 232 race results gained one: DNF 149, OCS 40, DNS 14, RAF 13, DSQ 10, RDG 6. Series scores also gained RAF, DNE and ARB.
