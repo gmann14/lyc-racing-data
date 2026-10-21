@@ -465,6 +465,34 @@ class TestExportIntegration:
                 f"detail wins {detail['stats']['wins']}"
             )
 
+    def test_trophy_leaderboard_matches_boat_pages(self):
+        """Single-boat trophy leaderboard rows should equal that boat page's trophy list."""
+        lb_path = OUTPUT_DIR / "leaderboards.json"
+        if not lb_path.exists():
+            pytest.skip("JSON not yet exported")
+        lb = json.loads(lb_path.read_text())
+        checked = 0
+        for entry in lb["most_trophies"]:
+            if len(entry.get("boat_ids", [])) != 1:
+                continue
+            detail = json.loads((OUTPUT_DIR / "boats" / f"{entry['id']}.json").read_text())
+            assert entry["trophy_wins"] == len(detail["trophies"]), entry["name"]
+            checked += 1
+        assert checked > 0
+
+    def test_most_active_matches_boat_pages(self):
+        """Most-active races for a single-boat owner should equal the boat page total."""
+        lb_path = OUTPUT_DIR / "leaderboards.json"
+        if not lb_path.exists():
+            pytest.skip("JSON not yet exported")
+        lb = json.loads(lb_path.read_text())
+        for entry in lb["most_active"][:10]:
+            totals = [
+                json.loads((OUTPUT_DIR / "boats" / f"{bid}.json").read_text())["stats"]["total_races"] or 0
+                for bid in entry["boat_ids"]
+            ]
+            assert entry["total_races"] == sum(totals), entry["name"]
+
     def test_search_index_exists_and_has_entries(self):
         path = OUTPUT_DIR / "search-index.json"
         if not path.exists():

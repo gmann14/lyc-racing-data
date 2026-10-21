@@ -88,7 +88,13 @@ Next.js 16 static build → GitHub Pages
 ## Core Concepts
 
 ### Canonical Event Grouping
-Fleet splits (overall, A/B, divisions) are grouped into one canonical event. TNS events are grouped by year+month. Variant-view events are excluded from all analytical queries. This is the foundation of deduplication.
+Fleet splits (overall, A/B, divisions) are grouped into one canonical event. TNS events are grouped by year+month.
+
+### Counted Results
+Every statistic reads the TEMP table `counted_results` (`_build_counted_results` in `export_json.py`): each boat's result in each race, once. Within a canonical group, races on different pages with the same date, race number and overlapping boats are one logical race (overall/fleet/series views); each boat's result comes from the primary page first. Every pre-2014 TNS night (one page per night) counts. Flags: `is_special`, `sailed` (not DNS/DNC), `finished` (has a place, no status). Race counts use `sailed`; wins, podiums and average finish use `finished`.
+
+### Trophy Wins
+`event_winners` (TEMP table): one per canonical handicap event (Sunday trophy race or monthly TNS series) — the single overall rank-1 in standings, or the single first finisher of a one-race event without standings. Division-only series and pre-2014 TNS (no standings loaded) have no winner.
 
 ### Owner Merging
 `_build_owner_map(conn, by_owner_only)` controls merge behavior:
@@ -100,7 +106,7 @@ Fleet splits (overall, A/B, divisions) are grouped into one canonical event. TNS
 ~100 event name variants map to 37 canonical trophy names via `_TROPHY_NAME_MAP`. Historical CSV data fills years without DB results. Course timing data is merged across all name variants.
 
 ### Handicap Stats
-The default stat scope excludes special events (regattas, championships with external competitors) and deduplicates variant-view results. This is the "handicap dataset" shown on home page and leaderboards.
+The default stat scope excludes special events (regattas, championships with external competitors): `counted_results.is_special = 0`. This is the "handicap dataset" shown on home page and leaderboards.
 
 ## Database Schema (key tables)
 
@@ -147,7 +153,7 @@ Key test files:
 - Weather + tides are cached in `enrichment/*.json` — cache survives fresh rebuilds
 - `.DS_Store` in data dirs breaks export — `make clean-ds-store` first
 - Home page shows `handicap_boat_count` (173) not `total_boats` (273)
-- TNS analysis must NOT use the variant filter (legacy race nights are separate events)
+- Never filter stats by excluding variant events — that drops pre-2014 TNS nights (one event per night). Use `counted_results`
 - JSON files are committed to git (GitHub Actions only runs Next.js build, not Python)
 
 ## Domain Knowledge

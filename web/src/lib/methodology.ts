@@ -35,7 +35,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "combined results",
         summary: "Related result pages are combined so one series is shown once.",
         detail:
-          "Some result series were published as separate overall, division, or alternate pages. The archive groups those related pages into one canonical event. When both a fleet-specific view and an overall view exist, leaderboards and stats prefer the fleet-specific result to avoid double-counting. Variant-view results are excluded from all analytical queries.",
+          "Some result series were published as separate overall, division, or alternate pages, and before 2014 each Thursday night had its own page. The archive groups related pages into one canonical event and counts each boat once per race: when the same race appears on several pages, the main overall page's result is used. Every race night in a series counts.",
       },
       {
         term: "Special Event",
@@ -59,30 +59,30 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       {
         term: "Win Percentage",
         shortLabel: "win %",
-        summary: "Race wins divided by total counted race results for a boat.",
+        summary: "Race wins divided by races sailed.",
         detail:
-          "Current leaderboard win percentage uses handicap-only race results, counts rank-1 finishes as wins, and requires a minimum race threshold where noted. It is based on individual race results, not series standings.",
+          "Uses handicap-only races and counts first-place finishes as wins, with a minimum race threshold where noted. DNS and DNC don't count as races sailed; DNF, OCS and DSQ count as races sailed but never as wins. It is based on individual races, not series standings.",
       },
       {
         term: "Trophy / Series Wins",
         shortLabel: "trophy wins",
-        summary: "First-place series standings, with duplicate source pages counted once.",
+        summary: "One trophy per Sunday trophy race and per monthly Thursday series.",
         detail:
-          "A boat gets one trophy win per combined event record where it finished rank 1 in the series standings. Duplicate overall/division pages are collapsed so the same series does not count multiple times.",
+          "The trophy goes to the boat ranked first in the overall standings, or, for a one-race event without standings, to the first-place finisher. Series scored only by fleet or division have no single winner and aren't counted, and neither are pre-2014 Thursday series, whose series standings aren't in the archive yet.",
       },
       {
         term: "Fleet Size",
         shortLabel: "fleet size",
-        summary: "Unique boats with counted race results in a given year.",
+        summary: "Unique boats that sailed at least one race in a given year.",
         detail:
-          "Fleet-size charts currently count distinct boats appearing in handicap-only race results for that season. They do not yet include a separate helm-only interpretation.",
+          "Fleet-size charts count distinct boats that sailed at least one handicap race that season; boats entered only as DNS or DNC don't count. They do not yet include a separate helm-only interpretation.",
       },
       {
         term: "Average Finish %",
         shortLabel: "avg finish %",
         summary: "Average finish position as a percentage of race field size.",
         detail:
-          "For each race a boat entered, we compute (finish rank / fleet size). The average across all races gives a normalized performance metric — lower is better. A value of 30% means the boat typically finishes in the top third. Requires a minimum of 20 races.",
+          "For each race a boat finished, we compute (finishing place / number of boats that finished). The average across those races gives a normalized performance metric — lower is better. A value of 30% means the boat typically finishes in the top third. Races with a DNF, OCS, DSQ, DNS or other status have no finishing place and are left out. Requires a minimum of 20 races finished.",
       },
       {
         term: "Consecutive Season Streak",
@@ -153,21 +153,21 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "DNC",
         summary: "Boat was entered/scored but did not appear for the race.",
         detail:
-          "DNC entries are included in fleet counts but excluded from head-to-head comparisons by default. The compare page has a toggle to show or hide non-finisher results.",
+          "DNC entries don't count as races sailed, so they're left out of race counts, fleet sizes and averages. They're hidden from head-to-head comparisons by default; the compare page has a toggle to show non-finisher results.",
       },
       {
         term: "DNS (Did Not Start)",
         shortLabel: "DNS",
         summary: "Boat appeared at the venue but did not cross the start line.",
         detail:
-          "DNS entries are scored per the racing rules. Like DNC, these can be filtered out of head-to-head comparisons using the toggle control.",
+          "DNS entries are scored per the racing rules but, like DNC, don't count as races sailed. They can be shown in head-to-head comparisons using the toggle control.",
       },
       {
         term: "DNF (Did Not Finish)",
         shortLabel: "DNF",
         summary: "Boat started but did not complete the course.",
         detail:
-          "DNF boats may have elapsed time data (time of retirement) but no corrected time or valid finish position. DNF entries are included in fleet counts and event detail views.",
+          "DNF boats may have elapsed time data (time of retirement) but no corrected time or finishing place. A DNF counts as a race sailed, but it's left out of wins, podiums and average finish.",
       },
       {
         term: "OCS (On Course Side)",
@@ -197,7 +197,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
       timeBasis: "Race rank only; rank 1 counts as a win.",
       participantScope: "Boat participants only.",
       eventScope: "Handicap-only results; special events excluded by default.",
-      aggregation: "Wins / counted race results, subject to any leaderboard threshold.",
+      aggregation: "Wins / races sailed (DNS and DNC excluded), subject to any leaderboard threshold.",
       inclusionNotes: "Series standings do not count as wins here.",
     },
   },
@@ -210,8 +210,8 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
       timeBasis: "Finish rank only; normalized by per-race field size.",
       participantScope: "Boat participants only.",
       eventScope: "Handicap-only results; special events excluded by default.",
-      aggregation: "Mean of (rank / field size) across all counted races, minimum 20 races.",
-      inclusionNotes: "DNF/DNS entries without a rank are excluded from this calculation.",
+      aggregation: "Mean of (finishing place / boats that finished) across races finished, minimum 20 races.",
+      inclusionNotes: "Races with a status (DNF, OCS, DSQ, RET, RAF, DNS, DNC) are excluded from this calculation.",
     },
   },
   {
