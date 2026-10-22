@@ -1176,253 +1176,135 @@ def export_boat_races(conn: sqlite3.Connection, boat_id: int) -> int:
     return len(data)
 
 
-def _build_owner_map(
-    conn: sqlite3.Connection,
-    by_owner_only: bool = False,
-) -> tuple[dict[int, str], dict[str, dict]]:
-    """Build boat_id→owner_key map and owner_key→info from boat_ownership.
+def _owner_in_year(ownerships: list[dict], year: int) -> str | None:
+    """Owner of a boat in a given year from its boat_ownership rows.
 
-    Args:
-        by_owner_only: If True, group ALL boats by the same owner into one key.
-            If False (default), group by owner+boat_name (merges same boat
-            with different sail numbers, e.g. Ping 415/754).
-
-    Returns (boat_to_owner, owner_info) where owner_info has:
-      primary_id, display_name, owner_name, boat_ids
+    A boat with one owner on record belongs to them in every year (ranges are
+    often incomplete). With several owners, the row whose range covers the
+    year wins, else the nearest range.
     """
-    rows = conn.execute("""
-        SELECT bo.boat_id, b.name, b.sail_number, b.class,
-               s.name as owner_name,
-               (SELECT COUNT(*) FROM participants p WHERE p.boat_id = bo.boat_id) as result_count,
-               (SELECT MIN(e.year) FROM participants p
-                JOIN results res ON res.participant_id = p.id
-                JOIN races rc ON res.race_id = rc.id
-                JOIN events e ON rc.event_id = e.id
-                WHERE p.boat_id = bo.boat_id) as first_year
-        FROM boat_ownership bo
-        JOIN boats b ON bo.boat_id = b.id
-        JOIN skippers s ON bo.skipper_id = s.id
+    if not ownerships:
+        return None
+    if len(ownerships) == 1:
+        return ownerships[0]["owner_name"]
+
+    def distance(row: dict) -> int:
+        start = row["year_start"] if row["year_start"] is not None else -9999
+        end = row["year_end"] if row["year_end"] is not None else 9999
+        if start <= year <= end:
+            return 0
+        return min(abs(year - start), abs(year - end))
+
+    return min(ownerships, key=lambda row: (distance(row), -(row["year_start"] or 0)))["owner_name"]
+
+
+def _competitor_groups(conn: sqlite3.Connection, by_owner_only: bool = False) -> list[dict]:
+    """Handicap totals per competitor: each boat-season credited to its owner that year.
+
+    ``by_owner_only=False`` groups by owner and boat name, merging one boat
+    raced under several sail numbers (Ping 415/754). ``by_owner_only=True``
+    groups all of an owner's boats (Sly Fox + Mojo = Jim Mosher). Boats with
+    no owner on record stand alone. Each group carries races sailed, wins,
+    seasons, trophies and finished-race averages, plus the boats behind it.
+    """
+    ownerships: dict[int, list[dict]] = defaultdict(list)
+    for row in conn.execute("""
+        SELECT bo.boat_id, s.name AS owner_name, bo.year_start, bo.year_end
+        FROM boat_ownership bo JOIN skippers s ON s.id = bo.skipper_id
+    """).fetchall():
+        ownerships[row["boat_id"]].append(row)
+
+    boats = {row["id"]: row for row in conn.execute(
+        "SELECT id, name, class, sail_number FROM boats").fetchall()}
+
+    seasons = conn.execute("""
+        SELECT cr.boat_id, cr.year,
+               SUM(cr.sailed) AS races,
+               SUM(cr.finished = 1 AND cr.rank = 1) AS wins,
+               SUM(cr.finished) AS finished,
+               SUM(CASE WHEN cr.finished = 1 THEN cr.rank END) AS rank_sum,
+               SUM(CASE WHEN cr.finished = 1 THEN CAST(cr.rank AS REAL) / fs.field_size END) AS rank_pct_sum
+        FROM counted_results cr
+        LEFT JOIN (
+            SELECT race_id, COUNT(*) AS field_size FROM counted_results
+            WHERE finished = 1 AND boat_id IS NOT NULL GROUP BY race_id
+        ) fs ON fs.race_id = cr.race_id
+        WHERE cr.is_special = 0 AND cr.boat_id IS NOT NULL
+        GROUP BY cr.boat_id, cr.year
     """).fetchall()
-    boat_to_owner: dict[int, str] = {}
-    owner_groups: dict[str, list[dict]] = {}
-    for row in rows:
-        if by_owner_only:
-            key = row["owner_name"]
+    trophies: dict[tuple[int, int], int] = defaultdict(int)
+    for row in conn.execute("SELECT boat_id, year FROM event_winners").fetchall():
+        trophies[(row["boat_id"], row["year"])] += 1
+    # Standings-only events can award a trophy in a season with no counted races.
+    raced = {(row["boat_id"], row["year"]) for row in seasons}
+    seasons = list(seasons) + [
+        {"boat_id": boat_id, "year": year, "races": 0, "wins": 0, "finished": 0,
+         "rank_sum": None, "rank_pct_sum": None}
+        for boat_id, year in sorted(trophies) if (boat_id, year) not in raced
+    ]
+
+    groups: dict[str, dict] = {}
+    for row in seasons:
+        boat = boats[row["boat_id"]]
+        owner = _owner_in_year(ownerships.get(row["boat_id"], []), row["year"])
+        if owner is None:
+            key = f"boat:{row['boat_id']}"
+        elif by_owner_only:
+            key = owner
         else:
-            key = f"{row['owner_name']}|{row['name']}"
-        boat_to_owner[row["boat_id"]] = key
-        owner_groups.setdefault(key, []).append(dict(row))
-    owner_info: dict[str, dict] = {}
-    for key, boats in owner_groups.items():
-        # Pick the boat with the most results as primary
-        primary = max(boats, key=lambda b: b.get("result_count", 0))
-        # Sort boats chronologically by first year seen, then collect names
-        boats_sorted = sorted(boats, key=lambda b: b.get("first_year") or 9999)
-        all_names = list(dict.fromkeys(b["name"] for b in boats_sorted))
-        all_classes = list(dict.fromkeys(
-            b["class"] for b in boats_sorted if b.get("class")
-        ))
-        owner_info[key] = {
-            "primary_id": primary["boat_id"],
-            "display_name": primary["name"],
-            "owner_name": primary["owner_name"],
-            "boat_ids": [b["boat_id"] for b in boats],
-            "boat_names": all_names,
-            "classes": all_classes,
+            key = f"{owner}|{boat['name']}"
+        g = groups.setdefault(key, {
+            "owner": owner, "years": set(), "boat_races": defaultdict(int), "boat_first": {},
+            "total_races": 0, "wins": 0, "trophy_wins": 0,
+            "finished": 0, "rank_sum": 0.0, "rank_pct_sum": 0.0,
+        })
+        if row["races"]:
+            g["years"].add(row["year"])
+        g["boat_races"][row["boat_id"]] += row["races"] or 0
+        g["boat_first"][row["boat_id"]] = min(row["year"], g["boat_first"].get(row["boat_id"], 9999))
+        g["total_races"] += row["races"] or 0
+        g["wins"] += row["wins"] or 0
+        g["finished"] += row["finished"] or 0
+        g["rank_sum"] += row["rank_sum"] or 0
+        g["rank_pct_sum"] += row["rank_pct_sum"] or 0
+        g["trophy_wins"] += trophies.get((row["boat_id"], row["year"]), 0)
+
+    result = []
+    for g in groups.values():
+        primary_id = min(g["boat_races"], key=lambda bid: (-g["boat_races"][bid], bid))
+        primary = boats[primary_id]
+        boat_ids = sorted(g["boat_races"], key=lambda bid: (g["boat_first"][bid], bid))
+        years = g["years"]
+        n = g["total_races"]
+        finished = g["finished"]
+        result.append({
+            "id": primary_id,
+            "name": primary["name"],
             "class": primary["class"],
             "sail_number": primary["sail_number"],
-        }
-    return boat_to_owner, owner_info
+            "owner": g["owner"],
+            "boat_ids": boat_ids,
+            "boat_names": list(dict.fromkeys(boats[bid]["name"] for bid in boat_ids)),
+            "classes": list(dict.fromkeys(boats[bid]["class"] for bid in boat_ids if boats[bid]["class"])),
+            "total_races": n,
+            "wins": g["wins"],
+            "win_pct": round(100.0 * g["wins"] / n, 1) if n else 0.0,
+            "seasons": len(years),
+            "first_year": min(years) if years else None,
+            "last_year": max(years) if years else None,
+            "years": sorted(years),
+            "trophy_wins": g["trophy_wins"],
+            "finished_races": finished,
+            "avg_finish": round(g["rank_sum"] / finished, 1) if finished else None,
+            "avg_finish_pct": round(100.0 * g["rank_pct_sum"] / finished, 1) if finished else None,
+        })
+    return result
 
 
-def _merge_leaderboard_simple(
-    rows: list[dict],
-    boat_to_owner: dict[int, str],
-    owner_info: dict[str, dict],
-    sort_key: str,
-    sort_reverse: bool = True,
-    limit: int = 25,
-) -> list[dict]:
-    """Merge leaderboard rows by owner, summing wins/total_races."""
-    groups: dict[str, dict] = {}
-    for row in rows:
-        row = dict(row)
-        owner_key = boat_to_owner.get(row["id"])
-        gkey = owner_key if owner_key else f"boat:{row['id']}"
-        if gkey not in groups:
-            if owner_key:
-                info = owner_info[owner_key]
-                groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or row.get("class"),
-                    "sail_number": info.get("sail_number") or row.get("sail_number"),
-                    "wins": 0,
-                    "total_races": 0,
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                groups[gkey] = {
-                    **row, "wins": 0, "total_races": 0,
-                    "owner": None, "boat_ids": [row["id"]],
-                    "boat_names": [row.get("name", "")],
-                    "classes": [row["class"]] if row.get("class") else [],
-                }
-        g = groups[gkey]
-        g["wins"] += row.get("wins") or 0
-        g["total_races"] += row.get("total_races") or 0
-    # Recalculate win_pct
-    for g in groups.values():
-        if g["total_races"] > 0:
-            g["win_pct"] = round(100.0 * g["wins"] / g["total_races"], 1)
-        else:
-            g["win_pct"] = 0.0
-    result = sorted(groups.values(), key=lambda x: x.get(sort_key, 0), reverse=sort_reverse)
-    return result[:limit]
-
-
-def _merge_leaderboard_avg_finish(
-    rows: list[dict],
-    boat_to_owner: dict[int, str],
-    owner_info: dict[str, dict],
-    limit: int = 25,
-) -> list[dict]:
-    """Merge best-avg-finish leaderboard rows by owner (weighted avg)."""
-    groups: dict[str, dict] = {}
-    for row in rows:
-        row = dict(row)
-        owner_key = boat_to_owner.get(row["id"])
-        gkey = owner_key if owner_key else f"boat:{row['id']}"
-        if gkey not in groups:
-            if owner_key:
-                info = owner_info[owner_key]
-                groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or row.get("class"),
-                    "sail_number": info.get("sail_number") or row.get("sail_number"),
-                    "total_races": 0,
-                    "wins": 0,
-                    "_weighted_finish_pct": 0.0,
-                    "_weighted_finish": 0.0,
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                groups[gkey] = {
-                    **row,
-                    "total_races": 0,
-                    "wins": 0,
-                    "_weighted_finish_pct": 0.0,
-                    "_weighted_finish": 0.0,
-                    "owner": None,
-                    "boat_ids": [row["id"]],
-                    "boat_names": [row.get("name", "")],
-                    "classes": [row["class"]] if row.get("class") else [],
-                }
-        n = row["total_races"]
-        groups[gkey]["total_races"] += n
-        groups[gkey]["wins"] += row.get("wins") or 0
-        groups[gkey]["_weighted_finish_pct"] += row["avg_finish_pct"] * n
-        groups[gkey]["_weighted_finish"] += row["avg_finish"] * n
-    for g in groups.values():
-        n = g["total_races"]
-        g["avg_finish_pct"] = round(g["_weighted_finish_pct"] / n, 1) if n else 0
-        g["avg_finish"] = round(g["_weighted_finish"] / n, 1) if n else 0
-        del g["_weighted_finish_pct"]
-        del g["_weighted_finish"]
-    return sorted(groups.values(), key=lambda x: x["avg_finish_pct"])[:limit]
-
-
-def _merge_leaderboard_seasons(
-    rows: list[dict],
-    boat_to_owner: dict[int, str],
-    owner_info: dict[str, dict],
-    boat_years: dict[int, set[int]],
-    limit: int = 25,
-) -> list[dict]:
-    """Merge most-seasons leaderboard by owner, counting the union of years raced."""
-    groups: dict[str, dict] = {}
-    for row in rows:
-        row = dict(row)
-        owner_key = boat_to_owner.get(row["id"])
-        gkey = owner_key if owner_key else f"boat:{row['id']}"
-        if gkey not in groups:
-            if owner_key:
-                info = owner_info[owner_key]
-                groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or row.get("class"),
-                    "sail_number": info.get("sail_number") or row.get("sail_number"),
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                groups[gkey] = {
-                    **row,
-                    "owner": None,
-                    "boat_ids": [row["id"]],
-                    "boat_names": [row.get("name", "")],
-                    "classes": [row["class"]] if row.get("class") else [],
-                }
-    for g in groups.values():
-        years: set[int] = set()
-        for boat_id in g["boat_ids"]:
-            years |= boat_years.get(boat_id, set())
-        g["seasons"] = len(years)
-        g["first_year"] = min(years) if years else None
-        g["last_year"] = max(years) if years else None
-    return sorted(groups.values(), key=lambda x: -x["seasons"])[:limit]
-
-
-def _merge_leaderboard_trophies(
-    rows: list[dict],
-    boat_to_owner: dict[int, str],
-    owner_info: dict[str, dict],
-    limit: int = 25,
-) -> list[dict]:
-    """Merge trophy leaderboard rows by owner."""
-    groups: dict[str, dict] = {}
-    for row in rows:
-        if isinstance(row, dict):
-            r = row
-        else:
-            r = dict(row)
-        owner_key = boat_to_owner.get(r["id"])
-        gkey = owner_key if owner_key else f"boat:{r['id']}"
-        if gkey not in groups:
-            if owner_key:
-                info = owner_info[owner_key]
-                groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or r.get("class"),
-                    "sail_number": info.get("sail_number") or r.get("sail_number"),
-                    "trophy_wins": 0,
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                groups[gkey] = {
-                    **r,
-                    "trophy_wins": 0,
-                    "owner": None,
-                    "boat_ids": [r["id"]],
-                    "boat_names": [r.get("name", "")],
-                    "classes": [r["class"]] if r.get("class") else [],
-                }
-        groups[gkey]["trophy_wins"] += r.get("trophy_wins", 0)
-    return sorted(groups.values(), key=lambda x: (-x["trophy_wins"], x["name"]))[:limit]
+def _pick(group: dict, *fields: str) -> dict:
+    """Leaderboard row with the shared identity fields plus ``fields``."""
+    identity = ("id", "name", "class", "sail_number", "owner", "boat_ids", "boat_names", "classes")
+    return {k: group[k] for k in (*identity, *fields)}
 
 
 def _handicap_boat_years(conn: sqlite3.Connection) -> dict[int, set[int]]:
@@ -1436,23 +1318,6 @@ def _handicap_boat_years(conn: sqlite3.Connection) -> dict[int, set[int]]:
     return boat_years
 
 
-def _handicap_boat_totals(conn: sqlite3.Connection) -> list[dict]:
-    """Per-boat handicap races sailed, wins and seasons."""
-    return conn.execute("""
-        SELECT b.id, b.name, b.class, b.sail_number,
-               COUNT(*) as total_races,
-               SUM(cr.finished = 1 AND cr.rank = 1) as wins,
-               ROUND(100.0 * SUM(cr.finished = 1 AND cr.rank = 1) / COUNT(*), 1) as win_pct,
-               COUNT(DISTINCT cr.year) as seasons,
-               MIN(cr.year) as first_year, MAX(cr.year) as last_year
-        FROM counted_results cr
-        JOIN boats b ON b.id = cr.boat_id
-        WHERE cr.is_special = 0 AND cr.sailed = 1
-        GROUP BY b.id
-        ORDER BY b.id
-    """).fetchall()
-
-
 def export_leaderboards(conn: sqlite3.Connection) -> None:
     """Export precomputed leaderboard data.
 
@@ -1461,65 +1326,32 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
     """
     excluded = _excluded_event_map(conn)
     _ensure_counted_tables(conn)
-    boat_to_owner, owner_info = _build_owner_map(conn)
-    boat_totals = _handicap_boat_totals(conn)
-    boat_years = _handicap_boat_years(conn)
-    win_rows = [
-        {k: row[k] for k in ("id", "name", "class", "sail_number", "wins", "total_races", "win_pct")}
-        for row in boat_totals
-    ]
-    season_rows = [
-        {k: row[k] for k in ("id", "name", "class", "sail_number", "seasons", "first_year", "last_year")}
-        for row in boat_totals
-    ]
+    groups = _competitor_groups(conn)
 
     merged_wins = [
-        row for row in _merge_leaderboard_simple(
-            win_rows, boat_to_owner, owner_info, sort_key="wins", limit=len(win_rows),
-        ) if row["wins"] > 0
+        _pick(g, "wins", "total_races", "win_pct")
+        for g in sorted(groups, key=lambda g: (-g["wins"], g["name"]))
+        if g["wins"] > 0
     ][:25]
     merged_win_pct = [
-        row for row in _merge_leaderboard_simple(
-            win_rows, boat_to_owner, owner_info, sort_key="win_pct", limit=len(win_rows),
-        ) if row["total_races"] >= 20 and row["wins"] > 0
+        _pick(g, "wins", "total_races", "win_pct")
+        for g in sorted(groups, key=lambda g: (-g["win_pct"], g["name"]))
+        if g["total_races"] >= 20 and g["wins"] > 0
     ][:25]
-    merged_seasons = _merge_leaderboard_seasons(
-        season_rows, boat_to_owner, owner_info, boat_years, limit=25,
-    )
-
-    trophy_rows = conn.execute("""
-        SELECT b.id, b.name, b.class, b.sail_number, COUNT(*) as trophy_wins
-        FROM event_winners ew
-        JOIN boats b ON b.id = ew.boat_id
-        GROUP BY b.id
-    """).fetchall()
-    merged_trophies = _merge_leaderboard_trophies(
-        trophy_rows, boat_to_owner, owner_info, limit=25,
-    )
-
+    merged_seasons = [
+        _pick(g, "seasons", "first_year", "last_year")
+        for g in sorted(groups, key=lambda g: (-g["seasons"], g["name"]))
+    ][:25]
+    merged_trophies = [
+        _pick(g, "trophy_wins")
+        for g in sorted(groups, key=lambda g: (-g["trophy_wins"], g["name"]))
+        if g["trophy_wins"] > 0
+    ][:25]
     # Average finishing place as % of the finishing fleet, over races finished
-    best_avg_raw = conn.execute("""
-        SELECT b.id, b.name, b.class, b.sail_number,
-               COUNT(*) as total_races,
-               ROUND(AVG(CAST(cr.rank AS REAL) / fs.field_size) * 100, 1) as avg_finish_pct,
-               ROUND(AVG(cr.rank), 1) as avg_finish,
-               SUM(cr.rank = 1) as wins
-        FROM counted_results cr
-        JOIN boats b ON b.id = cr.boat_id
-        JOIN (
-            SELECT race_id, COUNT(*) as field_size
-            FROM counted_results
-            WHERE finished = 1 AND boat_id IS NOT NULL
-            GROUP BY race_id
-        ) fs ON fs.race_id = cr.race_id
-        WHERE cr.is_special = 0 AND cr.finished = 1
-        GROUP BY b.id
-        ORDER BY b.id
-    """).fetchall()
+    qualified = [g for g in groups if g["finished_races"] >= 20]
     merged_avg_finish = [
-        row for row in _merge_leaderboard_avg_finish(
-            best_avg_raw, boat_to_owner, owner_info, limit=len(best_avg_raw),
-        ) if row["total_races"] >= 20
+        {**_pick(g, "avg_finish_pct", "avg_finish", "wins"), "total_races": g["finished_races"]}
+        for g in sorted(qualified, key=lambda g: (g["avg_finish_pct"], g["name"]))
     ][:25]
 
     fleet_by_year = conn.execute("""
@@ -1532,45 +1364,12 @@ def export_leaderboards(conn: sqlite3.Connection) -> None:
         ORDER BY year
     """).fetchall()
 
-    # Most active (by races sailed, merged by owner for the home page)
-    owner_map, owner_info2 = _build_owner_map(conn, by_owner_only=True)
-    active_groups: dict[str, dict] = {}
-    for row in boat_totals:
-        row = dict(row)
-        okey = owner_map.get(row["id"])
-        gkey = okey if okey else f"boat:{row['id']}"
-        if gkey not in active_groups:
-            if okey:
-                info = owner_info2[okey]
-                active_groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or row.get("class"),
-                    "sail_number": info.get("sail_number") or row.get("sail_number"),
-                    "total_races": 0, "wins": 0, "seasons": 0,
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                active_groups[gkey] = {
-                    "id": row["id"], "name": row["name"], "class": row["class"],
-                    "sail_number": row["sail_number"],
-                    "total_races": 0, "wins": 0, "seasons": 0,
-                    "owner": None, "boat_ids": [row["id"]],
-                    "boat_names": [row.get("name", "")],
-                    "classes": [row["class"]] if row.get("class") else [],
-                }
-        g = active_groups[gkey]
-        g["total_races"] += row["total_races"]
-        g["wins"] += row["wins"]
-    for g in active_groups.values():
-        years: set[int] = set()
-        for boat_id in g["boat_ids"]:
-            years |= boat_years.get(boat_id, set())
-        g["seasons"] = len(years)
-    most_active = sorted(active_groups.values(), key=lambda x: (-x["total_races"], x["name"]))[:30]
+    # Most active (by races sailed, all of an owner's boats together)
+    most_active = [
+        _pick(g, "total_races", "wins", "seasons")
+        for g in sorted(_competitor_groups(conn, by_owner_only=True),
+                        key=lambda g: (-g["total_races"], g["name"]))
+    ][:30]
 
     data = {
         "most_wins": merged_wins,
@@ -2450,133 +2249,34 @@ def export_analysis(conn: sqlite3.Connection) -> None:
             "sample_size": len(times),
         })
 
-    # --- Participation & Consistency (with owner merging) ---
-    # Use by_owner_only=True so different boats by same owner merge
-    # (e.g. Mojo + Sly Fox → James Mosher combined entry)
-    boat_to_owner, owner_info = _build_owner_map(conn, by_owner_only=True)
+    # --- Participation & Consistency (all of an owner's boats together) ---
+    owner_groups = _competitor_groups(conn, by_owner_only=True)
+    most_races = [
+        {**_pick(g, "wins", "first_year", "last_year", "seasons"), "races": g["total_races"]}
+        for g in sorted(owner_groups, key=lambda g: (-g["total_races"], g["name"]))
+    ][:30]
 
-    # Most races sailed (all-time) — merge by owner first, then cut
-    most_races_raw = [
-        {"id": row["id"], "name": row["name"], "class": row["class"],
-         "sail_number": row["sail_number"], "races": row["total_races"],
-         "seasons": row["seasons"], "first_year": row["first_year"],
-         "last_year": row["last_year"], "wins": row["wins"]}
-        for row in sorted(_handicap_boat_totals(conn), key=lambda r: (-r["total_races"], r["id"]))
-    ]
-
-    # Merge most_races by owner
-    mr_groups: dict[str, dict] = {}
-    for row in most_races_raw:
-        row = dict(row)
-        owner_key = boat_to_owner.get(row["id"])
-        gkey = owner_key if owner_key else f"boat:{row['id']}"
-        if gkey not in mr_groups:
-            if owner_key:
-                info = owner_info[owner_key]
-                mr_groups[gkey] = {
-                    "id": info["primary_id"],
-                    "name": info["display_name"],
-                    "class": info.get("class") or row.get("class"),
-                    "sail_number": info.get("sail_number") or row.get("sail_number"),
-                    "races": 0, "wins": 0,
-                    "first_year": row["first_year"], "last_year": row["last_year"],
-                    "_years": set(),
-                    "owner": info["owner_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                mr_groups[gkey] = {
-                    **row, "races": 0, "wins": 0,
-                    "first_year": row["first_year"], "last_year": row["last_year"],
-                    "_years": set(),
-                    "owner": None, "boat_ids": [row["id"]],
-                    "boat_names": [row.get("name", "")],
-                    "classes": [row["class"]] if row.get("class") else [],
-                }
-        g = mr_groups[gkey]
-        g["races"] += row["races"]
-        g["wins"] += row["wins"]
-        g["first_year"] = min(g["first_year"], row["first_year"])
-        g["last_year"] = max(g["last_year"], row["last_year"])
-    # Compute seasons from actual year data per owner group
-    for gkey, g in mr_groups.items():
-        years: set[int] = set()
-        for bid in g["boat_ids"]:
-            years |= boat_years.get(bid, set())
-        g["seasons"] = len(years)
-        g["_years"] = years
-    # Clean up internal fields and sort
-    for g in mr_groups.values():
-        del g["_years"]
-    most_races = sorted(mr_groups.values(), key=lambda x: -x["races"])[:30]
-
-    # Longest active streaks — merge years by owner before computing
-    boat_names = {row["id"]: row["name"] for row in conn.execute("SELECT id, name FROM boats").fetchall()}
-    all_boat_years = [
-        {"id": boat_id, "name": boat_names.get(boat_id, ""), "year": year}
-        for boat_id in sorted(boat_years)
-        for year in sorted(boat_years[boat_id])
-    ]
-
-    # Group years by owner (or by boat if no owner)
-    owner_years: dict[str, set[int]] = {}
-    owner_display: dict[str, dict] = {}
-    for row in all_boat_years:
-        owner_key = boat_to_owner.get(row["id"])
-        gkey = owner_key if owner_key else f"boat:{row['id']}"
-        owner_years.setdefault(gkey, set()).add(row["year"])
-        if gkey not in owner_display:
-            if owner_key:
-                info = owner_info[owner_key]
-                owner_display[gkey] = {
-                    "id": info["primary_id"], "name": info["display_name"],
-                    "boat_ids": info["boat_ids"],
-                    "boat_names": info.get("boat_names", [info["display_name"]]),
-                    "classes": info.get("classes", []),
-                }
-            else:
-                owner_display[gkey] = {
-                    "id": row["id"], "name": row["name"],
-                    "boat_ids": [row["id"]],
-                    "boat_names": [row["name"]],
-                    "classes": [],
-                }
-
-    # Compute longest consecutive streak per owner group
-    best_by_owner: dict[str, dict] = {}
-    for gkey, years in owner_years.items():
-        sorted_years = sorted(years)
-        best_streak = 0
-        best_start = 0
-        best_end = 0
-        cur_streak = 1
-        cur_start = sorted_years[0]
-        for i in range(1, len(sorted_years)):
-            if sorted_years[i] == sorted_years[i - 1] + 1:
-                cur_streak += 1
-            else:
-                if cur_streak > best_streak:
-                    best_streak = cur_streak
-                    best_start = cur_start
-                    best_end = sorted_years[i - 1]
-                cur_streak = 1
-                cur_start = sorted_years[i]
-        if cur_streak > best_streak:
-            best_streak = cur_streak
-            best_start = cur_start
-            best_end = sorted_years[-1]
-        if best_streak >= 3:
-            disp = owner_display[gkey]
-            best_by_owner[gkey] = {
-                "id": disp["id"], "name": disp["name"],
-                "boat_ids": disp["boat_ids"],
-                "boat_names": disp["boat_names"],
-                "classes": disp["classes"],
-                "streak": best_streak, "start": best_start, "end": best_end,
-            }
-    longest_streaks = sorted(best_by_owner.values(), key=lambda x: -x["streak"])[:25]
+    # Longest run of consecutive seasons per competitor
+    streaks = []
+    for g in owner_groups:
+        years = g["years"]
+        if not years:
+            continue
+        best = (1, years[0], years[0])
+        run_start = years[0]
+        for prev, year in zip(years, years[1:]):
+            if year != prev + 1:
+                run_start = year
+            length = year - run_start + 1
+            if length > best[0]:
+                best = (length, run_start, year)
+        if best[0] >= 3:
+            streaks.append({
+                "id": g["id"], "name": g["name"], "boat_ids": g["boat_ids"],
+                "boat_names": g["boat_names"], "classes": g["classes"],
+                "streak": best[0], "start": best[1], "end": best[2],
+            })
+    longest_streaks = sorted(streaks, key=lambda x: (-x["streak"], x["name"]))[:25]
 
     # --- TNS Deep Dive ---
     # counted_results keeps every legacy race night (one page per night) and

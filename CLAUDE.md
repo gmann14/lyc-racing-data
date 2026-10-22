@@ -97,10 +97,10 @@ Every statistic reads the TEMP table `counted_results` (`_build_counted_results`
 `event_winners` (TEMP table): trophies per canonical handicap event (Sunday trophy race or monthly TNS series), one per division winner (A/B fleet, P/S division) or one overall when not split. Sources in order: division standings tables, fleet-labelled first places in an overall table (2009–2011), a single overall leader, or race winners when there are no standings. Ties get no trophy; pre-2014 TNS (no standings loaded) have none.
 
 ### Owner Merging
-`_build_owner_map(conn, by_owner_only)` controls merge behavior:
-- `by_owner_only=False` → merges same boat under different sail numbers (leaderboards)
-- `by_owner_only=True` → merges ALL boats by same owner (participation charts, home page)
-- Example: Jim Mosher owns Sly Fox + Mojo → combined 439 races, 27-year streak
+`_competitor_groups(conn, by_owner_only)` builds every leaderboard and participation list. Each boat-season goes to the boat's owner that year (`_owner_in_year`: the covering `boat_ownership` range, else the nearest; a sole owner owns every year):
+- `by_owner_only=False` → owner + boat name, merging one boat under different sail numbers (leaderboards)
+- `by_owner_only=True` → all of an owner's boats (participation charts, home page)
+- Example: Jim Mosher owns Sly Fox + Mojo → combined 518 races, 27-year streak; Buzz is Barry Eisener's 2016–18 and Bernd Hackstein's from 2019
 
 ### Trophy Consolidation
 ~100 event name variants map to 37 canonical trophy names via `_TROPHY_NAME_MAP`. Historical CSV data fills years without DB results. Course timing data is merged across all name variants.

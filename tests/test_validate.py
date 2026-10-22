@@ -159,15 +159,23 @@ class TestRaceDates:
 
 
 class TestWarnings:
-    def test_duplicate_ranked_id_warns_without_failing(self, site: Path) -> None:
+    def test_same_boat_under_two_owners_is_allowed(self, site: Path) -> None:
         rows = [{"id": 64, "owner": "A"}, {"id": 64, "owner": "B"}, {"id": 1}]
         lb = json.loads((site / "leaderboards.json").read_text())
         lb["most_active"] = rows
         _write(site / "leaderboards.json", lb)
 
-        errors, warnings = run_checks(site)
+        errors, _ = run_checks(site)
         assert errors == []
-        assert [w.message for w in warnings if w.check == "ranked-ids"] == [
+
+    def test_duplicate_ranked_row_fails(self, site: Path) -> None:
+        rows = [{"id": 64, "owner": "A"}, {"id": 64, "owner": "A"}, {"id": 1}]
+        lb = json.loads((site / "leaderboards.json").read_text())
+        lb["most_active"] = rows
+        _write(site / "leaderboards.json", lb)
+
+        errors, _ = run_checks(site)
+        assert [e.message for e in errors if e.check == "ranked-ids"] == [
             "leaderboards.most_active lists boat id 64 more than once"
         ]
 
