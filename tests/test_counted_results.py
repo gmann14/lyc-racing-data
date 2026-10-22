@@ -21,10 +21,10 @@ SCHEMA = """
                         race_key TEXT, date TEXT, race_date TEXT);
     CREATE TABLE participants (id INTEGER PRIMARY KEY, boat_id INTEGER);
     CREATE TABLE results (id INTEGER PRIMARY KEY, race_id INTEGER, participant_id INTEGER,
-                          rank INTEGER, status TEXT);
+                          rank INTEGER, status TEXT, fleet TEXT, division TEXT);
     CREATE TABLE series_standings (id INTEGER PRIMARY KEY, event_id INTEGER,
                                    participant_id INTEGER, summary_scope TEXT,
-                                   rank INTEGER, nett_points REAL);
+                                   rank INTEGER, nett_points REAL, fleet TEXT, division TEXT);
 """
 
 
@@ -47,7 +47,7 @@ class Builder:
         return event_id
 
     def race(self, event_id: int, number: int | None, race_date: str | None,
-             finishers: list[tuple], key: str | None = None) -> int:
+             finishers: list[tuple], key: str | None = None, fleet: str | None = None) -> int:
         """finishers: (boat_id, rank) or (boat_id, rank, status)."""
         self._ids["race"] += 1
         race_id = self._ids["race"]
@@ -58,26 +58,31 @@ class Builder:
             status = entry[2] if len(entry) > 2 else None
             self.conn.execute("INSERT OR IGNORE INTO participants VALUES (?, ?)", (boat_id, boat_id))
             self._ids["result"] += 1
-            self.conn.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?)",
-                              (self._ids["result"], race_id, boat_id, rank, status))
+            self.conn.execute("INSERT INTO results VALUES (?, ?, ?, ?, ?, ?, NULL)",
+                              (self._ids["result"], race_id, boat_id, rank, status, fleet))
         return race_id
 
     def standing(self, event_id: int, boat_id: int, rank: int, scope: str = "overall",
-                 points: float = 1.0) -> None:
+                 points: float = 1.0, fleet: str | None = None) -> None:
         self.conn.execute("INSERT OR IGNORE INTO participants VALUES (?, ?)", (boat_id, boat_id))
         self.conn.execute(
-            "INSERT INTO series_standings (event_id, participant_id, summary_scope, rank, nett_points) "
-            "VALUES (?, ?, ?, ?, ?)", (event_id, boat_id, scope, rank, points))
+            "INSERT INTO series_standings (event_id, participant_id, summary_scope, rank, nett_points, fleet) "
+            "VALUES (?, ?, ?, ?, ?, ?)", (event_id, boat_id, scope, rank, points, fleet))
 
     def count(self, excluded: dict | None = None) -> list[dict]:
         _build_counted_results(self.conn, self.groups, excluded or {})
         return self.conn.execute(
             "SELECT * FROM counted_results ORDER BY race_id, boat_id").fetchall()
 
-    def winners(self, excluded: dict | None = None) -> dict[int, dict]:
+    def winners(self, excluded: dict | None = None) -> dict[tuple, dict]:
+        """(canonical_event_id, division) -> winner row."""
         meta = {pid: {"canonical_name": f"Event {pid}"} for pid in self.groups}
         _build_event_winners(self.conn, meta, self.groups, excluded or {})
-        return {r["canonical_event_id"]: r for r in self.conn.execute("SELECT * FROM event_winners")}
+        return {(r["canonical_event_id"], r["division"]): r
+                for r in self.conn.execute("SELECT * FROM event_winners")}
+
+    def winning_boats(self, **kwargs) -> dict[str | None, int]:
+        return {division: row["boat_id"] for (_, division), row in self.winners(**kwargs).items()}
 
 
 def _per_boat(rows: list[dict]) -> dict[int, list[tuple]]:
@@ -180,11 +185,12 @@ class TestEventWinners:
         event = b.event(1, 1)
         b.race(event, 1, "2014-07-03", [(1, 2), (2, 1)])
         b.race(event, 2, "2014-07-10", [(1, 1), (2, 2)])
-        b.standing(event, 1, 1, points=3.0)
-        b.standing(event, 2, 2)
+        b.standing(event, 1, 1, points=3.0, fleet="A")
+        b.standing(event, 2, 2, fleet="B")
         b.count()
-        winner = b.winners()[1]
+        winner = b.winners()[(1, None)]
         assert (winner["boat_id"], winner["source"], winner["nett_points"]) == (1, "standings", 3.0)
+        assert winner["name"] == "Event 1"
 
     def test_standings_on_a_fleet_page_still_count(self) -> None:
         b = Builder()
@@ -193,18 +199,45 @@ class TestEventWinners:
         b.race(main, 1, "2014-07-03", [(1, 1), (2, 2)])
         b.standing(overall_page, 2, 1)
         b.count()
-        assert b.winners()[1]["boat_id"] == 2
+        assert b.winning_boats() == {None: 2}
 
-    @pytest.mark.parametrize("scopes", [
-        [("overall", 1, 1), ("overall", 2, 1)],
-        [("p_division", 1, 1), ("s_division", 2, 1)],
-    ])
-    def test_no_single_winner(self, scopes: list[tuple]) -> None:
+    def test_each_division_winner_gets_a_trophy(self) -> None:
         b = Builder()
         event = b.event(1, 1)
         b.race(event, 1, "2018-07-05", [(1, 1), (2, 1)])
-        for scope, boat, rank in scopes:
-            b.standing(event, boat, rank, scope=scope)
+        b.standing(event, 1, 1, scope="p_division")
+        b.standing(event, 2, 1, scope="s_division")
+        b.standing(event, 1, 1, scope="overall")
+        b.count()
+        winners = b.winners()
+        assert {k[1]: v["boat_id"] for k, v in winners.items()} == {"P Division": 1, "S Division": 2}
+        assert winners[(1, "P Division")]["name"] == "Event 1 (P Division)"
+
+    def test_tied_division_gets_no_trophy(self) -> None:
+        b = Builder()
+        event = b.event(1, 1)
+        b.race(event, 1, "2024-06-06", [(1, 1), (2, 1), (3, 1)])
+        b.standing(event, 1, 1, scope="a_fleet")
+        b.standing(event, 2, 1, scope="a_fleet")
+        b.standing(event, 3, 1, scope="b_fleet")
+        b.count()
+        assert b.winning_boats() == {"B Fleet": 3}
+
+    def test_fleets_scored_in_one_overall_table(self) -> None:
+        b = Builder()
+        event = b.event(1, 1, year=2009)
+        b.race(event, 1, "2009-07-02", [(1, 1), (2, 1)])
+        b.standing(event, 1, 1, fleet="A")
+        b.standing(event, 2, 1, fleet="B")
+        b.count()
+        assert b.winning_boats() == {"A Fleet": 1, "B Fleet": 2}
+
+    def test_unlabelled_overall_ties_have_no_winner(self) -> None:
+        b = Builder()
+        event = b.event(1, 1)
+        b.race(event, 1, "2010-08-08", [(1, 1), (2, 1)])
+        b.standing(event, 1, 1)
+        b.standing(event, 2, 1)
         b.count()
         assert b.winners() == {}
 
@@ -213,21 +246,36 @@ class TestEventWinners:
         event = b.event(1, 1, event_type="trophy", month=None)
         b.race(event, 1, "2003-07-13", [(1, 2), (2, 1), (3, 3, "DNF")])
         b.count()
-        winner = b.winners()[1]
+        winner = b.winners()[(1, None)]
         assert (winner["boat_id"], winner["source"]) == (2, "race")
 
-    def test_one_race_with_two_fleet_winners_has_no_winner(self) -> None:
+    def test_one_race_with_unlabelled_firsts_has_no_winner(self) -> None:
         b = Builder()
         event = b.event(1, 1, event_type="trophy", month=None)
         b.race(event, 1, "2019-08-11", [(1, 1), (2, 1), (3, 2)])
         b.count()
         assert b.winners() == {}
 
+    def test_separate_division_races_each_get_a_trophy(self) -> None:
+        b = Builder()
+        event = b.event(1, 1, event_type="trophy", month=None)
+        b.race(event, 1, "2011-09-11", [(1, 1), (2, 2)], key="r1a", fleet="A")
+        b.race(event, 1, "2011-09-11", [(3, 1), (4, 2)], key="r1b", fleet="B")
+        b.count()
+        assert b.winning_boats() == {"A Fleet": 1, "B Fleet": 3}
+
     def test_series_without_standings_has_no_winner(self) -> None:
         b = Builder()
         nights = [b.event(i, 2) for i in (1, 2)]
         for n, event_id in enumerate(nights, start=1):
             b.race(event_id, n, f"1999-06-{n:02d}", [(1, 1), (2, 2)])
+        b.count()
+        assert b.winners() == {}
+
+    def test_race_where_nobody_finished_has_no_winner(self) -> None:
+        b = Builder()
+        event = b.event(1, 1, event_type="trophy", month=None)
+        b.race(event, 1, "2003-08-10", [(1, 7, "DNF"), (2, 7, "DNF")])
         b.count()
         assert b.winners() == {}
 
@@ -273,9 +321,18 @@ class TestRealData:
             "1999-06-03", "1999-06-10", "1999-06-17", "1999-06-24",
         ]
 
-    def test_one_winner_per_event(self, conn) -> None:
+    def test_one_winner_per_event_division(self, conn) -> None:
         rows = conn.execute("""
-            SELECT canonical_event_id, COUNT(*) AS n FROM event_winners
-            GROUP BY canonical_event_id HAVING n > 1
+            SELECT canonical_event_id, division, COUNT(*) AS n FROM event_winners
+            GROUP BY canonical_event_id, division HAVING n > 1
         """).fetchall()
         assert rows == []
+
+    def test_2018_rear_commodore_trophy_has_both_division_winners(self, conn) -> None:
+        rows = conn.execute("""
+            SELECT ew.division, b.name FROM event_winners ew JOIN boats b ON b.id = ew.boat_id
+            WHERE ew.year = 2018 AND ew.name LIKE '%Rear Commodore%'
+        """).fetchall()
+        assert {r["division"]: r["name"] for r in rows} == {
+            "P Division": "Rumble Fish", "S Division": "Martha Jane",
+        }

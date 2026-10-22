@@ -31,7 +31,6 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 ### Decisions needed
 - [ ] Does LYC own any keelboats (club Sonars/IODs)?
 - [ ] Is Tuesday white-sail racing separate from Thursday TNS, and is it recorded anywhere?
-- [ ] TNS series scored only by division/fleet (46 since 2014): does each division winner get a trophy, or one overall?
 - [ ] DB vs club trophy record conflicts (e.g. Boland's 2023/24): which is authoritative?
 - [ ] Confirm candidate boat merges (Odyssey variants, Westwind II variants, Tsunami 98 / Tsunami 3 98, VTac/V-tack, …).
 
@@ -40,6 +39,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [x] Created project task source of truth.
 - [x] Full codebase review and improvement proposal (2026-10-19).
 - [x] Restore tides (`load_db --fresh` now runs `backfill_tides`), project-relative legacy source paths, validate.py checks for weather/tides/local paths (2026-10-19).
+- [x] Trophies: one per division winner (A/B fleet, P/S division), per user (2026-10-21).
 - [x] Shared `counted_results` base for every statistic: pre-2014 TNS nights counted, overall/fleet/series copies collapsed, one average-finish/podium definition (races finished), one trophy-win rule for leaderboard + boat page (2026-10-20).
 - [x] Capture Sailwave status codes from the Elapsed column (232 race results), shared case-insensitive status detector for race and series scores (2026-10-20).
 - [x] Normalise race dates once at load (`races.race_date`, `scraper/race_dates.py`); export and weather/tide backfills share it; start times from `133000`/`13:01` captions; hour-aware weather cache (2026-10-19).

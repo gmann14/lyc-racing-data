@@ -614,19 +614,47 @@ def _build_counted_results(
     return {"counted_results": len(rows), "merged_source_races": merged_sources}
 
 
+_DIVISION_SCOPE_RE = re.compile(r"_(fleet|division|class)$")
+
+
+def _division_label(scope: str | None = None, fleet: str | None = None,
+                    division: str | None = None) -> str | None:
+    """Readable division name: 'a_fleet' -> 'A Fleet', division 'P' -> 'P Division'."""
+    if scope:
+        return " ".join(part.upper() if len(part) == 1 else part.capitalize()
+                        for part in scope.split("_"))
+    if division and division.strip():
+        return f"{division.strip()} Division"
+    if fleet and fleet.strip():
+        return f"{fleet.strip()} Fleet"
+    return None
+
+
+def _single_leaders(rows: list[dict], label_of) -> list[tuple[str | None, dict]]:
+    """Group first-place rows by division label; keep labels with exactly one boat."""
+    by_label: dict[str | None, dict[int, dict]] = defaultdict(dict)
+    for row in rows:
+        by_label[label_of(row)][row["boat_id"]] = row
+    return [(label, next(iter(boats.values())))
+            for label, boats in by_label.items() if len(boats) == 1]
+
+
 def _build_event_winners(
     conn: sqlite3.Connection,
     event_meta: dict[int, dict],
     groups_by_primary: dict[int, list[dict]],
     excluded: dict[int, dict],
 ) -> dict[str, int]:
-    """Create TEMP TABLE event_winners: one trophy per canonical handicap event.
+    """Create TEMP TABLE event_winners: trophies won in canonical handicap events.
 
-    A trophy is won per Sunday race and per monthly Thursday series. The
-    winner is the single boat ranked first in the overall standings, or, for
-    a one-race event with no standings, the single first-place finisher.
-    Events scored only by fleet or division, or with several boats ranked
-    first, have no single winner and are left out.
+    Trophies are given per Sunday race and per monthly Thursday series, one
+    to each division's winner (A/B fleet, P/S division), or one overall when
+    a series isn't split. In order of preference the winners come from:
+    division standings tables; fleet-labelled first places in the overall
+    table (2009-2011 pages); a single overall leader; or, for an event
+    without standings, the first-place finisher of its one race (or of each
+    division's own race, when divisions sailed separate races). A division
+    whose first place is tied or unclear gets no trophy.
     """
     rows: list[tuple] = []
     undetermined = 0
@@ -641,49 +669,79 @@ def _build_event_winners(
         member_ids = [m["id"] for m in members]
         placeholders = ",".join("?" for _ in member_ids)
         standings = conn.execute(f"""
-            SELECT ss.summary_scope, ss.rank, ss.nett_points, p.boat_id
+            SELECT ss.summary_scope, ss.rank, ss.nett_points, ss.fleet, ss.division, p.boat_id
             FROM series_standings ss JOIN participants p ON p.id = ss.participant_id
-            WHERE ss.event_id IN ({placeholders})
+            WHERE ss.event_id IN ({placeholders}) AND p.boat_id IS NOT NULL
         """, tuple(member_ids)).fetchall()
+        firsts = [r for r in standings if r["rank"] == 1]
 
-        winner, points, source = None, None, None
-        overall_firsts = {r["boat_id"]: r["nett_points"] for r in standings
-                          if r["summary_scope"] == "overall" and r["rank"] == 1}
-        if len(overall_firsts) == 1:
-            winner, points = next(iter(overall_firsts.items()))
-            source = "standings"
+        winners: list[tuple[str | None, dict]] = []
+        source = "standings"
+        division_firsts = [r for r in firsts if _DIVISION_SCOPE_RE.search(r["summary_scope"] or "")]
+        overall_firsts = [r for r in firsts if r["summary_scope"] == "overall"]
+        if division_firsts:
+            winners = _single_leaders(division_firsts, lambda r: _division_label(scope=r["summary_scope"]))
+        elif len({r["boat_id"] for r in overall_firsts}) == 1:
+            winners = [(None, overall_firsts[0])]
+        elif overall_firsts:
+            # Several first places in "overall": fleets scored in one table.
+            labelled = [r for r in overall_firsts
+                        if _division_label(fleet=r["fleet"], division=r["division"])]
+            winners = _single_leaders(
+                labelled, lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
         elif not standings:
-            race_ids = {r["race_id"] for r in conn.execute(
-                "SELECT DISTINCT race_id FROM counted_results WHERE canonical_event_id = ? AND is_special = 0",
-                (primary_id,),
-            )}
-            if len(race_ids) == 1:
-                firsts = {r["boat_id"] for r in conn.execute(
-                    "SELECT boat_id FROM counted_results WHERE race_id = ? AND finished = 1 AND rank = 1",
-                    (next(iter(race_ids)),),
-                )}
-                if len(firsts) == 1:
-                    winner, source = next(iter(firsts)), "race"
-        if winner is None:
+            source = "race"
+            boats_by_race: dict[int, set[int]] = defaultdict(set)
+            for r in conn.execute("""
+                SELECT race_id, boat_id FROM counted_results
+                WHERE canonical_event_id = ? AND is_special = 0 AND boat_id IS NOT NULL
+            """, (primary_id,)).fetchall():
+                boats_by_race[r["race_id"]].add(r["boat_id"])
+            all_boats = set().union(*boats_by_race.values()) if boats_by_race else set()
+            # One race, or one race per division (no boat in two of them).
+            separate = sum(len(b) for b in boats_by_race.values()) == len(all_boats)
+            if len(boats_by_race) == 1 or (len(boats_by_race) > 1 and separate):
+                for race_id in sorted(boats_by_race):
+                    race_firsts = conn.execute("""
+                        SELECT cr.boat_id, res.fleet, res.division, NULL as nett_points
+                        FROM counted_results cr JOIN results res ON res.id = cr.result_id
+                        WHERE cr.race_id = ? AND cr.finished = 1 AND cr.rank = 1
+                          AND cr.boat_id IS NOT NULL
+                    """, (race_id,)).fetchall()
+                    if len(boats_by_race) == 1 and len({r["boat_id"] for r in race_firsts}) == 1:
+                        winners.append((None, race_firsts[0]))
+                        continue
+                    winners += [
+                        (label, row) for label, row in _single_leaders(
+                            race_firsts,
+                            lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
+                        if label
+                    ]
+
+        if not winners:
             undetermined += 1
             continue
-        rows.append((primary_id, winner, primary["year"], primary["event_type"],
-                     event_meta[primary_id]["canonical_name"], points, source))
+        name = event_meta[primary_id]["canonical_name"]
+        for label, row in winners:
+            rows.append((primary_id, label, row["boat_id"], primary["year"], primary["event_type"],
+                         f"{name} ({label})" if label else name, row["nett_points"], source))
 
     conn.execute("DROP TABLE IF EXISTS temp.event_winners")
     conn.execute("""
         CREATE TEMP TABLE event_winners (
-            canonical_event_id INTEGER PRIMARY KEY,
-            boat_id INTEGER,
+            canonical_event_id INTEGER NOT NULL,
+            division TEXT,
+            boat_id INTEGER NOT NULL,
             year INTEGER,
             event_type TEXT,
             name TEXT,
             nett_points REAL,
-            source TEXT
+            source TEXT,
+            UNIQUE (canonical_event_id, division)
         )
     """)
-    conn.executemany("INSERT INTO event_winners VALUES (?,?,?,?,?,?,?)", rows)
-    return {"event_winners": len(rows), "undetermined_winners": undetermined}
+    conn.executemany("INSERT INTO event_winners VALUES (?,?,?,?,?,?,?,?)", rows)
+    return {"event_winners": len(rows), "undetermined_events": undetermined}
 
 
 def _ensure_counted_tables(conn: sqlite3.Connection) -> None:
@@ -1057,7 +1115,7 @@ def export_boat_detail(conn: sqlite3.Connection, boat_id: int) -> None:
 
     trophies = conn.execute("""
         SELECT canonical_event_id as event_id, year, name, event_type,
-               'overall' as summary_scope, nett_points
+               COALESCE(division, 'Overall') as division, nett_points
         FROM event_winners
         WHERE boat_id = ?
         ORDER BY year DESC, name

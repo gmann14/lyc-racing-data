@@ -66,9 +66,9 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       {
         term: "Trophy / Series Wins",
         shortLabel: "trophy wins",
-        summary: "One trophy per Sunday trophy race and per monthly Thursday series.",
+        summary: "One trophy per division winner of each Sunday trophy race and monthly Thursday series.",
         detail:
-          "The trophy goes to the boat ranked first in the overall standings, or, for a one-race event without standings, to the first-place finisher. Series scored only by fleet or division have no single winner and aren't counted, and neither are pre-2014 Thursday series, whose series standings aren't in the archive yet.",
+          "When a series is scored by division (A/B fleet, P/S division), each division's winner gets a trophy; otherwise the trophy goes to the boat ranked first overall, or, for a race without standings, to the first-place finisher. A division whose first place is tied gets no trophy. Pre-2014 Thursday series aren't counted yet because their series standings aren't in the archive.",
       },
       {
         term: "Fleet Size",

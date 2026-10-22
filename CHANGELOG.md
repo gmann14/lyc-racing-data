@@ -2,6 +2,14 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
+## 2026-10-21
+
+### Trophy wins per division
+
+- Series and Sunday races scored by division now award one trophy to each division's winner (A/B fleet, P/S division), as the club does. Where a series isn't split, one trophy still goes to the overall winner. Boat pages name the division, e.g. "Mahone Marine July TNS (P Division)".
+- Covers division standings tables (2012–2025), 2009–2011 overall tables scored by fleet, and Sunday trophies where each division sailed its own race (e.g. 2011 Fisheries A & B, 2018 Rear Commodore P & S).
+- Trophies counted: 338 → 458. Poohsticks 40 → 61, Rumble Fish 28 → 43. A division whose first place is tied (e.g. 2024 June TNS A fleet) gets no trophy.
+
 ## 2026-10-20
 
 ### Counted results (one base for every statistic)
