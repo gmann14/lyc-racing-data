@@ -16,9 +16,13 @@ from datetime import datetime
 from pathlib import Path
 
 try:
-    from scraper.race_dates import assign_race_dates, normalize_start_time
+    from scraper.race_dates import (
+        assign_race_dates, detect_day_first, normalize_race_date, normalize_start_time,
+    )
 except ImportError:
-    from race_dates import assign_race_dates, normalize_start_time
+    from race_dates import (
+        assign_race_dates, detect_day_first, normalize_race_date, normalize_start_time,
+    )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
@@ -808,6 +812,30 @@ def _safe_int(val: str | None) -> int | None:
         return int(val)
     except (ValueError, TypeError):
         return None
+
+
+def _series_nights(results: list[dict], year: int) -> list[str]:
+    """Race dates of a legacy series page, oldest first, or [] for a one-race page.
+
+    Series pages list every night of a series (one row per boat per night);
+    a night counts when its date reads as a date and has two or more boats.
+    Matrix pages with one row per date are not series pages.
+    """
+    counts: dict[str, int] = defaultdict(int)
+    for row in results:
+        counts[(row.get("race_date") or "").strip()] += 1
+    day_first = detect_day_first(counts)
+    nights = {raw: iso for raw in counts
+              if counts[raw] >= 2 and (iso := normalize_race_date(raw, year, day_first))}
+    if len(nights) < 2:
+        return []
+    return sorted(nights, key=lambda raw: nights[raw])
+
+
+def _legacy_fleet(source_path: str | None) -> str | None:
+    """Fleet of a fleet-specific legacy page, e.g. 'June_Glube_Series_A.htm' -> 'A'."""
+    match = re.search(r"(?:^|_)([ab])$", Path(source_path or "").stem.lower())
+    return match.group(1).upper() if match else None
 
 
 def _extract_start_time(caption: str | None) -> str | None:
@@ -1622,7 +1650,6 @@ class DatabaseLoader:
             "parsed",
         )
 
-        # Create a single race record for this page
         race_date = meta.get("race_date", "")
         start_time = meta.get("start_time", "")
         race_number = meta.get("race_number")
@@ -1637,24 +1664,39 @@ class DatabaseLoader:
         if meta.get("distance", "").strip() and meta["distance"].strip() != "0":
             wind_note += f", Distance: {meta['distance'].strip()}"
 
-        cursor = self.conn.execute(
-            """INSERT INTO races (event_id, source_page_id, race_key, race_number,
-               date, start_time, notes)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (event_id, source_page_id, f"r{race_number or 1}", race_number,
-             race_date, normalize_start_time(start_time),
-             wind_note if wind_note else None)
-        )
-        race_id = cursor.lastrowid
+        def insert_race(key: str, number: int | None, date: str | None) -> int:
+            cursor = self.conn.execute(
+                """INSERT INTO races (event_id, source_page_id, race_key, race_number,
+                   date, start_time, notes)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (event_id, source_page_id, key, number, date,
+                 normalize_start_time(start_time), wind_note if wind_note else None)
+            )
+            return cursor.lastrowid
 
-        # Load results
-        for row in page.get("results", []):
-            boat_name = row.get("boat_name", "")
-            if not boat_name:
-                continue
+        results = [row for row in page.get("results", []) if row.get("boat_name")]
+        nights = _series_nights(results, year)
+        if nights:
+            # One race per night. Race numbers are left unset so each night
+            # merges with that night's own page by date and boats at export.
+            race_for_date = {date: insert_race(f"r{i}", None, date)
+                             for i, date in enumerate(nights, start=1)}
+        else:
+            race_for_date = {}
+            single_race = insert_race(f"r{race_number or 1}", race_number, race_date)
+
+        final_standings: list[tuple[int, dict]] = []
+        for row in results:
+            row_date = (row.get("race_date") or "").strip()
+            if nights:
+                if row_date not in race_for_date:
+                    continue  # summary-table rows, not race results
+                race_id = race_for_date[row_date]
+            else:
+                race_id = single_race
 
             pid = self._get_or_create_participant(
-                boat_name,
+                row["boat_name"],
                 row.get("sail_number"),
                 "LYC",
                 "boat",
@@ -1666,26 +1708,37 @@ class DatabaseLoader:
             if isinstance(points, str):
                 points = _safe_float(points)
 
-            try:
-                self.conn.execute(
-                    """INSERT OR IGNORE INTO results
-                       (source_page_id, race_id, participant_id, phrf_rating,
-                        rank, start_time, elapsed_time, corrected_time,
-                        finish_time, points, status, source_score_text)
-                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                    (source_page_id, race_id, pid,
-                     _safe_int(row.get("rating")),
-                     rank,
-                     start_time if start_time else None,
-                     row.get("elapsed_time") if row.get("elapsed_time") else None,
-                     row.get("corrected_time") if row.get("corrected_time") else None,
-                     row.get("finish_time") if row.get("finish_time") else None,
-                     points,
-                     row.get("status"),
-                     str(row.get("points", "")))
-                )
-            except sqlite3.IntegrityError:
-                pass
+            self.conn.execute(
+                """INSERT OR IGNORE INTO results
+                   (source_page_id, race_id, participant_id, phrf_rating,
+                    rank, start_time, elapsed_time, corrected_time,
+                    finish_time, points, status, source_score_text)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (source_page_id, race_id, pid,
+                 _safe_int(row.get("rating")),
+                 rank,
+                 start_time if start_time else None,
+                 row.get("elapsed_time") if row.get("elapsed_time") else None,
+                 row.get("corrected_time") if row.get("corrected_time") else None,
+                 row.get("finish_time") if row.get("finish_time") else None,
+                 points,
+                 row.get("status"),
+                 str(row.get("points", "")))
+            )
+            if nights and row_date == nights[-1] and row.get("series_position") is not None:
+                final_standings.append((pid, row))
+
+        # A series page's running totals after its last night are the standings.
+        fleet = _legacy_fleet(page.get("source_path"))
+        for pid, row in final_standings:
+            self.conn.execute(
+                """INSERT OR IGNORE INTO series_standings
+                   (source_page_id, event_id, participant_id, summary_scope,
+                    fleet, division, phrf_rating, rank, total_points, nett_points)
+                   VALUES (?, ?, ?, 'overall', ?, NULL, ?, ?, NULL, ?)""",
+                (source_page_id, event_id, pid, fleet, _safe_int(row.get("rating")),
+                 row["series_position"], row.get("series_points"))
+            )
 
         return event_id
 

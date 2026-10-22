@@ -19,7 +19,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [ ] Load legacy multi-race series pages as real races/standings instead of silently dropping 1,335 rows via `INSERT OR IGNORE`.
 - [ ] Group duplicate source files (bolands/bowlands 2023, bolands_V5/bolands_cup 2002, rum_race/rum_racehtm 2015); NULL-rank fallback (2010/2020 Aug TNS).
 - [ ] Trophies page (`trophies.json`): fleet-aware winner pick, name-map gaps, CSV vs DB precedence, no later-owner backfill for historical winners.
-- [ ] Load pre-2014 TNS series standings (legacy `_series.htm` pages are parsed but not loaded) so those 39 series get a winner.
+- [ ] 10 pre-2014 TNS groups still have no trophy winner: no series page in the archive (e.g. 1999 Glube/Paceship, 2001–2002 Moosehead Fall, 2007 July Scotia Trawler), or a tie (2001 July Glube). Could compute standings from nightly results if the club's discard rules are known.
 - [ ] Cache canonical-group computations in export (~263s → <90s).
 
 ### Track D — docs & strategy (after Track A)
@@ -38,6 +38,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [x] Created project task source of truth.
 - [x] Full codebase review and improvement proposal (2026-10-19).
 - [x] Restore tides (`load_db --fresh` now runs `backfill_tides`), project-relative legacy source paths, validate.py checks for weather/tides/local paths (2026-10-19).
+- [x] Legacy series pages split into one race per night, series standings loaded, Thursday nights matched across the season, one trophy per legacy series (2026-10-22).
 - [x] Owner attribution by season with one aggregator (`_competitor_groups`); validate.py `ranked-ids` is now a failure (2026-10-22).
 - [x] Trophies: one per division winner (A/B fleet, P/S division), per user (2026-10-21).
 - [x] Shared `counted_results` base for every statistic: pre-2014 TNS nights counted, overall/fleet/series copies collapsed, one average-finish/podium definition (races finished), one trophy-win rule for leaderboard + boat page (2026-10-20).
