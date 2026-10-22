@@ -10,8 +10,10 @@ from scraper.export_json import (
     DB_PATH,
     _build_counted_results,
     _build_event_winners,
+    _competitor_groups,
     _dict_factory,
     _ensure_counted_tables,
+    _owner_in_year,
 )
 
 SCHEMA = """
@@ -25,6 +27,10 @@ SCHEMA = """
     CREATE TABLE series_standings (id INTEGER PRIMARY KEY, event_id INTEGER,
                                    participant_id INTEGER, summary_scope TEXT,
                                    rank INTEGER, nett_points REAL, fleet TEXT, division TEXT);
+    CREATE TABLE boats (id INTEGER PRIMARY KEY, name TEXT, class TEXT, sail_number TEXT);
+    CREATE TABLE skippers (id INTEGER PRIMARY KEY, name TEXT);
+    CREATE TABLE boat_ownership (boat_id INTEGER, skipper_id INTEGER,
+                                 year_start INTEGER, year_end INTEGER);
 """
 
 
@@ -287,6 +293,88 @@ class TestEventWinners:
         b.race(regatta, 1, "2019-08-12", [(1, 1)])
         b.count(excluded={1: {}})
         assert b.winners(excluded={1: {}}) == {}
+
+
+class TestOwnerInYear:
+    @staticmethod
+    def _row(owner: str, start: int | None, end: int | None) -> dict:
+        return {"owner_name": owner, "year_start": start, "year_end": end}
+
+    def test_single_owner_owns_every_year(self) -> None:
+        assert _owner_in_year([self._row("A", 2010, 2012)], 2020) == "A"
+
+    def test_range_covering_the_year_wins(self) -> None:
+        rows = [self._row("Barry", 2016, 2018), self._row("Bernd", 2019, None)]
+        assert [_owner_in_year(rows, y) for y in (2016, 2018, 2019, 2025)] == [
+            "Barry", "Barry", "Bernd", "Bernd"]
+
+    def test_uncovered_year_goes_to_nearest_range(self) -> None:
+        rows = [self._row("A", 2005, 2008), self._row("B", 2015, 2020)]
+        assert _owner_in_year(rows, 2010) == "A"
+        assert _owner_in_year(rows, 2013) == "B"
+
+    def test_no_owner(self) -> None:
+        assert _owner_in_year([], 2020) is None
+
+
+class TestCompetitorGroups:
+    @pytest.fixture
+    def b(self) -> Builder:
+        b = Builder()
+        b.conn.executescript("""
+            INSERT INTO boats VALUES (1, 'Buzz', 'J/27', '7049'), (2, 'Kahlua', 'J/22', '1'),
+                                     (3, 'Ping', 'Sonar', '415'), (4, 'Ping', 'Sonar', '754'),
+                                     (5, 'Loner', 'J/24', '9');
+            INSERT INTO skippers VALUES (1, 'Barry'), (2, 'Bernd'), (3, 'Andreas');
+            INSERT INTO boat_ownership VALUES (1, 1, 2016, 2018), (1, 2, 2019, NULL),
+                                              (2, 1, 2010, 2015), (3, 3, NULL, NULL),
+                                              (4, 3, NULL, NULL);
+        """)
+        races = [
+            (2012, 2, [(2, 1)]), (2017, 1, [(1, 1)]), (2018, 1, [(1, 2)]),
+            (2019, 1, [(1, 1)]), (2020, 1, [(1, 3)]),
+            (2014, 3, [(3, 1)]), (2015, 4, [(4, 2)]), (2016, 5, [(5, 1)]),
+        ]
+        for event_id, (year, _, finishers) in enumerate(races, start=1):
+            b.event(event_id, event_id, year=year, event_type="trophy", month=None)
+            b.race(event_id, 1, f"{year}-07-01", finishers + [(99, 9)])
+        b.conn.execute("INSERT INTO boats VALUES (99, 'Other', NULL, NULL)")
+        b.count()
+        b.winners()
+        return b
+
+    @staticmethod
+    def _by_owner(groups: list[dict]) -> dict:
+        return {(g["owner"], g["name"]): g for g in groups}
+
+    def test_seasons_split_by_owner_that_year(self, b: Builder) -> None:
+        groups = self._by_owner(_competitor_groups(b.conn, by_owner_only=True))
+        barry, bernd = groups[("Barry", "Buzz")], groups[("Bernd", "Buzz")]
+        assert (barry["total_races"], barry["years"], barry["boat_ids"]) == (3, [2012, 2017, 2018], [2, 1])
+        assert (bernd["total_races"], bernd["years"], bernd["boat_ids"]) == (2, [2019, 2020], [1])
+        assert barry["boat_names"] == ["Kahlua", "Buzz"]
+
+    def test_trophies_and_wins_follow_the_owner(self, b: Builder) -> None:
+        groups = self._by_owner(_competitor_groups(b.conn, by_owner_only=True))
+        assert groups[("Barry", "Buzz")]["wins"] == 2
+        assert groups[("Barry", "Buzz")]["trophy_wins"] == 2
+        assert groups[("Bernd", "Buzz")]["trophy_wins"] == 1
+
+    def test_same_boat_name_merges_without_owner_only(self, b: Builder) -> None:
+        groups = self._by_owner(_competitor_groups(b.conn))
+        ping = groups[("Andreas", "Ping")]
+        assert (ping["boat_ids"], ping["total_races"], ping["id"]) == ([3, 4], 2, 3)
+        assert ("Barry", "Kahlua") in groups and ("Barry", "Buzz") in groups
+
+    def test_boat_without_owner_stands_alone(self, b: Builder) -> None:
+        groups = self._by_owner(_competitor_groups(b.conn))
+        assert groups[(None, "Loner")]["boat_ids"] == [5]
+
+    def test_finished_averages(self, b: Builder) -> None:
+        bernd = self._by_owner(_competitor_groups(b.conn, by_owner_only=True))[("Bernd", "Buzz")]
+        assert bernd["finished_races"] == 2
+        assert bernd["avg_finish"] == 2.0
+        assert bernd["avg_finish_pct"] == 100.0 * ((1 / 2) + (3 / 2)) / 2
 
 
 class TestRealData:

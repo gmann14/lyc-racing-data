@@ -2,6 +2,14 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
+## 2026-10-22
+
+### Owners by season
+
+- Leaderboards and participation lists now credit each boat-season to whoever owned the boat that year. Buzz (Barry Eisener 2016–18, Bernd Hackstein 2019+) was listed twice, with every race credited to Bernd; it now splits by year. Barry's row (Kahlua, Buzz, Buzz 105) has 111 races over 6 seasons.
+- One aggregator replaces six copies of the owner-merge logic. Each row's link goes to the boat it raced most, and its boat list shows only boats that sailed handicap races, in the order they were first raced.
+- `validate.py` now fails if a ranked list repeats the same owner and boat.
+
 ## 2026-10-21
 
 ### Trophy wins per division

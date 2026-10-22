@@ -221,8 +221,8 @@ def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[V
         fail("paths", f"{len(leaked)} JSON files contain absolute local paths "
              f"(e.g. {leaked[0].relative_to(data_dir)})")
 
-    # 11. Ranked lists should not show the same boat twice (rows link by id).
-    # A warning until owner merging attributes results by ownership year.
+    # 11. Ranked lists should not show the same competitor twice. Two owners
+    # of one boat in different years may share a boat link, so key on both.
     ranked: list[tuple[str, object]] = []
     if isinstance(lb, dict):
         ranked += [(f"leaderboards.{key}", lb.get(key)) for key in LEADERBOARD_LISTS]
@@ -232,10 +232,10 @@ def run_checks(data_dir: Path = DATA_DIR) -> tuple[list[ValidationError], list[V
     for label, rows in ranked:
         if not isinstance(rows, list):
             continue
-        counts = Counter(row.get("id") for row in rows if isinstance(row, dict))
-        dupes = sorted(str(boat_id) for boat_id, n in counts.items() if n > 1)
+        counts = Counter((row.get("owner"), row.get("id")) for row in rows if isinstance(row, dict))
+        dupes = sorted(str(boat_id) for (_, boat_id), n in counts.items() if n > 1)
         if dupes:
-            warn("ranked-ids", f"{label} lists boat id {', '.join(dupes)} more than once")
+            fail("ranked-ids", f"{label} lists boat id {', '.join(dupes)} more than once")
 
     return errors, warnings
 
