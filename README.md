@@ -6,18 +6,18 @@
 
 ## The Data
 
-843 HTML result pages from the LYC website and local Sailwave exports, covering every recorded race from 1999 to 2025. The archive includes Thursday Night Series, Sunday trophy races, regattas, and championships.
+About 840 HTML result pages from the LYC website and local Sailwave exports, covering every recorded race from 1999 to 2025. The archive includes Thursday Night Series, Sunday trophy races, regattas, and championships.
 
 | | Count |
 |---|---:|
 | Seasons | 27 |
-| Events | 553 canonical (751 including fleet-split variants) |
-| Races | 1,403 |
-| Race results | 11,610 total · 4,855 handicap-only after dedup |
-| Boats | 273 total · 173 with handicap results |
-| Trophy histories | 37 trophies traced back to 1947 |
-| Weather records | 609 race dates |
-| Tide predictions | 629 race dates |
+| Events | 506 canonical (751 source pages, including fleet and series views) |
+| Races | 1,531 |
+| Race results | 10,829 counted once each · 5,246 in handicap racing |
+| Boats | 272 total · 173 with handicap results |
+| Trophy histories | 42 trophies, 37 traced back to 1947 in the club trophy case |
+| Weather records | 685 race dates |
+| Tide predictions | 685 race dates |
 
 ## The Site
 
@@ -36,7 +36,7 @@ All pages support `Cmd+K` search across boats, events, and seasons.
 
 ```
 HTML sources ──→ Python parsers ──→ SQLite ──→ JSON export ──→ Next.js static site
- (1999-2025)      (BeautifulSoup)     (DB)     (~1,100 files)    (GitHub Pages)
+ (1999-2025)      (BeautifulSoup)     (DB)     (~1,330 files)    (GitHub Pages)
 ```
 
 ### Pipeline
@@ -45,22 +45,23 @@ HTML sources ──→ Python parsers ──→ SQLite ──→ JSON export ─
 2. **Parse** structured data from HTML using format-specific parsers
 3. **Load** into SQLite with entity reconciliation (boats, skippers, participants)
 4. **Enrich** with weather data (Open-Meteo API), tide predictions (CHS harmonics), and owner history
-5. **Export** ~1,100 JSON files with canonical event grouping and deduplication
+5. **Export** ~1,330 JSON files; every statistic reads one table of counted results
 6. **Build** Next.js static site, auto-deployed to GitHub Pages on push
 
 ### Key Design Decisions
 
-- **Canonical event grouping** — Fleet splits (overall, A/B, division views) are combined into one logical event. This prevents double-counting in leaderboards and stats.
-- **Owner merging** — When the same person sailed multiple boats across years, participation charts combine them (e.g., Jim Mosher's Sly Fox + Mojo = 439 races over 27 seasons).
-- **Handicap dataset** — Leaderboards exclude special events (regattas with external competitors) and variant-view duplicates by default.
-- **Trophy consolidation** — ~100 event name variants across 27 years map to 37 canonical trophy names, verified against the LYC Trophy Case historical record (1947–2025).
+- **Canonical event grouping** — Fleet splits (overall, A/B, division views) are combined into one logical event.
+- **Counted results** — Each boat's result in each race counts once, even when the race appears on overall, fleet and series pages, and every pre-2014 Thursday night (one page per night) counts. Races sailed exclude DNS/DNC; wins, podiums and average finish count only races finished.
+- **Owners by season** — Each boat-season is credited to whoever owned the boat that year; participation charts combine an owner's boats (e.g., Jim Mosher's Sly Fox + Mojo = 518 races over 27 seasons).
+- **Handicap dataset** — Leaderboards exclude special events (regattas with external competitors) by default.
+- **Trophies** — One per Sunday trophy race and per monthly Thursday series, to each division's winner (A/B fleet, P/S division). Event names map to the LYC Trophy Case record (1947–2025), which fills years without results and settles unclear ones.
 
 ## Development
 
 ### Prerequisites
 
 - Python 3.9+ with virtualenv
-- Node.js 20+
+- Node.js 22+
 
 ### Setup
 
@@ -77,7 +78,7 @@ cd web && npm install
 ### Common Commands
 
 ```sh
-make test             # Run all 430+ Python tests
+make test             # Run all ~690 Python tests
 make export           # Re-export JSON from current DB
 make build            # Export + Next.js build
 make fresh            # Full rebuild: wipe DB → reload (+owners, weather, tides) → export
@@ -107,53 +108,48 @@ Valid targets: `overview`, `seasons`, `events`, `boats`, `leaderboards`, `trophi
 
 ## Tests
 
-430+ tests covering parsing, loading, export, and enrichment:
+About 690 Python tests across 24 files cover parsing, loading, date normalisation, the counted-results base, trophies and export. Web unit tests run with `cd web && npm test`. CI runs both, plus validation, type check and lint, before every deploy.
 
-| Test file | Tests | Coverage |
-|-----------|------:|----------|
-| `test_export_json.py` | 75 | JSON export, canonical grouping, dedup |
-| `test_merge_owners.py` | 66 | Owner merge pipeline |
-| `test_load_db.py` | 57 | DB loading, entity reconciliation |
-| `test_parse_sailwave.py` | 40 | Sailwave HTML parsing |
-| `test_scrape_crw.py` | 36 | Chester Race Week scraper |
-| `test_classify_sources.py` | 33 | Format detection |
-| `test_scrape_remote.py` | 31 | HTML mirroring |
-| `test_parse_legacy.py` | 30 | WinRegatta parsing |
-| `test_audit_provenance.py` | 15 | File traceability |
-| `test_load_owners.py` | 13 | Owner CSV loading |
-| `test_backfill_tides.py` | 11 | Tide prediction |
-| `test_audit_data_quality.py` | 9 | Export validation |
-| `test_scrape_sailns.py` | 5 | Sail NS PHRF registry |
-| `test_audit_original_coverage.py` | 3 | Source coverage |
+| Test file | Coverage |
+|-----------|----------|
+| `test_export_json.py` | JSON export, canonical grouping, real-data consistency |
+| `test_counted_results.py` | Logical-race merging, trophy winners, owners by season |
+| `test_load_db.py` | DB loading, entity reconciliation, legacy series pages |
+| `test_race_dates.py` | Race date and start-time normalisation |
+| `test_trophy_history.py` | Trophies-page name matching and winner choice |
+| `test_parse_sailwave.py`, `test_parse_legacy.py` | HTML parsing, status codes |
+| `test_validate.py` | Pre-deploy checks |
 
 ## Project Structure
 
 ```
-├── scraper/               Python ETL pipeline (17 scripts)
+├── scraper/               Python ETL pipeline (~25 scripts)
 │   ├── parse_*.py         HTML parsers (Sailwave + WinRegatta)
 │   ├── load_db.py         SQLite loader with entity reconciliation
-│   ├── export_json.py     JSON export (~120KB, the core logic)
+│   ├── race_dates.py      Race date / start-time normalisation
+│   ├── export_json.py     JSON export (~2,800 lines, the core logic)
 │   ├── backfill_*.py      Weather + tide enrichment
 │   └── validate.py        Pre-deploy checks
 ├── enrichment/            CSV/JSON enrichment data
-│   ├── boat_owners.csv    Owner history (145 boats)
+│   ├── boat_owners.csv    Owner history (141 boats with owners)
 │   ├── trophy_case_historical.csv  Trophy winners 1947-2025
 │   └── *_cache.json       Cached API responses
 ├── web/                   Next.js 16 frontend
 │   ├── src/app/           9 pages
 │   ├── src/components/    Reusable UI components
 │   ├── src/lib/           Data loading + types
-│   └── public/data/       Generated JSON (~1,100 files)
-├── tests/                 430+ Python tests
+│   └── public/data/       Generated JSON (~1,330 files)
+├── tests/                 ~690 Python tests
+├── reports/               Analyses and audits (old snapshots in reports/archive/)
 ├── racing1999_2013/       Legacy HTML source files
 ├── racing2014_2025/       Modern Sailwave HTML files
 ├── Makefile               Pipeline orchestrator
-└── lyc_racing.db          SQLite database
+└── lyc_racing.db          SQLite database (local, gitignored)
 ```
 
 ## Deployment
 
-Pushes to `main` trigger a GitHub Actions workflow that builds the static site and deploys to GitHub Pages. The Python pipeline runs locally — JSON files are committed to git.
+Pushes to `main` trigger a GitHub Actions workflow that runs the tests and data validation, builds the static site and deploys it to GitHub Pages. The Python pipeline runs locally — JSON files are committed to git.
 
 ## License
 

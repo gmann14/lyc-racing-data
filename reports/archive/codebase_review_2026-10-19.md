@@ -1,5 +1,7 @@
 # Codebase Review & Improvement Proposal — 2026-10-19
 
+> **Status (2026-10-22): completed.** Tracks A–D were implemented and merged (PRs #1–#6 plus the pause cleanup). Remaining follow-ups live in `.claude/tasks.md`; see `CHANGELOG.md` for what changed.
+
 Full review of the pipeline, data, site, ORC work, docs and process. Five parallel reviews plus independent spot-checks of the headline findings. Nothing in the repo was changed by the review except this file.
 
 ## Baseline (all green — the problems below are not caught by any check)

@@ -1,6 +1,6 @@
 # Growing Lunenburg Yacht Club: Membership & Racing Fleet Strategy
 
-*Prepared March 2026 — combining 27 years of LYC racing data, external research, and strategic recommendations*
+*Prepared March 2026, figures refreshed October 2026 — combining 27 years of LYC racing data, external research, and strategic recommendations*
 
 ---
 
@@ -12,34 +12,34 @@ LYC racing has gone through three distinct eras:
 
 | Era | Years | Boats/Season | Character |
 |-----|-------|-------------|-----------|
-| **Growth** | 1999–2009 | 13 → 38 | Steady build, new boats every year |
-| **Golden Age** | 2010–2022 | 26–38 | Peak diversity, strong TNS fields (12–28 boats/month) |
-| **Contraction** | 2023–2025 | 15–20 | ~60% of peak, TNS fields down to 4–5 boats |
+| **Growth** | 1999–2009 | 13 → 29 | Steady build from 13 boats (2000) to 29 (2009) |
+| **Golden Age** | 2010–2022 | 17–38 | Peak of 38 boats in 2010, TNS nights averaging 8–12 boats |
+| **Contraction** | 2023–2025 | 15–20 | 40–50% of the 2010 peak, TNS nights down to 6–7 boats |
 
 **Key numbers today:**
 - 19 boats raced in 2025 (vs. 38 at peak in 2010)
-- TNS average field: ~4.5 boats/race (vs. 12–15 in the golden age)
-- Trophy races down to 2–7 per year (vs. 14–19 historically)
-- Only 2–3 new boats entering per season (vs. 12 in peak growth years)
-- Sonar fleet contracted from 14 boats (2015) to ~8 (2025)
+- TNS nights averaged 6.4 boats in 2025 (vs. 10–12 in the best golden-age years). Since 2017 each night is scored as 2–3 division races, so per-race fields look smaller still
+- Sunday trophy races with results in the archive: 1–4 a year in 2023–25 (vs. 14–21 a year before 2016)
+- Only 2–3 new boats entering per season (vs. 7–9 as recently as 2020–2022)
+- Sonar fleet contracted from 14–15 boats (2015–2017) to 7 (2025)
 
 ### What's Working
 
-- **Tuesday Night Series remains the backbone.** 4 monthly series (June–September), consistent structure, broadest participation.
-- **Tuesday fun races / white sail have momentum.** The user confirms these have been "super successful lately" — this is the bright spot.
-- **Remarkable core loyalty.** Return rates for active boats are 93%+. The people who race, keep racing. Poohsticks and Sly Fox have raced every season for 27 years.
+- **Thursday Night Series remains the backbone.** 4 monthly series (June–September), consistent structure, broadest participation.
+- **Tuesday fun sails have momentum.** Informal, white-sail evenings (not scored series) have been "super successful lately" — this is the bright spot.
+- **A loyal core.** Poohsticks and Sly Fox/Mojo have raced every season for 27 years, and boats that race regularly usually come back. Fleet-wide, though, year-to-year return rates swing from 46% to 94% (median about 65%).
 - **The data infrastructure exists.** 27 years of results, weather data, boat histories — this is a storytelling and community asset most clubs would kill for.
 
 ### What's Not Working
 
 - **New boat acquisition has stalled.** Only 2–3 new boats/year entering the fleet vs. 10–12 during growth years.
-- **The Sonar fleet is shrinking.** Privately owned one-design boats that were the core racing class are tailing off (14 → 8). LYC doesn't own keelboats — all racing boats are private.
+- **The Sonar fleet is shrinking.** Privately owned one-design boats that were the core racing class are tailing off (15 → 7). LYC doesn't own keelboats — all racing boats are private.
 - **Calendar contraction.** Fewer trophy races = fewer reasons to come to the club = fewer touchpoints for casual members.
 - **The funnel is narrow.** Without a structured path from "curious about sailing" → crew → skipper → boat owner, growth depends on people who already own boats choosing to race.
 
 ### Critical Insight from the Data
 
-The club's participation problem is almost entirely a **new entrant problem**, not a retention problem. The core is loyal (93%+ return rate). But the pipeline of new boats and new skippers has dried up. Fixing this is the entire game.
+The club's participation problem is mostly a **new-entrant problem**. The core keeps racing, but newcomers rarely stay: 14 of 2022's 26 boats didn't come back in 2023, 9 of them after their first season, and 12 never raced again. Fewer new boats arrive now (2–3 a year), and the ones that do need a reason to return. Fixing that funnel is the entire game.
 
 ---
 
@@ -87,7 +87,7 @@ Lunenburg is a small town. The yacht club should be *the* waterfront social dest
 
 **Ideas:**
 - **Friday night at the club** — consistent weekly social with simple food/drinks, open to social members and guests. Predictability matters more than ambition.
-- **Race-watching nights** — Tuesday TNS is visible from shore. Set up chairs, serve drinks, explain what's happening. Spectators become social members become crew.
+- **Race-watching nights** — TNS is visible from shore. Set up chairs, serve drinks, explain what's happening. Spectators become social members become crew.
 - **Harbour events** — partner with the town for waterfront festivals, tall ship visits, Boxcar races, etc. Every event where LYC is visible is a membership funnel.
 - **Winter programming** — the off-season is 7 months. Clubs that go dormant lose momentum. Monthly social events, speaker nights, film screenings, trivia, knot-tying workshops, navigation courses.
 
@@ -115,7 +115,7 @@ The Tuesday fun races are already working. The strategic question is: **how do y
 The funnel should be:
 ```
 Tuesday white sail (fun, social, low barrier)
-    → Tuesday TNS (still fun, bit more competitive)
+    → Thursday TNS (still fun, bit more competitive)
         → Trophy races (weekend events, more serious)
             → Regattas & away events
 ```
@@ -165,7 +165,7 @@ For people who own boats but don't race:
 
 Ideas from clubs that have grown their fleets:
 
-- **Match racing** using club Sonars — pairs of boats, bracket tournament, great spectator event. Could be a signature LYC event.
+- **Match racing** in members' Sonars (lent for the day) — pairs of boats, bracket tournament, great spectator event. Could be a signature LYC event.
 - **Team racing** — 3-on-3 in Sonars. Tactical, exciting, builds camaraderie.
 - **Passage races** — Lunenburg to Blue Rocks and back, or around the islands. More adventure, less grind.
 - **Predicted log race** — no instruments, no watches visible. Predict your time for the course, closest to prediction wins. Hilarious, inclusive, rewards experience over speed.
@@ -238,27 +238,27 @@ Not everything can happen at once. Here's a suggested priority order based on im
 2. **Crew membership tier** — create it, price it, actively recruit crew members currently sailing for free.
 3. **Crew-finder board** — physical at club + WhatsApp group or similar digital equivalent.
 4. **"Bring a friend" Tuesday** — pick 2–3 dates, promote them, make it an event.
-5. **Personal invitations to lapsed boats** — the data tells you exactly who stopped racing and when. A personal call from a friend is worth 100 flyers. Target the 2020–2022 cohort first (most recent departures).
+5. **Personal invitations to lapsed boats** — the data tells you exactly who stopped racing and when. A personal call from a friend is worth 100 flyers. Start with the 2022 newcomers who never came back and the five boats that sat out 2025.
 
 ### Short-Term (This Year)
 
 6. **Social membership tier** — define it, price it, market it to the Lunenburg waterfront community.
 7. **Pursuit start format** for at least some Tuesday white sail races — test it, see if participation bumps.
-8. **Sonar fleet assessment** — honest evaluation of hull condition, utilization, and future. What's the 5-year plan?
+8. **Sonar fleet health check** — talk with Sonar owners about hull condition, how often the boats get used, and the fleet's future. What's the 5-year plan?
 9. **Onboarding program** — buddy system for every new member. Doesn't cost anything, just intention.
 10. **Winter social calendar** — plan 6–8 off-season events now. Speaker nights, trivia, film screenings, annual awards dinner.
 
 ### Medium-Term (Next 1–2 Years)
 
-11. **Adult learn-to-sail program** using Sonars. 4-session course, Saturday mornings, June. Partnership with Sail Canada.
-12. **Match racing or team racing event** — signature annual event using club boats. Spectator-friendly, media-friendly.
+11. **Adult learn-to-sail program** using members' Sonars (lent or chartered). 4-session course, Saturday mornings, June. Partnership with Sail Canada.
+12. **Match racing or team racing event** — signature annual event using members' boats. Spectator-friendly, media-friendly.
 13. **Young adult membership** — discounted rate for under-30s. Actively recruit from Lunenburg and Bridgewater.
 14. **Formalize the fun race series** — if Tuesday white sail is working, give it a name, a season champion, a trophy. Make it feel official while keeping it casual.
 15. **Kitchen upgrade** — if feasible, invest in making the grill/bar setup as efficient as possible. This is an amenity investment, not a profit center.
 
 ### Long-Term (3–5 Years)
 
-16. **Club fleet renewal** — whether Sonars or a new class, plan for replacing aging hulls. Fundraising, grants, sponsorship.
+16. **A club-owned fleet (new direction)** — LYC owns no keelboats today. Decide whether to acquire a small fleet (donated or grant-funded Sonars, or a new class) for learn-to-sail and the junior-to-adult step. Fundraising, grants, sponsorship.
 17. **Community sailing center** — formalized learn-to-sail program open to the public. Revenue-generating, pipeline-building, community goodwill.
 18. **Waterfront destination status** — LYC as the place to be on the Lunenburg waterfront. Social membership, events calendar, food/drink, spectator-friendly racing.
 19. **Digital presence** — the racing data website is a huge asset. Add member stories, photos, live results. Make it the hub of the LYC community online.
@@ -299,7 +299,7 @@ Track these metrics to know if the strategy is working:
 
 ## Notes from Discussion
 
-- **2023 drop:** Cause unclear — no single identifiable event. May be a gradual drift rather than a cliff. Worth investigating further (conversations with lapsed members).
+- **2023 drop:** Mostly newcomers who didn't stay — 14 of 2022's 26 boats didn't return, 9 of them after their first season. Worth confirming in conversations with lapsed members.
 - **Crew memberships:** Unclear whether crew are currently paying or not. Worth auditing before assuming this is low-hanging fruit.
 - **Sonar fleet:** Was very popular but has "tailed off." This is a critical strategic question — is the class dying naturally, or can it be revitalized? If the boats are aging out and interest is fading, the club may need to plan a transition rather than doubling down.
 - **Junior program:** Active and well-attended. Historical participant data likely exists and could be used to chase down alumni. This is a major asset — but without club-owned keelboats, junior grads have no natural "next step" into adult racing unless they buy a boat or find crew spots.

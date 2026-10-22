@@ -3,156 +3,100 @@
 ## Data Flow
 
 ```
-HTML Sources (843 files, 1999-2025)
+HTML Sources (~840 .htm files, 1999-2025)
     │
-    ├── racing1999_2013/   (legacy format: 1 HTML per race)
-    └── racing2014_2025/   (Sailwave format: 1 HTML per event/series)
+    ├── racing1999_2013/   (legacy WinRegatta: one page per race, plus series pages)
+    └── racing2014_2025/   (Sailwave: one page per event/series)
     │
     ▼
 Parse (classify_sources → parse_sailwave / parse_legacy)
     │
     ▼
-JSONL Intermediate (scraper/parsed/*.jsonl)
+JSONL Intermediate (scraper/parsed/*.jsonl, committed)
     │
     ▼
-load_db.py → SQLite (lyc_racing.db)
-    │
-    ├── load_owners.py  (enrichment/boat_owners.csv → boat_ownership table)
-    └── backfill_weather.py  (Open-Meteo API → weather table)
-    │
-    ▼
-export_json.py → ~1,100 JSON files (web/public/data/)
+load_db.py --fresh → SQLite (lyc_racing.db, local)
+    ├── race_dates.assign_race_dates   (races.race_date, per-season day/month order)
+    ├── load_owners.py                 (enrichment/boat_owners.csv → boat_ownership)
+    ├── backfill_weather.py            (enrichment/weather_cache.json, Open-Meteo for new dates)
+    └── backfill_tides.py              (enrichment/tide_cache.json, CHS / harmonic model for new dates)
     │
     ▼
-Next.js 16 static build (web/) → GitHub Pages
+export_json.py → ~1,330 JSON files (web/public/data/, committed)
+    │   counted_results + event_winners TEMP tables feed every statistic
+    ▼
+Next.js 16 static build (web/) → GitHub Pages (CI on push to main)
 ```
 
 ## Pipeline Steps
 
 ### Step 1: Parse HTML → JSONL
 - **Scripts**: `parse_sailwave.py`, `parse_legacy.py`
-- **Output**: `scraper/parsed/sailwave_parsed.jsonl`, `legacy_parsed.jsonl`
-- **Destructive?** No. Appends to JSONL files.
-- **Idempotent?** No — re-running appends duplicates unless JSONL is deleted first.
-- **Time**: ~5 seconds
+- **Output**: `scraper/parsed/sailwave_parsed.jsonl`, `legacy_parsed.jsonl` (overwritten each run; deterministic)
+- **Paths**: `source_path` is project-relative
+- **Time**: ~5 seconds each
 
 ### Step 2: Load Database
-- **Script**: `load_db.py [--fresh]`
-- **`--fresh` flag**: Deletes entire `lyc_racing.db` and recreates from scratch
-- **Also runs**: `load_owners.py` (boat_owners.csv), `backfill_weather()` and `backfill_tides()`
-- **Destructive?** YES with `--fresh` — wipes all tables; weather and tides are then restored from `enrichment/*_cache.json`
-- **Time**: ~5 sec (schema + load) + ~5 sec (weather from cache)
+- **Script**: `load_db.py --fresh` (`make fresh` runs this then export)
+- **Does**: recreates `lyc_racing.db`, loads both JSONL files, reconciles boats, assigns `race_date`, then loads owners, weather and tides from the `enrichment/` caches
+- **Legacy series pages** are split into one race per night and their final-night positions become `series_standings`; Sailwave "Sailed: 0" tables (start/entry lists) load no standings
+- **Network**: only for dates missing from the caches
+- **Boat ids** follow first appearance in load order — keep the order stable so `/boats/#id` links survive rebuilds
+- **Time**: ~10 seconds
 
-### Step 3: Backfill Weather (optional standalone)
-- **Script**: `backfill_weather.py [--force-fetch]`
-- **Source**: Local cache (`enrichment/weather_cache.json`) first, then Open-Meteo API for missing dates
-- **Operation**: `INSERT OR REPLACE` — upserts, doesn't wipe
-- **Time**: ~5 sec from cache; ~13 min if `--force-fetch` or cache missing
-- **Cache**: 609 dates cached locally. New dates auto-fetched and added to cache.
+### Step 3: Export JSON
+- **Script**: `export_json.py [--only overview seasons events boats leaderboards trophies analysis search]`
+- **Writes in place** and removes orphaned files; `fcntl` lock prevents concurrent exports
+- **Deterministic**: the same DB produces byte-identical JSON
+- **Time**: ~2 minutes full; `--only` targets are faster. After changing stats or trophy logic, run the full export (boat pages and leaderboards depend on the trophy rule)
 
-### Step 4: Export JSON
-- **Script**: `export_json.py`
-- **Output**: `web/public/data/` (~1,100 files)
-- **Destructive?** YES — wipes `boats/`, `events/`, `seasons/` subdirectories via `shutil.rmtree()`, then regenerates all files
-- **Time**: ~60 seconds
-- **Idempotent?** Yes — same DB state produces same JSON output
+### Step 4: Validate
+- **Script**: `validate.py` (`make validate`, also in CI)
+- **Fails on**: missing files or keys, low file/row counts, missing weather/tides, race dates outside their event year, absolute local paths in JSON, a ranked list repeating an owner+boat
+- **Warns on**: off-season dates, undated TNS/trophy races, races with several rank-1 results
 
-### Step 5: Next.js Build + Deploy
+### Step 5: Build + Deploy
 - **Build**: `npm run build` in `web/` → static HTML in `web/out/`
-- **Deploy**: GitHub Actions (`.github/workflows/deploy.yml`) triggered on push to main
-- **Note**: GitHub Actions does NOT run the Python pipeline — it only builds Next.js from the committed JSON files
+- **CI** (`.github/workflows/deploy.yml`, push to main): pytest, `validate.py`, tsc, lint, web unit tests, then build and deploy. CI does not run the Python pipeline; commit regenerated JSON.
 
-## Current Execution Order
+## Common Workflows
 
 ```
-# Full rebuild (rare, ~15 min)
-load_db --fresh          # Wipes DB, reloads from JSONL, restores owners/weather/tides
-export_json              # Wipes data dirs, regenerates all JSON
-npm run build            # Builds static site
-git push                 # Triggers GitHub Pages deploy
+# Full rebuild from source HTML
+python scraper/parse_sailwave.py && python scraper/parse_legacy.py   # only if parsers changed
+python scraper/load_db.py --fresh
+python scraper/export_json.py
+python scraper/validate.py
 
-# Typical data tweak (~90 sec)
-# (edit enrichment CSVs or fix export logic)
-export_json              # Regenerates all JSON
-git push                 # Deploy
-
-# After reclassifying events or changing DB data
-# (need to update DB directly, then re-export)
-python -c "UPDATE events SET ..."   # Fix DB
-export_json              # Regenerate all JSON
-git push                 # Deploy
+# Export logic change only
+python scraper/export_json.py
+python scraper/validate.py
 ```
 
-## Known Fragility Issues
+Batch changes into one PR/merge to main — each push runs the deploy workflow.
 
-### ~~1. Full wipe on every export~~ FIXED
-Write-in-place with `_clean_orphans()` replaced `shutil.rmtree()`. Crash during export leaves existing files intact.
+## Known Limitations
 
-### ~~2. `.DS_Store` blocks export~~ FIXED
-`_clean_orphans()` skips `.DS_Store` files automatically.
-
-### 3. No incremental export (MEDIUM)
-Cannot export a single boat, event, or season. Every change requires regenerating all ~1,100 JSON files. This makes the export slow and the git diff noisy (every file touched).
-
-### ~~4. Concurrent agents corrupt data~~ FIXED
-`fcntl.LOCK_EX` file locking prevents concurrent exports.
-
-### ~~5. Weather API coupled to `--fresh`~~ FIXED
-`backfill_weather.py` now loads from `enrichment/weather_cache.json` first. Only fetches from API for dates not in cache. `--fresh` rebuild takes ~5 sec instead of ~13 min.
-
-### 6. Generated JSON committed to git (HIGH)
-All ~1,100 generated JSON files live in the repo. Any session that runs export and pushes can silently overwrite uncommitted changes from another session. This creates merge conflicts and data loss when working in parallel.
-
-### 7. No validation between pipeline steps (LOW)
-No checksums, row counts, or schema validation between steps. A corrupt database produces corrupt JSON with no warning.
-
-## What's Expensive vs Cheap
-
-| Operation | Time | Network? | Destructive? |
-|-----------|------|----------|-------------|
-| Parse HTML → JSONL | ~5s | No | No |
-| Load DB (no --fresh) | ~5s | No | No |
-| Load DB --fresh | ~10s | No (cache) | Yes |
-| Backfill weather (cached) | ~5s | No | No (upsert) |
-| Backfill weather (--force-fetch) | ~13min | Yes | No (upsert) |
-| Export JSON | ~60s | No | No (write-in-place) |
-| Next.js build | ~15s | No | Yes (wipes .next/) |
-| GitHub Pages deploy | ~2min | Yes | No |
-
-## Recommended Improvements
-
-### ~~Priority 1: Prevent data loss~~ ALL DONE
-1. ~~Write-in-place instead of rmtree~~ — Done: `_clean_orphans()`
-2. ~~File locking~~ — Done: `fcntl.LOCK_EX`
-3. ~~Cache weather locally~~ — Done: `enrichment/weather_cache.json`
-
-### Priority 2: Enable faster iteration
-4. **Incremental export** — Add `--only analysis`, `--only boats`, `--only events` flags to export subsets.
-5. **Selective boat export** — `--boat-id 23` to regenerate a single boat's JSON.
-6. **Smarter git diffs** — Only commit JSON files that actually changed (content hash check).
-
-### Priority 3: Architectural improvements
-7. **Move JSON generation to CI** — `.gitignore` the `web/public/data/` directory. Build JSON in GitHub Actions from the database. Eliminates the "two agents push different data" problem.
-8. **Add pipeline orchestrator** — A single `Makefile` or `pipeline.py` that runs steps in order with validation between each.
-9. **Add pre-deploy validation** — Check file counts, schema conformance, and key data invariants before deploying.
+- **Generated JSON is committed.** Parallel sessions that export and push can overwrite each other; regenerate from the DB before merging.
+- **Monthly TNS grouping** uses each page's month, so a series starting on the last Thursday of a month spans two groups. Counted results match TNS nights across the whole season to compensate, and legacy trophy winners are read per series page name.
+- **Some races are undated** (championship "R1".."R15" columns, a few typos); see `validate.py` warnings and `.claude/tasks.md`.
 
 ## File Inventory
 
 ### Generated files (in `web/public/data/`)
 - `overview.json` — Site-wide stats
-- `boats.json` — Boat list with summary stats
-- `boats/{id}.json` — Per-boat detail (273 files)
+- `boats.json`, `boats/{id}.json`, `boats/{id}-races.json` — Boat list, detail, and head-to-head race logs (272 boats)
 - `events/{id}.json` — Per-event detail (751 files)
-- `seasons.json` — Season list
-- `seasons/{year}.json` — Per-season detail (27 files)
+- `seasons.json`, `seasons/{year}.json` — Season list and detail (27 seasons)
 - `leaderboards.json` — All-time rankings
 - `trophies.json` — Trophy history with winners
-- `analysis.json` — Fleet trends, participation, weather
+- `analysis.json` — Fleet trends, participation, TNS, weather
 - `search-index.json` — Client-side search data
 
-### Source/enrichment files (NOT generated)
-- `enrichment/boat_owners.csv` — Owner-to-boat mapping (145 entries)
-- `enrichment/trophy_case_historical.csv` — Historical trophy data (726 rows, 1947-2025)
-- `enrichment/weather_cache.json` — Cached weather API responses
-- `racing1999_2013/` — Legacy HTML source files
-- `racing2014_2025/` — Modern Sailwave HTML source files
+### Source and enrichment files
+- `racing1999_2013/`, `racing2014_2025/` — Source HTML
+- `enrichment/boat_owners.csv` — Owner history (141 boats with owners)
+- `enrichment/trophy_case_historical.csv` — Club trophy case (725 winners, 1947–2025)
+- `enrichment/weather_cache.json`, `enrichment/tide_cache.json` — API/model caches
+- `enrichment/orc_certs/` — ORC certificate cache for the what-if analysis
+- Review CSVs (`*_review.csv`, `boat_aliases.csv`, …) — audit outputs for manual review; the pipeline doesn't read them

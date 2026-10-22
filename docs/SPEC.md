@@ -753,8 +753,8 @@ Before implementing anything substantial, a new developer should:
    - `README.md`
    - this file
    - `CHANGELOG.md`
-   - `reports/current_status_2026-03-09.md`
-   - `reports/manual_review_inventory_2026-03-09.md`
+   - `reports/archive/current_status_2026-03-09.md`
+   - `reports/archive/manual_review_inventory_2026-03-09.md`
 2. Regenerate the current state locally:
    - parse
    - load

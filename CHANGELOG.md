@@ -4,6 +4,13 @@ This file tracks changes to archive logic that materially affect published stats
 
 ## 2026-10-22
 
+### Start lists and fleet tables
+
+- Sailwave tables marked "Sailed: 0" are start or entry lists, not results: Boland's 2023 and 2024 pursuit start times, 2018 August TNS before racing, IFDS 2014 starts and the 2012 J29 NA entries. They no longer load as standings, so Second Chance loses two Boland's 2023 "wins" and a phantom "Sonars" S-Division win in 2024 is gone. Boland's 2023 and 2024 now show the club record (MOJO). Boats on those lists are still registered, so boat ids don't change.
+- Trophy winners are read from each standings page separately. On 2009–2011 pages, the main overall table has one leader, while the "AB" page has one leader per fleet. The fleet winners now win: e.g. 2011 June Glube A Fleet goes to Poohsticks and B Fleet to Sly Fox, and 2009 September Fall B Fleet goes to Awesome 2.0. Pooling the tables had made fleets look tied.
+- Fixed a stale export from the previous release: boat pages and leaderboards are now built with the same trophy rule as the trophies page.
+- Docs, the methodology page and the strategy figures were refreshed; LYC owns no keelboats, and Tuesdays are fun sails.
+
 ### Trophies page
 
 - Event names now match club trophy-case names regardless of case, apostrophes, stray characters, initials ("R.G." / "R. G.") or a trailing "Race"/"Series". This recovers 14 missing trophy-years, e.g. Boland's Cup 2010 and 2018, Highliner Cup 2010 and 2017, Crown Diamond Paint Trophy 2011–12, R. H. Winters Cruise Trophy 2014, Sable Sailmakers Cup 2004, Cruisers Trophy 1999 and Bluenose Motors Trophy 2012 and 2020.
@@ -180,4 +187,4 @@ This file tracks changes to archive logic that materially affect published stats
 
 ### Review and audit artifacts
 
-- Added `reports/manual_review_inventory_2026-03-09.md` as the current handoff list for CSVs that still benefit from club-side validation or enrichment.
+- Added `reports/archive/manual_review_inventory_2026-03-09.md` as the current handoff list for CSVs that still benefit from club-side validation or enrichment.

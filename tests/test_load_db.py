@@ -357,6 +357,16 @@ class TestDatabaseLoaderUnit:
 
         loader.close()
 
+    def test_start_list_tables_are_not_loaded_as_standings(self, tmp_path):
+        page = _sample_sailwave_page()
+        page["summaries"][0]["metadata"] = {"sailed": 0, "discards": 0}
+        page["races"] = []
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        loader.load_parsed_page(page)
+        assert loader.conn.execute("SELECT COUNT(*) FROM series_standings").fetchone()[0] == 0
+        loader.close()
+
     def test_load_all_parsed_assigns_iso_race_dates(self, tmp_path):
         parsed_dir = tmp_path / "parsed"
         parsed_dir.mkdir()
