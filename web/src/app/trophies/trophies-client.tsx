@@ -317,7 +317,7 @@ function TrophyCard({
               </thead>
               <tbody>
                 {sortedWinners.map((w, i) => (
-                  <WinnerRow key={`${w.year}-${w.event_id ?? i}`} winner={w} />
+                  <WinnerRow key={`${w.year}-${w.event_id ?? i}-${w.division ?? ""}`} winner={w} />
                 ))}
               </tbody>
             </table>
@@ -358,6 +358,14 @@ function WinnerRow({ winner: w }: { winner: TrophyWinner }) {
           </Link>
         ) : (
           <span>{w.boat_name ?? "\u2014"}</span>
+        )}
+        {w.division && (
+          <span className="ml-1.5 text-xs text-gray-500">({w.division})</span>
+        )}
+        {w.club_record?.boat_name && (
+          <div className="text-xs text-gray-500">
+            Club trophy case: {w.club_record.boat_name}
+          </div>
         )}
       </td>
       <td className="px-3 md:px-4 py-1.5 text-gray-500">

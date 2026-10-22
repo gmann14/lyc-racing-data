@@ -268,6 +268,12 @@ export interface TrophyWinner {
   boat_id: number | null;
   nett_points: number | null;
   source?: "db" | "historical";
+  /** Division the trophy was won in ("A Fleet", "P Division"); absent or null when not split. */
+  division?: string | null;
+  /** How a DB winner was decided: series standings or a single race. */
+  basis?: "standings" | "race";
+  /** Present when the club trophy case records a different winner for this year. */
+  club_record?: { boat_name: string | null; skipper: string | null };
 }
 
 export interface TrophyCourseRaceHistory {
