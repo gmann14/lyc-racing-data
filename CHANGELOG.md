@@ -6,7 +6,7 @@ This file tracks changes to archive logic that materially affect published stats
 
 ### Trophies page
 
-- Event names now match club trophy-case names regardless of case, apostrophes, stray characters, initials ("R.G." / "R. G.") or a trailing "Race"/"Series". This recovers 15 missing trophy-years, e.g. Boland's Cup 2010 and 2018, Highliner Cup 2010 and 2017, Crown Diamond Paint Trophy 2011–12, R. H. Winters Cruise Trophy 2014, Sable Sailmakers Cup 2004, Cruisers Trophy 1999 and Bluenose Motors Trophy 2012 and 2020.
+- Event names now match club trophy-case names regardless of case, apostrophes, stray characters, initials ("R.G." / "R. G.") or a trailing "Race"/"Series". This recovers 14 missing trophy-years, e.g. Boland's Cup 2010 and 2018, Highliner Cup 2010 and 2017, Crown Diamond Paint Trophy 2011–12, R. H. Winters Cruise Trophy 2014, Sable Sailmakers Cup 2004, Cruisers Trophy 1999 and Bluenose Motors Trophy 2012 and 2020.
 - Handicap winners now come from the shared trophy rule, so division winners appear (e.g. Rear Commodore's 2018: Rumble Fish, P Division; Martha Jane, S Division). Regattas and championships keep the old first-place pick.
 - When several events give a trophy winner in the same year, a series-standings winner beats a single-race winner, then the winner matching the club trophy case. Before, whichever event came first won.
 - A handicap trophy with no clear winner in the results (e.g. Boland's 2024, whose page ranks ten boats first) now shows the club record (MOJO) instead of an arbitrary pick. Where the results and the club record disagree (Boland's 2023: Second Chance vs MOJO), the page notes the club record under the winner.
