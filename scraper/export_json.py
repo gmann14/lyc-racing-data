@@ -12,6 +12,7 @@ import json
 import re
 import sqlite3
 from collections import defaultdict
+from functools import lru_cache
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -681,11 +682,15 @@ def _standings_winners(firsts: list[dict]) -> list[tuple[str | None, dict]]:
         return _single_leaders(division_firsts, lambda r: _division_label(scope=r["summary_scope"]))
     if len({r["boat_id"] for r in overall_firsts}) == 1:
         return [(None, overall_firsts[0])]
-    # Several first places in "overall": fleets scored in one table.
+    # Several first places in "overall": fleets scored in one table. A tie
+    # inside a fleet means the table itself is unreliable (e.g. a pursuit
+    # race page with ten boats ranked first), so it gives no winners.
     labelled = [r for r in overall_firsts
                 if _division_label(fleet=r["fleet"], division=r["division"])]
-    return _single_leaders(
+    leaders = _single_leaders(
         labelled, lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
+    labels = {_division_label(fleet=r["fleet"], division=r["division"]) for r in labelled}
+    return leaders if len(leaders) == len(labels) else []
 
 
 def _build_event_winners(
@@ -1464,7 +1469,7 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "Crown Diamond Trophy": "Crown Diamond Paint Trophy",
     "LYC Tuesday Night \"Fun & Family\" - July Crown Diamond \"WhiteSail\" Series": "Crown Diamond Paint Trophy",
     # Cruiser's Trophy
-    "Cruisers' Trophy Series": "Cruiser's Trophy",
+    "Cruisers' Trophy Series": "Cruisers Trophy",
     # Douglas Mosher Trophy
     "LYC Handicap - Douglas Mosher Cup": "Douglas Mosher Trophy",
     # Fisheries Exhibition A Cup
@@ -1592,7 +1597,8 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "OCEAN TRAY": "Ocean Tray",
     "LADIES HELM RACE": "Ladies Helm Race",
     "CREW TROPHY": "Crew Trophy",
-    "Cruiser's Trophy": "Cruiser's Trophy",
+    "Cruiser's Trophy": "Cruisers Trophy",
+    "Robert H. Winters Trophy": "R. H. Winters Cruise Trophy",
     "Sable Sailmaker's": "Sable Sailmakers Cup",
     "Sable Sailmaker's Cup": "Sable Sailmakers Cup",
     "Sable Sailmaker\u2019s Cup": "Sable Sailmakers Cup",
@@ -1610,11 +1616,50 @@ _TROPHY_NAME_MAP: dict[str, str] = {
 }
 
 
+TROPHY_CASE_CSV = PROJECT_ROOT / "enrichment" / "trophy_case_historical.csv"
+
+
+def _trophy_key(name: str) -> str:
+    """Comparable form of a trophy name: case, punctuation and filler removed."""
+    key = re.sub(r"^lyc\s+handicap\s*[-–—]\s*", "", name.strip().lower())
+    key = key.replace("\ufffd", "").replace("high liner", "highliner")
+    key = re.sub(r"[^a-z0-9 ]+", "", key)
+    key = re.sub(r"\s+(race|series)$", "", re.sub(r"\s+", " ", key).strip())
+    return re.sub(r"\b([a-z]) (?=[a-z]\b)", r"\1", key)  # "r g smith" -> "rg smith"
+
+
+@lru_cache(maxsize=1)
+def _club_record_trophies() -> dict[str, str]:
+    """Club trophy-case names (enrichment/trophy_case_historical.csv) by _trophy_key."""
+    import csv as csv_mod
+
+    if not TROPHY_CASE_CSV.exists():
+        return {}
+    with open(TROPHY_CASE_CSV, newline="", encoding="utf-8") as f:
+        names = {row["trophy_name"].strip() for row in csv_mod.DictReader(f)}
+    return {_trophy_key(name): name for name in names}
+
+
+def _match_club_trophy(name: str) -> str | None:
+    """Club trophy-case name for an event name, matching exact keys or a unique prefix
+    ("Crown Diamond Race" -> "Crown Diamond Paint Trophy")."""
+    record = _club_record_trophies()
+    key = _trophy_key(name)
+    if not key:
+        return None
+    if key in record:
+        return record[key]
+    prefixed = [full for k, full in record.items() if k.startswith(key + " ")]
+    return prefixed[0] if len(prefixed) == 1 else None
+
+
 def _map_trophy_name(name: str) -> str:
     """Map a DB event name to a canonical trophy name.
 
     Tries explicit mapping first, then strips common prefixes and retries.
-    Also normalizes dots/spaces for fuzzy matching (e.g. "R.G." → "RG").
+    Also normalizes dots/spaces for fuzzy matching (e.g. "R.G." → "RG"), and
+    finally matches the club trophy case ignoring case, apostrophes, stray
+    characters and a trailing "Race"/"Series".
     """
     # Direct match
     if name in _TROPHY_NAME_MAP:
@@ -1631,9 +1676,31 @@ def _map_trophy_name(name: str) -> str:
     nodots_norm = re.sub(r"\s+", " ", nodots).strip()
     if nodots_norm != nodots and nodots_norm in _TROPHY_NAME_MAP:
         return _TROPHY_NAME_MAP[nodots_norm]
+    club = _match_club_trophy(stripped)
+    if club:
+        return club
     # Check if stripped name matches a canonical CSV name directly
     # (e.g. "LYC Handicap - Commodore's Cup" → "Commodore's Cup")
     return stripped if stripped != name else name
+
+
+def _boat_key(name: str | None) -> str:
+    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+
+
+def _same_boat(a: str | None, b: str | None) -> bool:
+    """Boat names equal ignoring case and punctuation, or one extends the
+    other ("Andrea 4" / "Andrea 4 of Sunnybrook")."""
+    ka, kb = _boat_key(a), _boat_key(b)
+    return bool(ka and kb) and (ka == kb or ka.startswith(kb) or kb.startswith(ka))
+
+
+def _same_person(record_name: str | None, full_name: str | None) -> bool:
+    """A club-record name like "C. Mann" refers to "Colin Mann": same surname
+    and first initial."""
+    a = re.findall(r"[a-z]+", (record_name or "").lower())
+    b = re.findall(r"[a-z]+", (full_name or "").lower())
+    return len(a) >= 2 and len(b) >= 2 and a[-1] == b[-1] and a[0][0] == b[0][0]
 
 
 def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
@@ -1641,11 +1708,39 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
 
     Uses explicit name mapping + historical CSV data. Events that don't map
     to any canonical name and aren't recurring (>=3 unique years) are dropped.
+    When several events give a trophy winner in the same year, a series-
+    standings winner beats a single-race winner, then the one matching the
+    club trophy case wins. A DB winner that the club record disagrees with
+    keeps a ``club_record`` note rather than being overridden.
     """
     import csv as csv_mod
 
-    # Step 1: Map all DB trophies to canonical names
+    # Step 1: Load the club trophy case (historical CSV)
+    hist_by_name: dict[str, list[dict]] = {}
+    first_awarded_map: dict[str, int] = {}
+    record_by_year: dict[tuple[str, int], dict] = {}
+    if TROPHY_CASE_CSV.exists():
+        with open(TROPHY_CASE_CSV, newline="", encoding="utf-8") as f:
+            for row in csv_mod.DictReader(f):
+                tname = row["trophy_name"].strip()
+                hist_by_name.setdefault(tname, []).append(row)
+                try:
+                    record_by_year[(tname, int(row["year"]))] = row
+                except (ValueError, KeyError):
+                    pass
+                fa = row.get("first_awarded")
+                if fa:
+                    try:
+                        fa_int = int(fa)
+                        if tname not in first_awarded_map or fa_int < first_awarded_map[tname]:
+                            first_awarded_map[tname] = fa_int
+                    except ValueError:
+                        pass
+
+    # Step 2: Map DB trophies to canonical names; collect each year's
+    # candidate winner sets (one set per source event, divisions together)
     canonical: dict[str, dict] = {}  # canonical_name → trophy entry
+    candidates: dict[str, dict[int, list[list[dict]]]] = defaultdict(lambda: defaultdict(list))
     for t in trophy_list:
         cname = _map_trophy_name(t["name"])
         if cname not in canonical:
@@ -1656,12 +1751,11 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
                 "winners": [],
             }
         entry = canonical[cname]
-        # Merge winners, dedup by year
-        existing_years = {w["year"] for w in entry["winners"]}
+        sets: dict[tuple, list[dict]] = defaultdict(list)
         for w in t["winners"]:
-            if w["year"] not in existing_years:
-                entry["winners"].append(w)
-                existing_years.add(w["year"])
+            sets[(w["year"], w.get("event_id"))].append(w)
+        for (year, _), winner_set in sets.items():
+            candidates[cname][year].append(winner_set)
         # Merge course data — combine race_history from all event variants
         if "course" in t:
             if "course" not in entry:
@@ -1676,62 +1770,61 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
                         entry["course"]["race_history"].append(rh)
                         existing_years_course.add(rh["year"])
 
-    # Step 2: Load historical CSV data
-    csv_path = Path(__file__).parent.parent / "enrichment" / "trophy_case_historical.csv"
-    historical_names: set[str] = set()
-    first_awarded_map: dict[str, int] = {}
-    if csv_path.exists():
-        with open(csv_path, newline="", encoding="utf-8") as f:
-            reader = csv_mod.DictReader(f)
-            hist_by_name: dict[str, list[dict]] = {}
-            for row in reader:
-                tname = row["trophy_name"].strip()
-                hist_by_name.setdefault(tname, []).append(row)
-                historical_names.add(tname)
-                fa = row.get("first_awarded")
-                if fa:
-                    try:
-                        fa_int = int(fa)
-                        if tname not in first_awarded_map or fa_int < first_awarded_map[tname]:
-                            first_awarded_map[tname] = fa_int
-                    except ValueError:
-                        pass
+    for cname, by_year in candidates.items():
+        for year, winner_sets in by_year.items():
+            record = record_by_year.get((cname, year))
+            record_boat = record.get("boat_name") if record else None
 
-        # Merge historical winners into canonical entries
-        for csv_name, csv_rows in hist_by_name.items():
-            if csv_name not in canonical:
-                canonical[csv_name] = {
-                    "name": csv_name,
-                    "slug": csv_name.lower().replace(" ", "-"),
-                    "event_type": "trophy",
-                    "winners": [],
-                }
-            entry = canonical[csv_name]
-            existing_years = {w["year"] for w in entry["winners"]}
-            for row in csv_rows:
-                try:
-                    year = int(row["year"])
-                except (ValueError, KeyError):
-                    continue
-                if year in existing_years:
-                    continue
-                entry["winners"].append({
-                    "year": year,
-                    "event_id": None,
-                    "display_name": row.get("skipper_name") or "",
-                    "boat_name": row.get("boat_name") or None,
-                    "boat_class": None,
-                    "boat_id": None,
-                    "nett_points": None,
-                    "source": "historical",
-                })
-                existing_years.add(year)
-            # Set first_awarded and verified from CSV
-            if csv_name in first_awarded_map:
-                entry["first_awarded"] = first_awarded_map[csv_name]
-            entry["verified"] = True
+            def matches_record(winner_set: list[dict]) -> bool:
+                return any(_same_boat(w.get("boat_name"), record_boat) for w in winner_set)
 
-    # Step 3: Filter — keep verified (CSV-backed) + recurring unverified (>=3 years)
+            best = min(winner_sets, key=lambda ws: (
+                not any(w.get("basis") == "standings" for w in ws),
+                not matches_record(ws),
+            ))
+            for w in best:
+                if record and record_boat and not matches_record(best):
+                    w["club_record"] = {
+                        "boat_name": record.get("boat_name") or None,
+                        "skipper": record.get("skipper_name") or None,
+                    }
+                canonical[cname]["winners"].append(w)
+
+    # Step 3: Club-record winners fill the years without a DB winner
+    for csv_name, csv_rows in hist_by_name.items():
+        if csv_name not in canonical:
+            canonical[csv_name] = {
+                "name": csv_name,
+                "slug": csv_name.lower().replace(" ", "-"),
+                "event_type": "trophy",
+                "winners": [],
+            }
+        entry = canonical[csv_name]
+        existing_years = {w["year"] for w in entry["winners"]}
+        for row in csv_rows:
+            try:
+                year = int(row["year"])
+            except (ValueError, KeyError):
+                continue
+            if year in existing_years:
+                continue
+            entry["winners"].append({
+                "year": year,
+                "event_id": None,
+                "display_name": row.get("skipper_name") or "",
+                "boat_name": row.get("boat_name") or None,
+                "boat_class": None,
+                "boat_id": None,
+                "nett_points": None,
+                "source": "historical",
+            })
+            existing_years.add(year)
+        # Set first_awarded and verified from CSV
+        if csv_name in first_awarded_map:
+            entry["first_awarded"] = first_awarded_map[csv_name]
+        entry["verified"] = True
+
+    # Step 4: Filter — keep verified (CSV-backed) + recurring unverified (>=3 years)
     result = []
     for cname, t in canonical.items():
         if t.get("verified"):
@@ -1741,14 +1834,14 @@ def _consolidate_trophies(trophy_list: list[dict]) -> list[dict]:
         if unique_years >= 3:
             result.append(t)
 
-    # Step 4: Finalize fields
+    # Step 5: Finalize fields
     for t in result:
         if "first_awarded" not in t:
             years = [w["year"] for w in t["winners"]] if t["winners"] else []
             t["first_awarded"] = min(years) if years else None
         if "verified" not in t:
             t["verified"] = False
-        t["winners"].sort(key=lambda w: w["year"])
+        t["winners"].sort(key=lambda w: (w["year"], w.get("division") or ""))
 
     return result
 
@@ -1772,18 +1865,26 @@ def _build_owner_lookup(conn: sqlite3.Connection) -> dict[int, list[dict]]:
 
 
 def _resolve_owner_name(
-    owner_lookup: dict[int, list[dict]], boat_id: int | None, year: int
+    owner_lookup: dict[int, list[dict]], boat_id: int | None, year: int,
+    strict: bool = False,
 ) -> str | None:
-    """Find the owner name for a boat in a given year."""
+    """Find the owner name for a boat in a given year.
+
+    ``strict`` returns only an owner whose recorded years cover ``year``. Use
+    it for club-record winners, which mostly predate the ownership records:
+    a 1979 winner must not be credited to the boat's owner since 2008.
+    """
     if not boat_id or boat_id not in owner_lookup:
         return None
-    for entry in owner_lookup[boat_id]:
+    entries = owner_lookup[boat_id]
+    if not strict:
+        return _owner_in_year(entries, year)
+    for entry in entries:
         start = entry["year_start"] or 0
         end = entry["year_end"] or 9999
         if start <= year <= end:
             return entry["owner_name"]
-    # If no year-range match, return the most recent owner
-    return owner_lookup[boat_id][-1]["owner_name"]
+    return None
 
 
 def _build_boat_name_normalizer(conn: sqlite3.Connection) -> dict[str, str]:
@@ -1811,6 +1912,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
     """Export winner history for each trophy/event name, with pace stats for fixed courses."""
     excluded = _excluded_event_map(conn)
     event_meta, groups_by_primary = _canonical_event_groups(conn)
+    _ensure_counted_tables(conn)
     weather_lookup = _load_weather_lookup(conn)
     owner_lookup = _build_owner_lookup(conn)
     boat_name_norm = _build_boat_name_normalizer(conn)
@@ -1832,7 +1934,24 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
     for trophy in unique_trophies:
         group_ids = event_meta[trophy["id"]]["group_event_ids"]
         placeholders = ",".join("?" for _ in group_ids)
-        winner_rows = conn.execute(f"""
+
+        # Handicap events: the shared trophy rule (one per division winner)
+        winners = []
+        for row in conn.execute("""
+            SELECT ew.year, ew.canonical_event_id AS event_id, ew.division, ew.nett_points,
+                   ew.source AS basis, b.id AS boat_id, b.name AS boat_name, b.class AS boat_class
+            FROM event_winners ew JOIN boats b ON b.id = ew.boat_id
+            WHERE ew.canonical_event_id = ?
+            ORDER BY ew.year, ew.division
+        """, (trophy["id"],)).fetchall():
+            owner = _resolve_owner_name(owner_lookup, row["boat_id"], row["year"])
+            winners.append({**row, "display_name": owner or row["boat_name"]})
+
+        # Special events (regattas, championships) aren't in the shared rule:
+        # first place in standings, else first place in a race. A handicap
+        # trophy without a clear winner is left to the club record.
+        special = trophy["id"] in excluded
+        winner_rows = [] if not special else conn.execute(f"""
             SELECT e.year, e.id as event_id, ss.summary_scope,
                    p.display_name, b.name as boat_name, b.class as boat_class,
                    b.id as boat_id, ss.nett_points
@@ -1843,8 +1962,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
             WHERE e.id IN ({placeholders}) AND ss.rank = 1
             ORDER BY e.year
         """, tuple(group_ids)).fetchall()
-        winners = []
-        seen_years: set[int] = set()
+        seen_years: set[int] = {w["year"] for w in winners}
         preferred = sorted(
             winner_rows,
             key=lambda row: (
@@ -1862,10 +1980,10 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
             owner = _resolve_owner_name(owner_lookup, row.get("boat_id"), row["year"])
             if owner:
                 row["display_name"] = owner
-            winners.append(row)
+            winners.append({**row, "division": None, "basis": "standings"})
 
         # Fallback: for events with no series standings (race-only), get race winner
-        if not winners:
+        if special and not winners:
             fallback_rows = conn.execute(f"""
                 SELECT e.year, e.id as event_id,
                        p.display_name, b.name as boat_name, b.class as boat_class,
@@ -1886,7 +2004,7 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                 owner = _resolve_owner_name(owner_lookup, row.get("boat_id"), row["year"])
                 if owner:
                     row["display_name"] = owner
-                winners.append(row)
+                winners.append({**row, "division": None, "basis": "race"})
 
         # Check if this is a fixed-course trophy
         course_info = _match_fixed_course(trophy["name"])
@@ -2079,11 +2197,15 @@ def export_trophy_history(conn: sqlite3.Connection) -> None:
                     w["boat_id"] = info["boat_id"]
                 if not w.get("boat_class"):
                     w["boat_class"] = info["boat_class"]
-                # Resolve owner name if we have boat_id and display_name looks like an abbreviation
+                # Name the owner if they owned the boat that year, or if the
+                # club record's "C. Mann" is them; otherwise keep the record's name
                 if w["boat_id"] and w.get("display_name"):
-                    owner = _resolve_owner_name(owner_lookup, w["boat_id"], w["year"])
+                    owner = _resolve_owner_name(owner_lookup, w["boat_id"], w["year"], strict=True)
+                    current = _resolve_owner_name(owner_lookup, w["boat_id"], w["year"])
                     if owner:
                         w["display_name"] = owner
+                    elif _same_person(w["display_name"], current):
+                        w["display_name"] = current
             # Link to event if we have one for this year (from DB winners of same trophy)
             if not w.get("event_id") and w["year"] in year_to_event:
                 w["event_id"] = year_to_event[w["year"]]

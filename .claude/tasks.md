@@ -18,7 +18,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [ ] Switch `analyze_orc_vs_phrf.py` from its own date parser to `races.race_date`.
 - [ ] Load legacy multi-race series pages as real races/standings instead of silently dropping 1,335 rows via `INSERT OR IGNORE`.
 - [ ] Group duplicate source files (bolands/bowlands 2023, bolands_V5/bolands_cup 2002, rum_race/rum_racehtm 2015); NULL-rank fallback (2010/2020 Aug TNS).
-- [ ] Trophies page (`trophies.json`): fleet-aware winner pick, name-map gaps, CSV vs DB precedence, no later-owner backfill for historical winners.
+- [ ] Trophies page: TNS-awarded trophies (e.g. Glube Cup awarded through the August TNS) aren't matched to DB events yet; the club record covers those years.
 - [ ] 10 pre-2014 TNS groups still have no trophy winner: no series page in the archive (e.g. 1999 Glube/Paceship, 2001–2002 Moosehead Fall, 2007 July Scotia Trawler), or a tie (2001 July Glube). Could compute standings from nightly results if the club's discard rules are known.
 - [ ] Cache canonical-group computations in export (~263s → <90s).
 
@@ -30,7 +30,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 ### Decisions needed
 - [ ] Does LYC own any keelboats (club Sonars/IODs)?
 - [ ] Is Tuesday white-sail racing separate from Thursday TNS, and is it recorded anywhere?
-- [ ] DB vs club trophy record conflicts (e.g. Boland's 2023/24): which is authoritative?
+- [ ] DB vs club trophy record conflicts: Boland's 2023 results say Second Chance, the club trophy case says MOJO. Which is authoritative? (The page currently shows the results and notes the club record.)
 - [ ] Confirm candidate boat merges (Odyssey variants, Westwind II variants, Tsunami 98 / Tsunami 3 98, VTac/V-tack, …).
 
 ## Done
@@ -38,6 +38,7 @@ Plan and evidence: `reports/codebase_review_2026-10-19.md`.
 - [x] Created project task source of truth.
 - [x] Full codebase review and improvement proposal (2026-10-19).
 - [x] Restore tides (`load_db --fresh` now runs `backfill_tides`), project-relative legacy source paths, validate.py checks for weather/tides/local paths (2026-10-19).
+- [x] Trophies page: club-trophy name matching, shared division winners, standings-over-race and club-record tie-breaks, club-record fallback for unclear years, no later-owner names on old winners (2026-10-22).
 - [x] Legacy series pages split into one race per night, series standings loaded, Thursday nights matched across the season, one trophy per legacy series (2026-10-22).
 - [x] Owner attribution by season with one aggregator (`_competitor_groups`); validate.py `ranked-ids` is now a failure (2026-10-22).
 - [x] Trophies: one per division winner (A/B fleet, P/S division), per user (2026-10-21).
