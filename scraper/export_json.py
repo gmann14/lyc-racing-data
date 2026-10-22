@@ -296,8 +296,12 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
 
     def primary_key(event: dict) -> tuple:
         original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
+        # A legacy page with several races is a series summary; a nightly page
+        # names the group better and holds the same results.
+        legacy_series = event["source_format"] == "legacy" and (event["race_count"] or 0) > 1
         return (
             int(not event["is_variant"]),
+            int(not legacy_series),
             int(original_stem == event["source_root"]),
             int((event["race_count"] or 0) > 0),
             event["result_count"] or 0,
@@ -537,10 +541,14 @@ def _build_counted_results(
     preferred source race), shared by every competitor in it. Columns:
     ``is_special`` (event excluded from handicap stats), ``sailed`` (not
     DNS/DNC) and ``finished`` (has a finishing place, no status).
+
+    Races are matched within a canonical group, except Thursday-night races,
+    which are matched across the whole season: a series starting on the last
+    Thursday of June can have pages filed under June and July.
     """
     races = conn.execute("""
         SELECT r.id, r.event_id, r.race_date, r.race_number,
-               e.year, e.event_type, e.month
+               e.year, e.event_type, e.month, e.source_format
         FROM races r JOIN events e ON e.id = r.event_id
     """).fetchall()
     results = conn.execute("""
@@ -555,20 +563,40 @@ def _build_counted_results(
     for race in races:
         races_by_event[race["event_id"]].append(race)
 
+    # Each race's canonical group, and whether its page is a group's primary,
+    # a variant view, or a legacy multi-night series page.
+    group_of: dict[int, int] = {}
+    is_variant: dict[int, bool] = {}
+    for primary_id, members in groups_by_primary.items():
+        for m in members:
+            group_of[m["id"]] = primary_id
+            is_variant[m["id"]] = bool(m.get("is_variant"))
+    pools: dict[tuple, list[dict]] = defaultdict(list)
+    for race in races:
+        pool = (("tns", race["year"]) if race["event_type"] == "tns"
+                else ("group", group_of[race["event_id"]]))
+        pools[pool].append(race)
+
+    def preference(race: dict) -> tuple:
+        event_id = race["event_id"]
+        legacy_series = (race["source_format"] == "legacy"
+                         and len(races_by_event[event_id]) > 1)
+        return (
+            event_id != group_of[event_id],
+            is_variant.get(event_id, False),
+            legacy_series,
+            -len(results_by_race.get(race["id"], [])),
+            event_id,
+            race["id"],
+        )
+
     rows: list[tuple] = []
     merged_sources = 0
-    for primary_id, members in groups_by_primary.items():
-        is_variant = {m["id"]: bool(m.get("is_variant")) for m in members}
-        group_races = [race for m in members for race in races_by_event.get(m["id"], [])]
-        group_races.sort(key=lambda race: (
-            race["event_id"] != primary_id,
-            is_variant.get(race["event_id"], False),
-            -len(results_by_race.get(race["id"], [])),
-            race["event_id"],
-            race["id"],
-        ))
-        for logical in _group_logical_races(group_races, results_by_race):
+    for pool_races in pools.values():
+        pool_races.sort(key=preference)
+        for logical in _group_logical_races(pool_races, results_by_race):
             rep = logical[0]
+            primary_id = group_of[rep["event_id"]]
             merged_sources += len(logical) - 1
             seen: set[tuple] = set()
             for race in logical:
@@ -639,6 +667,27 @@ def _single_leaders(rows: list[dict], label_of) -> list[tuple[str | None, dict]]
             for label, boats in by_label.items() if len(boats) == 1]
 
 
+def _legacy_series_key(source_file: str | None) -> str:
+    """Series a legacy standings page belongs to: 'June_Glube_Series_A.htm' -> 'june_glube'."""
+    stem = Path(source_file or "").stem.lower()
+    return re.sub(r"(_series)*(_[ab])?$", "", stem) or stem
+
+
+def _standings_winners(firsts: list[dict]) -> list[tuple[str | None, dict]]:
+    """Trophy winners from one series' first-place standings rows."""
+    division_firsts = [r for r in firsts if _DIVISION_SCOPE_RE.search(r["summary_scope"] or "")]
+    overall_firsts = [r for r in firsts if r["summary_scope"] == "overall"]
+    if division_firsts:
+        return _single_leaders(division_firsts, lambda r: _division_label(scope=r["summary_scope"]))
+    if len({r["boat_id"] for r in overall_firsts}) == 1:
+        return [(None, overall_firsts[0])]
+    # Several first places in "overall": fleets scored in one table.
+    labelled = [r for r in overall_firsts
+                if _division_label(fleet=r["fleet"], division=r["division"])]
+    return _single_leaders(
+        labelled, lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
+
+
 def _build_event_winners(
     conn: sqlite3.Connection,
     event_meta: dict[int, dict],
@@ -654,7 +703,9 @@ def _build_event_winners(
     table (2009-2011 pages); a single overall leader; or, for an event
     without standings, the first-place finisher of its one race (or of each
     division's own race, when divisions sailed separate races). A division
-    whose first place is tied or unclear gets no trophy.
+    whose first place is tied or unclear gets no trophy. Pre-2014 groups can
+    hold two series (one starting on the last Thursday of a month), so their
+    standings are read per series page name.
     """
     rows: list[tuple] = []
     undetermined = 0
@@ -669,27 +720,27 @@ def _build_event_winners(
         member_ids = [m["id"] for m in members]
         placeholders = ",".join("?" for _ in member_ids)
         standings = conn.execute(f"""
-            SELECT ss.summary_scope, ss.rank, ss.nett_points, ss.fleet, ss.division, p.boat_id
-            FROM series_standings ss JOIN participants p ON p.id = ss.participant_id
+            SELECT ss.summary_scope, ss.rank, ss.nett_points, ss.fleet, ss.division, p.boat_id,
+                   e.name AS event_name, e.source_file, e.source_format
+            FROM series_standings ss
+            JOIN participants p ON p.id = ss.participant_id
+            JOIN events e ON e.id = ss.event_id
             WHERE ss.event_id IN ({placeholders}) AND p.boat_id IS NOT NULL
         """, tuple(member_ids)).fetchall()
-        firsts = [r for r in standings if r["rank"] == 1]
+        by_series: dict[str, list[dict]] = defaultdict(list)
+        for r in standings:
+            key = _legacy_series_key(r["source_file"]) if r["source_format"] == "legacy" else ""
+            by_series[key].append(r)
 
-        winners: list[tuple[str | None, dict]] = []
+        # (series key, series name, division label, winning row)
+        winners: list[tuple[str, str | None, str | None, dict]] = []
         source = "standings"
-        division_firsts = [r for r in firsts if _DIVISION_SCOPE_RE.search(r["summary_scope"] or "")]
-        overall_firsts = [r for r in firsts if r["summary_scope"] == "overall"]
-        if division_firsts:
-            winners = _single_leaders(division_firsts, lambda r: _division_label(scope=r["summary_scope"]))
-        elif len({r["boat_id"] for r in overall_firsts}) == 1:
-            winners = [(None, overall_firsts[0])]
-        elif overall_firsts:
-            # Several first places in "overall": fleets scored in one table.
-            labelled = [r for r in overall_firsts
-                        if _division_label(fleet=r["fleet"], division=r["division"])]
-            winners = _single_leaders(
-                labelled, lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
-        elif not standings:
+        for key, series_rows in by_series.items():
+            firsts = [r for r in series_rows if r["rank"] == 1]
+            series_name = (_canonical_event_name(firsts[0]["event_name"])
+                           if firsts and len(by_series) > 1 else None)
+            winners += [(key, series_name, label, row) for label, row in _standings_winners(firsts)]
+        if not standings:
             source = "race"
             boats_by_race: dict[int, set[int]] = defaultdict(set)
             for r in conn.execute("""
@@ -709,10 +760,10 @@ def _build_event_winners(
                           AND cr.boat_id IS NOT NULL
                     """, (race_id,)).fetchall()
                     if len(boats_by_race) == 1 and len({r["boat_id"] for r in race_firsts}) == 1:
-                        winners.append((None, race_firsts[0]))
+                        winners.append(("", None, None, race_firsts[0]))
                         continue
                     winners += [
-                        (label, row) for label, row in _single_leaders(
+                        ("", None, label, row) for label, row in _single_leaders(
                             race_firsts,
                             lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
                         if label
@@ -721,15 +772,16 @@ def _build_event_winners(
         if not winners:
             undetermined += 1
             continue
-        name = event_meta[primary_id]["canonical_name"]
-        for label, row in winners:
-            rows.append((primary_id, label, row["boat_id"], primary["year"], primary["event_type"],
+        for key, series_name, label, row in winners:
+            name = series_name or event_meta[primary_id]["canonical_name"]
+            rows.append((primary_id, key, label, row["boat_id"], primary["year"], primary["event_type"],
                          f"{name} ({label})" if label else name, row["nett_points"], source))
 
     conn.execute("DROP TABLE IF EXISTS temp.event_winners")
     conn.execute("""
         CREATE TEMP TABLE event_winners (
             canonical_event_id INTEGER NOT NULL,
+            series TEXT NOT NULL,
             division TEXT,
             boat_id INTEGER NOT NULL,
             year INTEGER,
@@ -737,10 +789,10 @@ def _build_event_winners(
             name TEXT,
             nett_points REAL,
             source TEXT,
-            UNIQUE (canonical_event_id, division)
+            UNIQUE (canonical_event_id, series, division)
         )
     """)
-    conn.executemany("INSERT INTO event_winners VALUES (?,?,?,?,?,?,?,?)", rows)
+    conn.executemany("INSERT INTO event_winners VALUES (?,?,?,?,?,?,?,?,?)", rows)
     return {"event_winners": len(rows), "undetermined_events": undetermined}
 
 

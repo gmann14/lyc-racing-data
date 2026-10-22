@@ -231,6 +231,25 @@ class TestParseDataRows:
         assert result.position == 3
 
 
+class TestSeriesColumns:
+    @staticmethod
+    def _row(cells: list[str]):
+        html = "<table><tr>" + "".join(f"<td>{c}</td>" for c in cells) + "</tr></table>"
+        return _parse_data_row(BeautifulSoup(html, "lxml").find("tr"))
+
+    BASE = ["Poohsticks", "8", "J92", "128", "05-06-08", "19:36:56", "N/A",
+            "00 01:06:56", "00 01:25:40", "1", "1"]
+
+    def test_with_espn_column(self):
+        row = self._row(self.BASE + ["126.5", "3", "2"])
+        assert (row.espn, row.series_points, row.series_position) == ("126.5", 3.0, 2)
+
+    def test_without_espn_column(self):
+        row = self._row(self.BASE + ["3", "2"])
+        assert (row.espn, row.series_points, row.series_position) == ("", 3.0, 2)
+        assert (row.position, row.points) == (1, 1.0)
+
+
 class TestParseFooter:
     def test_footer(self):
         soup = BeautifulSoup(WINREGATTA_HTML, "lxml")

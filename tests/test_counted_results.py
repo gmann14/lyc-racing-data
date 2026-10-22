@@ -18,7 +18,7 @@ from scraper.export_json import (
 
 SCHEMA = """
     CREATE TABLE events (id INTEGER PRIMARY KEY, year INTEGER, name TEXT,
-                         event_type TEXT, month TEXT);
+                         event_type TEXT, month TEXT, source_format TEXT, source_file TEXT);
     CREATE TABLE races (id INTEGER PRIMARY KEY, event_id INTEGER, race_number INTEGER,
                         race_key TEXT, date TEXT, race_date TEXT);
     CREATE TABLE participants (id INTEGER PRIMARY KEY, boat_id INTEGER);
@@ -46,9 +46,12 @@ class Builder:
 
     def event(self, event_id: int, primary_id: int, *, year: int = 2005,
               event_type: str = "tns", month: str | None = "june",
-              variant: bool = False) -> int:
-        self.conn.execute("INSERT INTO events VALUES (?, ?, ?, ?, ?)",
-                          (event_id, year, f"Event {event_id}", event_type, month))
+              variant: bool = False, legacy_file: str | None = None,
+              name: str | None = None) -> int:
+        self.conn.execute(
+            "INSERT INTO events VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (event_id, year, name or f"Event {event_id}", event_type, month,
+             "legacy" if legacy_file else "sailwave", legacy_file))
         self.groups.setdefault(primary_id, []).append({"id": event_id, "is_variant": variant})
         return event_id
 
@@ -81,14 +84,14 @@ class Builder:
             "SELECT * FROM counted_results ORDER BY race_id, boat_id").fetchall()
 
     def winners(self, excluded: dict | None = None) -> dict[tuple, dict]:
-        """(canonical_event_id, division) -> winner row."""
+        """(canonical_event_id, series, division) -> winner row."""
         meta = {pid: {"canonical_name": f"Event {pid}"} for pid in self.groups}
         _build_event_winners(self.conn, meta, self.groups, excluded or {})
-        return {(r["canonical_event_id"], r["division"]): r
+        return {(r["canonical_event_id"], r["series"], r["division"]): r
                 for r in self.conn.execute("SELECT * FROM event_winners")}
 
     def winning_boats(self, **kwargs) -> dict[str | None, int]:
-        return {division: row["boat_id"] for (_, division), row in self.winners(**kwargs).items()}
+        return {division: row["boat_id"] for (_, _, division), row in self.winners(**kwargs).items()}
 
 
 def _per_boat(rows: list[dict]) -> dict[int, list[tuple]]:
@@ -150,6 +153,28 @@ class TestLogicalRaces:
         b.race(event, 2, "2010-09-12", [(1, 2), (2, 1)])
         assert len({r["race_id"] for r in b.count()}) == 2
 
+    def test_tns_nights_match_across_monthly_groups(self) -> None:
+        # Glube 2000 started on 29 June: its series page sits in the June group
+        # but repeats July nights that have their own pages in the July group.
+        b = Builder()
+        series = b.event(1, 1, year=2000, month="june", legacy_file="glube_series.htm")
+        july = b.event(2, 2, year=2000, month="july", legacy_file="glube2.htm")
+        b.race(series, None, "2000-06-29", [(1, 1), (2, 2)])
+        b.race(series, None, "2000-07-06", [(1, 2), (2, 1)])
+        b.race(july, 2, "2000-07-06", [(1, 2), (2, 1)])
+        rows = b.count()
+        assert len({r["race_id"] for r in rows}) == 2
+        july_rows = [r for r in rows if r["race_date"] == "2000-07-06"]
+        assert {r["canonical_event_id"] for r in july_rows} == {2}
+
+    def test_sunday_races_do_not_match_across_groups(self) -> None:
+        b = Builder()
+        first = b.event(1, 1, event_type="trophy", month=None)
+        second = b.event(2, 2, event_type="trophy", month=None)
+        b.race(first, 1, "2010-09-12", [(1, 1)])
+        b.race(second, 1, "2010-09-12", [(1, 1)])
+        assert len({r["race_id"] for r in b.count()}) == 2
+
     def test_same_date_different_race_number_stays_separate(self) -> None:
         b = Builder()
         first = b.event(1, 2)
@@ -194,7 +219,7 @@ class TestEventWinners:
         b.standing(event, 1, 1, points=3.0, fleet="A")
         b.standing(event, 2, 2, fleet="B")
         b.count()
-        winner = b.winners()[(1, None)]
+        winner = b.winners()[(1, "", None)]
         assert (winner["boat_id"], winner["source"], winner["nett_points"]) == (1, "standings", 3.0)
         assert winner["name"] == "Event 1"
 
@@ -216,8 +241,8 @@ class TestEventWinners:
         b.standing(event, 1, 1, scope="overall")
         b.count()
         winners = b.winners()
-        assert {k[1]: v["boat_id"] for k, v in winners.items()} == {"P Division": 1, "S Division": 2}
-        assert winners[(1, "P Division")]["name"] == "Event 1 (P Division)"
+        assert {k[2]: v["boat_id"] for k, v in winners.items()} == {"P Division": 1, "S Division": 2}
+        assert winners[(1, "", "P Division")]["name"] == "Event 1 (P Division)"
 
     def test_tied_division_gets_no_trophy(self) -> None:
         b = Builder()
@@ -247,12 +272,41 @@ class TestEventWinners:
         b.count()
         assert b.winners() == {}
 
+    def test_two_legacy_series_in_one_group_each_get_a_trophy(self) -> None:
+        b = Builder()
+        scotia = b.event(1, 1, year=2000, legacy_file="racing2000/scotia_series.htm",
+                         name="Scotia Trawler Series")
+        glube = b.event(2, 1, year=2000, legacy_file="racing2000/glube_series.htm",
+                        name="GLUBE SERIES")
+        b.race(scotia, None, "2000-06-01", [(1, 1), (2, 2)])
+        b.race(scotia, None, "2000-06-08", [(1, 1), (2, 2)])
+        b.race(glube, None, "2000-06-29", [(2, 1), (1, 2)])
+        b.race(glube, None, "2000-07-06", [(2, 1), (1, 2)])
+        b.standing(scotia, 1, 1)
+        b.standing(glube, 2, 1)
+        b.count()
+        winners = {r["name"]: r["boat_id"] for r in b.winners().values()}
+        assert winners == {"Scotia Trawler Series": 1, "GLUBE SERIES": 2}
+
+    def test_legacy_fleet_pages_of_one_series(self) -> None:
+        b = Builder()
+        overall = b.event(1, 1, year=2008, legacy_file="racing2008/June_Glube_Series.htm")
+        a_page = b.event(2, 1, year=2008, legacy_file="racing2008/June_Glube_Series_A.htm")
+        b_page = b.event(3, 1, year=2008, legacy_file="racing2008/June_Glube_Series_B.htm")
+        for event_id in (overall, a_page, b_page):
+            b.race(event_id, None, "2008-06-05", [(1, 1), (2, 2)])
+        b.standing(overall, 1, 1)
+        b.standing(a_page, 1, 1, fleet="A")
+        b.standing(b_page, 2, 1, fleet="B")
+        b.count()
+        assert b.winning_boats() == {"A Fleet": 1, "B Fleet": 2}
+
     def test_one_race_without_standings_goes_to_first_finisher(self) -> None:
         b = Builder()
         event = b.event(1, 1, event_type="trophy", month=None)
         b.race(event, 1, "2003-07-13", [(1, 2), (2, 1), (3, 3, "DNF")])
         b.count()
-        winner = b.winners()[(1, None)]
+        winner = b.winners()[(1, "", None)]
         assert (winner["boat_id"], winner["source"]) == (2, "race")
 
     def test_one_race_with_unlabelled_firsts_has_no_winner(self) -> None:
@@ -409,12 +463,27 @@ class TestRealData:
             "1999-06-03", "1999-06-10", "1999-06-17", "1999-06-24",
         ]
 
-    def test_one_winner_per_event_division(self, conn) -> None:
+    def test_one_winner_per_series_division(self, conn) -> None:
         rows = conn.execute("""
-            SELECT canonical_event_id, division, COUNT(*) AS n FROM event_winners
-            GROUP BY canonical_event_id, division HAVING n > 1
+            SELECT canonical_event_id, series, division, COUNT(*) AS n FROM event_winners
+            GROUP BY canonical_event_id, series, division HAVING n > 1
         """).fetchall()
         assert rows == []
+
+    def test_legacy_series_standings_give_june_2005_glube_to_poohsticks(self, conn) -> None:
+        rows = conn.execute("""
+            SELECT ew.division, b.name FROM event_winners ew JOIN boats b ON b.id = ew.boat_id
+            WHERE ew.year = 2005 AND ew.event_type = 'tns' AND ew.name LIKE '%Glube%'
+        """).fetchall()
+        assert [(r["division"], r["name"]) for r in rows] == [(None, "Poohsticks")]
+
+    def test_legacy_series_page_nights_merge_with_nightly_pages(self, conn) -> None:
+        nights = conn.execute("""
+            SELECT COUNT(DISTINCT cr.race_id) AS n FROM counted_results cr
+            JOIN events e ON e.id = cr.event_id
+            WHERE e.year = 2005 AND e.event_type = 'tns' AND e.month = 'june' AND cr.is_special = 0
+        """).fetchone()["n"]
+        assert nights == 4
 
     def test_2018_rear_commodore_trophy_has_both_division_winners(self, conn) -> None:
         rows = conn.execute("""

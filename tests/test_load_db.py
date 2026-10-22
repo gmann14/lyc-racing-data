@@ -7,6 +7,8 @@ import sqlite3
 import pytest
 from pathlib import Path
 from scraper.load_db import (
+    _legacy_fleet,
+    _series_nights,
     DatabaseLoader,
     _boat_class_family,
     _collapse_whitespace,
@@ -224,6 +226,82 @@ def _sample_sailwave_page() -> dict:
         }],
         "errors": [],
     }
+
+
+def _legacy_row(boat: str, date: str, position: int, series_pos: int | None = None,
+                series_pts: float | None = None) -> dict:
+    return {"boat_name": boat, "sail_number": "", "boat_class": "", "rating": "120",
+            "race_date": date, "position": position, "points": float(position),
+            "series_position": series_pos, "series_points": series_pts, "status": None}
+
+
+class TestLegacySeriesPages:
+    def test_series_nights_in_date_order(self):
+        rows = [_legacy_row("A", "16/06/2005", 1), _legacy_row("B", "16/06/2005", 2),
+                _legacy_row("A", "09/06/2005", 2), _legacy_row("B", "09/06/2005", 1),
+                _legacy_row("A", "3", 1)]  # summary-table row, not a night
+        assert _series_nights(rows, 2005) == ["09/06/2005", "16/06/2005"]
+
+    def test_one_night_or_matrix_is_not_a_series(self):
+        assert _series_nights([_legacy_row("A", "09/06/2005", 1), _legacy_row("B", "09/06/2005", 2)], 2005) == []
+        assert _series_nights([_legacy_row("A", "09/06/2005", 1), _legacy_row("B", "16/06/2005", 1)], 2005) == []
+
+    def test_month_first_season(self):
+        rows = [_legacy_row(b, d, 1) for d in ("7/27/00", "8/4/00") for b in ("A", "B")]
+        assert _series_nights(rows, 2000) == ["7/27/00", "8/4/00"]
+
+    def test_fleet_from_file_name(self):
+        assert _legacy_fleet("racing1999_2013/racing2008/June_Glube_Series_A.htm") == "A"
+        assert _legacy_fleet("racing1999_2013/racing2008/july_scotia_trawler_series_b.htm") == "B"
+        assert _legacy_fleet("racing1999_2013/racing2005/june_glube_series.htm") is None
+        assert _legacy_fleet("racing1999_2013/racing2008/fisheries_AB.htm") is None
+
+    def test_series_page_loads_each_night_and_final_standings(self, tmp_path):
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        page = {
+            "source_path": "racing1999_2013/racing2008/June_Glube_Series_A.htm",
+            "year": 2008,
+            "title": "June Glube Series A",
+            "footer_event_name": "June Glube Series A",
+            "metadata": {"event_name": "June Glube Series A", "race_date": "12-06-08",
+                         "start_time": "18:30:00", "race_number": 2},
+            "results": [
+                _legacy_row("Poohsticks", "05-06-08", 1, 1, 1.0),
+                _legacy_row("Rumble Fish", "05-06-08", 2, 2, 2.0),
+                _legacy_row("Poohsticks", "12-06-08", 2, 1, 3.0),
+                _legacy_row("Rumble Fish", "12-06-08", 1, 2, 3.0),
+            ],
+        }
+        event_id = loader.load_legacy_page(page)
+        races = loader.conn.execute(
+            "SELECT race_key, race_number, date FROM races WHERE event_id = ? ORDER BY id", (event_id,)
+        ).fetchall()
+        assert [tuple(r) for r in races] == [("r1", None, "05-06-08"), ("r2", None, "12-06-08")]
+        assert loader.conn.execute("SELECT COUNT(*) FROM results").fetchone()[0] == 4
+        standings = loader.conn.execute("""
+            SELECT p.display_name, ss.rank, ss.nett_points, ss.fleet, ss.summary_scope
+            FROM series_standings ss JOIN participants p ON p.id = ss.participant_id
+            ORDER BY ss.rank
+        """).fetchall()
+        assert [tuple(r) for r in standings] == [
+            ("Poohsticks", 1, 3.0, "A", "overall"), ("Rumble Fish", 2, 3.0, "A", "overall"),
+        ]
+        loader.close()
+
+    def test_nightly_page_keeps_one_race_and_no_standings(self, tmp_path):
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        page = {
+            "source_path": "racing1999_2013/racing2005/june_glube_2.htm", "year": 2005,
+            "title": "Glube", "footer_event_name": "Glube",
+            "metadata": {"event_name": "Glube", "race_date": "16/06/2005", "race_number": 2},
+            "results": [_legacy_row("A", "16/06/2005", 1, 1, 2.0), _legacy_row("B", "16/06/2005", 2, 2, 3.0)],
+        }
+        loader.load_legacy_page(page)
+        assert loader.conn.execute("SELECT race_number FROM races").fetchall()[0][0] == 2
+        assert loader.conn.execute("SELECT COUNT(*) FROM series_standings").fetchone()[0] == 0
+        loader.close()
 
 
 class TestDatabaseLoaderUnit:

@@ -4,6 +4,15 @@ This file tracks changes to archive logic that materially affect published stats
 
 ## 2026-10-22
 
+### 1999–2013 series pages
+
+- A legacy series page lists every night of a series, but the loader collapsed it into one fake race and silently dropped most rows. Series pages are now split into one race per night, and 1,048 previously dropped rows load (11,610 → 12,658 results). Nights that already have their own page merge with it, so nothing is counted twice; nights that only appear on the series page now count. Handicap results: 5,219 → 5,246.
+- The parser now reads series points and positions on 13-column pages, which have no ESPN column. Before, only 8 of 43 series pages had positions.
+- The final-night positions on each series page load as series standings: 355 rows across 43 pages. These give 1999–2013 Thursday series and series-scored Sunday trophies a winner. For example, June 2005 Glube goes to Poohsticks, and the 2008 A and B fleet pages each give a fleet winner.
+- Thursday-night races are matched across the whole season, not just within a month's group. A series starting on the last Thursday of a month, like Glube 2000 on 29 June, has pages filed under both months. June 2000 and July 2003 had gained duplicate nights from this; they now show 5 each.
+- Pre-2014 groups can hold two series (e.g. Scotia Trawler June and Glube in June 2000); each series page now awards its own trophy.
+- Trophies counted: 458 → 493 (Poohsticks 72 → 73). Ten pre-2014 Thursday groups still have no winner: most have no series page, and 2001 July Glube is a tie (Awesome and Status Symbol on 5.75).
+
 ### Owners by season
 
 - Leaderboards and participation lists now credit each boat-season to whoever owned the boat that year. Buzz (Barry Eisener 2016–18, Bernd Hackstein 2019+) was listed twice, with every race credited to Bernd; it now splits by year. Barry's row (Kahlua, Buzz, Buzz 105) has 111 races over 6 seasons.

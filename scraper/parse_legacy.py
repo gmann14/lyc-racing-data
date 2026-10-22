@@ -251,12 +251,16 @@ def _parse_data_row(tr: Tag) -> LegacyRaceResult | None:
         result.position = _safe_int(values[9])
         result.points = _safe_float(values[10])
 
-    if len(values) >= 12:
-        result.espn = values[11]
-
     if len(values) >= 14:
+        result.espn = values[11]
         result.series_points = _safe_float(values[12])
         result.series_position = _safe_int(values[13])
+    elif len(values) == 13:
+        # Same layout without the ESPN column: series points and position last.
+        result.series_points = _safe_float(values[11])
+        result.series_position = _safe_int(values[12])
+    elif len(values) == 12:
+        result.espn = values[11]
 
     # Detect status codes
     result.status = _detect_status(values)
