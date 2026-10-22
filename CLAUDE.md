@@ -94,7 +94,7 @@ Fleet splits (overall, A/B, divisions) are grouped into one canonical event. TNS
 Every statistic reads the TEMP table `counted_results` (`_build_counted_results` in `export_json.py`): each boat's result in each race, once. Within a canonical group, races on different pages with the same date, race number and overlapping boats are one logical race (overall/fleet/series views); each boat's result comes from the primary page first. Every pre-2014 TNS night (one page per night) counts. Flags: `is_special`, `sailed` (not DNS/DNC), `finished` (has a place, no status). Race counts use `sailed`; wins, podiums and average finish use `finished`.
 
 ### Trophy Wins
-`event_winners` (TEMP table): one per canonical handicap event (Sunday trophy race or monthly TNS series) — the single overall rank-1 in standings, or the single first finisher of a one-race event without standings. Division-only series and pre-2014 TNS (no standings loaded) have no winner.
+`event_winners` (TEMP table): trophies per canonical handicap event (Sunday trophy race or monthly TNS series), one per division winner (A/B fleet, P/S division) or one overall when not split. Sources in order: division standings tables, fleet-labelled first places in an overall table (2009–2011), a single overall leader, or race winners when there are no standings. Ties get no trophy; pre-2014 TNS (no standings loaded) have none.
 
 ### Owner Merging
 `_build_owner_map(conn, by_owner_only)` controls merge behavior:

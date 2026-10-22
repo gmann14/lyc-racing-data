@@ -125,7 +125,8 @@ export interface BoatDetail {
     year: number;
     name: string;
     event_type: string;
-    summary_scope: string;
+    /** Division the trophy was won in ("A Fleet", "P Division"), or "Overall". */
+    division: string;
     nett_points: number | null;
   }>;
   owners?: BoatOwner[];
