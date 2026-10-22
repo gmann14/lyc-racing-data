@@ -84,19 +84,44 @@ class TestOwnerResolution:
 
 class TestStandingsWinners:
     @staticmethod
-    def _first(boat: int, scope: str = "overall", fleet: str | None = None,
-               division: str | None = None) -> dict:
-        return {"boat_id": boat, "summary_scope": scope, "fleet": fleet,
-                "division": division, "nett_points": 1.0}
+    def _row(boat: int, rank: int = 1, page: int = 1, scope: str = "overall",
+             fleet: str | None = None, division: str | None = None) -> dict:
+        return {"event_id": page, "boat_id": boat, "rank": rank, "summary_scope": scope,
+                "fleet": fleet, "division": division, "nett_points": float(rank)}
+
+    @staticmethod
+    def _labels(winners: list) -> dict:
+        return {label: row["boat_id"] for label, row in winners}
 
     def test_overall_table_scored_by_fleet(self) -> None:
-        winners = _standings_winners([self._first(1, fleet="A"), self._first(2, fleet="B")])
-        assert {label: row["boat_id"] for label, row in winners} == {"A Fleet": 1, "B Fleet": 2}
+        winners = _standings_winners([self._row(1, fleet="A"), self._row(2, fleet="B")])
+        assert self._labels(winners) == {"A Fleet": 1, "B Fleet": 2}
 
     def test_overall_table_with_ties_inside_a_fleet_is_unreliable(self) -> None:
-        rows = [self._first(1, fleet="A", division="P"), self._first(2, fleet="B", division="P"),
-                self._first(3, fleet="S", division="S")]
+        rows = [self._row(1, fleet="A", division="P"), self._row(2, fleet="B", division="P"),
+                self._row(3, fleet="S", division="S")]
         assert _standings_winners(rows) == []
+
+    def test_single_leader_of_mixed_fleet_table_is_overall_winner(self) -> None:
+        rows = [self._row(1, fleet="A"), self._row(2, rank=2, fleet="B")]
+        assert self._labels(_standings_winners(rows)) == {None: 1}
+
+    def test_ab_page_fleet_winners_beat_main_page_overall(self) -> None:
+        # 2011 June Glube: main page leader Scotch Mist (A); AB page: A Poohsticks, B Sly Fox.
+        rows = [self._row(10, page=1, fleet="A"), self._row(11, rank=2, page=1, fleet="B"),
+                self._row(20, page=2, fleet="A"), self._row(30, page=2, fleet="B")]
+        assert self._labels(_standings_winners(rows)) == {"A Fleet": 20, "B Fleet": 30}
+
+    def test_legacy_fleet_pages_each_give_their_winner(self) -> None:
+        rows = [self._row(1, page=1, fleet="A"), self._row(2, rank=2, page=1, fleet="A"),
+                self._row(3, page=2, fleet="B"), self._row(4, rank=2, page=2, fleet="B")]
+        rows = [{**r, "source_format": "legacy"} for r in rows]
+        assert self._labels(_standings_winners(rows)) == {"A Fleet": 1, "B Fleet": 3}
+
+    def test_sailwave_table_with_one_division_is_still_overall(self) -> None:
+        rows = [{**self._row(1, division="P"), "source_format": "sailwave"},
+                {**self._row(2, rank=2, division="P"), "source_format": "sailwave"}]
+        assert self._labels(_standings_winners(rows)) == {None: 1}
 
 
 @needs_club_record

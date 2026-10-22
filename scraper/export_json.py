@@ -674,23 +674,57 @@ def _legacy_series_key(source_file: str | None) -> str:
     return re.sub(r"(_series)*(_[ab])?$", "", stem) or stem
 
 
-def _standings_winners(firsts: list[dict]) -> list[tuple[str | None, dict]]:
-    """Trophy winners from one series' first-place standings rows."""
-    division_firsts = [r for r in firsts if _DIVISION_SCOPE_RE.search(r["summary_scope"] or "")]
-    overall_firsts = [r for r in firsts if r["summary_scope"] == "overall"]
-    if division_firsts:
-        return _single_leaders(division_firsts, lambda r: _division_label(scope=r["summary_scope"]))
-    if len({r["boat_id"] for r in overall_firsts}) == 1:
-        return [(None, overall_firsts[0])]
-    # Several first places in "overall": fleets scored in one table. A tie
-    # inside a fleet means the table itself is unreliable (e.g. a pursuit
-    # race page with ten boats ranked first), so it gives no winners.
-    labelled = [r for r in overall_firsts
-                if _division_label(fleet=r["fleet"], division=r["division"])]
-    leaders = _single_leaders(
-        labelled, lambda r: _division_label(fleet=r["fleet"], division=r["division"]))
-    labels = {_division_label(fleet=r["fleet"], division=r["division"]) for r in labelled}
-    return leaders if len(leaders) == len(labels) else []
+def _standings_winners(standings: list[dict]) -> list[tuple[str | None, dict]]:
+    """Trophy winners from one series' standings rows.
+
+    Each page's table is read on its own. A division table (a_fleet,
+    p_division...), an overall table scored by fleet (one first place per
+    fleet, as on 2009-2011 "AB" pages), or a legacy fleet's own page (every
+    row in one fleet, as on 2008 "_A"/"_B" pages) gives one winner per division; an
+    overall table with a single leader gives the overall winner. Division
+    winners take precedence. A table tied within a fleet (e.g. a pursuit
+    page ranking ten boats first) gives nothing.
+    """
+    def fleet_label(r: dict) -> str | None:
+        return _division_label(fleet=r["fleet"], division=r["division"])
+
+    by_page: dict[object, list[dict]] = defaultdict(list)
+    for r in standings:
+        by_page[r.get("event_id")].append(r)
+
+    division_winners: dict[str | None, set[int]] = defaultdict(set)
+    division_rows: dict[tuple[str | None, int], dict] = {}
+    overall_leaders: dict[int, dict] = {}
+    for page_rows in by_page.values():
+        rows = [r for r in page_rows if r["rank"] == 1]
+        divisions = [r for r in rows if _DIVISION_SCOPE_RE.search(r["summary_scope"] or "")]
+        overall = [r for r in rows if r["summary_scope"] == "overall"]
+        page_labels = {fleet_label(r) for r in page_rows if r["summary_scope"] == "overall"}
+        page_winners: list[tuple[str | None, dict]] = []
+        if divisions:
+            page_winners = _single_leaders(divisions, lambda r: _division_label(scope=r["summary_scope"]))
+        if len({r["boat_id"] for r in overall}) == 1:
+            legacy_page = page_rows[0].get("source_format") == "legacy"
+            if legacy_page and len(page_labels) == 1 and None not in page_labels:
+                page_winners.append((fleet_label(overall[0]), overall[0]))  # a fleet's own page
+            else:
+                overall_leaders.setdefault(overall[0]["boat_id"], overall[0])
+        elif overall:
+            labelled = [r for r in overall if fleet_label(r)]
+            leaders = _single_leaders(labelled, fleet_label)
+            if len(leaders) == len({fleet_label(r) for r in labelled}):
+                page_winners += leaders
+        for label, row in page_winners:
+            division_winners[label].add(row["boat_id"])
+            division_rows[(label, row["boat_id"])] = row
+
+    if division_winners:
+        # Pages that disagree about a division's winner cancel it out.
+        return [(label, division_rows[(label, next(iter(boats)))])
+                for label, boats in division_winners.items() if len(boats) == 1]
+    if len(overall_leaders) == 1:
+        return [(None, next(iter(overall_leaders.values())))]
+    return []
 
 
 def _build_event_winners(
@@ -725,8 +759,8 @@ def _build_event_winners(
         member_ids = [m["id"] for m in members]
         placeholders = ",".join("?" for _ in member_ids)
         standings = conn.execute(f"""
-            SELECT ss.summary_scope, ss.rank, ss.nett_points, ss.fleet, ss.division, p.boat_id,
-                   e.name AS event_name, e.source_file, e.source_format
+            SELECT ss.event_id, ss.summary_scope, ss.rank, ss.nett_points, ss.fleet, ss.division,
+                   p.boat_id, e.name AS event_name, e.source_file, e.source_format
             FROM series_standings ss
             JOIN participants p ON p.id = ss.participant_id
             JOIN events e ON e.id = ss.event_id
@@ -741,10 +775,9 @@ def _build_event_winners(
         winners: list[tuple[str, str | None, str | None, dict]] = []
         source = "standings"
         for key, series_rows in by_series.items():
-            firsts = [r for r in series_rows if r["rank"] == 1]
-            series_name = (_canonical_event_name(firsts[0]["event_name"])
-                           if firsts and len(by_series) > 1 else None)
-            winners += [(key, series_name, label, row) for label, row in _standings_winners(firsts)]
+            series_name = (_canonical_event_name(series_rows[0]["event_name"])
+                           if len(by_series) > 1 else None)
+            winners += [(key, series_name, label, row) for label, row in _standings_winners(series_rows)]
         if not standings:
             source = "race"
             boats_by_race: dict[int, set[int]] = defaultdict(set)

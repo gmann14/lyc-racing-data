@@ -115,14 +115,14 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "helm data",
         summary: "Participant records for helm-driven results; owner history is still incomplete.",
         detail:
-          "Helm names are preserved when they appear in the source files. Of the 273 boats in the archive, 145 have confirmed owners via manual enrichment. The remaining 128 are either club boats (Sonars, IODs) with rotating skippers, or boats where ownership could not be confirmed from available records.",
+          "Helm names are preserved when they appear in the source files. Of the 272 boats in the archive, 141 have confirmed owners via manual enrichment. For the rest, ownership could not be confirmed from available records. LYC owns no keelboats; every racing boat is privately owned.",
       },
       {
-        term: "Club Boats (Sonar / IOD)",
-        shortLabel: "club boats",
-        summary: "Club-owned boats where sail numbers and names change with skippers.",
+        term: "One-Design Fleets (Sonar / IOD)",
+        shortLabel: "one-design fleets",
+        summary: "Sonars and IODs whose names and sail numbers change across owners.",
         detail:
-          "Sonar and IOD one-design fleets use club-owned boats. Sail numbers change when boats are reassigned, and boat names change with skippers. For example, Sonar 415 was 'Ping' until 2014, then became 'Pi' from 2015 onwards under a different skipper. A few Sonars (Scamp, Barbarian) are privately owned and tracked like regular boats.",
+          "LYC owns no keelboats; Sonars and IODs are privately owned like every other racing boat. Their names and sail numbers do change across owners, so the archive tracks hulls rather than sail numbers alone. For example, Sonar 415 was 'Ping' until 2014, then 'Pi' from 2015 under a different owner, while Ping moved to sail 754.",
       },
     ],
   },
@@ -139,7 +139,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
       {
         term: "TNS (Thursday Night Series)",
         shortLabel: "tns",
-        summary: "Weekly racing series from May to September, with 5-6 named sub-series per year.",
+        summary: "Thursday evening racing from June to September, in four monthly series.",
         detail:
           "Thursday Night Series events are classified by series name keywords (Glube, Paceship, Scotia Trawler, Moosehead, Fall Series, etc.). Legacy-era TNS data (1999-2013) has one HTML file per individual race rather than one file per series, so race night counts reflect the actual race dates found in source files. The archive tracks race nights, participation, and weather for TNS separately from trophy events.",
       },
@@ -274,7 +274,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
       participantScope: "Skipper/helm identity after enrichment.",
       eventScope: "Handicap-only results; special events excluded by default.",
       aggregation: "All boats by the same owner are combined into one participation entry.",
-      inclusionNotes: "Covers 145 of 273 boats with confirmed owners. Remaining boats show individually.",
+      inclusionNotes: "Covers 141 of 272 boats with confirmed owners. Remaining boats show individually.",
     },
   },
 ];

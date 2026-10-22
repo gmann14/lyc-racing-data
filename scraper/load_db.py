@@ -1499,6 +1499,11 @@ class DatabaseLoader:
                 p_type,
                 row.get("boat_class"),
             )
+            # "Sailed: 0" tables are start or entry lists (e.g. Boland's pursuit
+            # start times), not results. Their boats are still registered above
+            # so boat ids, which follow first appearance, stay stable.
+            if sailed_count == 0:
+                continue
 
             total = _safe_float(row.get("total"))
             nett = _safe_float(row.get("nett"))
