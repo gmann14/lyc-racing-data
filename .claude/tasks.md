@@ -8,17 +8,21 @@
 - Pull or rebase from `origin/main` before long-running work and resolve task-file conflicts explicitly.
 - For public repos, keep this file free of secrets, credentials, private customer details, and unpublished personal context.
 
-## Status (paused 2026-10-22)
+## Status (updated 2026-11-08)
 
-The October review (`reports/archive/codebase_review_2026-10-19.md`) is done: tides, race dates, status codes, the counted-results base, per-division trophies, owners by season, legacy series pages and trophies-page fixes are live. Everything below is optional follow-up. Batch any changes into one PR so main deploys once.
+The October review (`reports/archive/codebase_review_2026-10-19.md`) is done: tides, race dates, status codes, the counted-results base, per-division trophies, owners by season, legacy series pages and trophies-page fixes are live. The 2026 season was added on 2026-11-08 (steps in `CLAUDE.md` → Adding a season). Everything below is optional follow-up. Batch any changes into one PR so main deploys once.
 
 ## Open
 
 ### Data
+- [ ] 2026 gaps on the club site: the schedule links `racing2026/charter_cup.htm`, but the page isn't there (404), and Boland's 2026 has no results link. Add them if the club publishes them.
+- [ ] 2026 June TNS A fleet has no trophy winner: `june_TNS.htm` has Poohsticks first on 7.0, while `june_TNS_overall.htm` has MOJO first on a 7.0 tie (Scotch Mist 12 vs 13; Dirty Harry missing), so `event_winners` cancels it. Decide which page wins, or wait for the club record.
+- [ ] Regattas published outside the club site aren't loaded: 2026 Sailfest and One Design Regatta (Clubspot), Chester Race Week (Yachtscoring; `scrape_crw.py` only collects owners).
+- [ ] Club trophy case (`enrichment/trophy_case_historical.csv`) ends at 2025. Add 2026 winners when the club publishes its record; until then 2026 Thursday-series trophies (Highliner, Doug Mosher, Glube, Prince's Inlet) don't appear on the trophies page, though they count on boat pages and leaderboards.
 - [ ] Group duplicate source files that are separate canonical events: `bolands_V5`/`bolands_cup` (2002), `rum_race`/`rum_racehtm` (2015). `blue_banner`/`highliner` (2018) have identical results and may be a source copy-paste.
 - [ ] NULL ranks in 2010 and 2020 August TNS (12 wins missing): fall back to points for low-point scoring.
 - [ ] Event-type keywords: "glube" marks Sunday Glube Trophy races (2013–2015) as TNS; 2007 "S. Trawler July Series" is marked trophy.
-- [ ] Undated races: championship "R1".."R15" columns (dates sit in Sailwave race headers like "08/08 at 11:42"), 2009/2010 trophy pages with no date (Blue Banner, Absolute Last…), "22/0/24", "80/09/2012".
+- [ ] Undated races: 2026 Commodore Cup (the page has no date; the schedule says 19 July, so it has no weather or tides), championship "R1".."R15" columns (dates sit in Sailwave race headers like "08/08 at 11:42"), 2009/2010 trophy pages with no date (Blue Banner, Absolute Last…), "22/0/24", "80/09/2012".
 - [ ] 2016 `June_TNS.htm` carries 2017 dates (`080617`) and the same start times as 2017's June TNS — probably a copy of the 2017 page.
 - [ ] 10 pre-2014 TNS groups have no trophy winner: no series page in the archive (e.g. 1999 Glube/Paceship, 2001–2002 Moosehead Fall, 2007 July Scotia Trawler), or a tie (2001 July Glube). Could compute standings from nightly results if the club's discard rules are known.
 - [ ] Trophies page: trophies awarded through a TNS series (e.g. Glube Cup via August TNS) aren't linked to DB events; the club record covers those years.
@@ -55,6 +59,7 @@ The October review (`reports/archive/codebase_review_2026-10-19.md`) is done: ti
 
 ## Done
 
+- [x] 2026 season added from lyc.ca/racing (15 result pages). Seasons after 2025 load after the archive and merges keep the archive boat's id, so existing links keep working; an unnamed "????"/"xxxx" entry no longer joins another unnamed boat; pursuit start lists group with their race; 2026 Leeward and RG Smith names map to club trophies; year ranges on the site come from the data (2026-11-08).
 - [x] Cleanup for pause: Boland's start lists no longer load as standings (boat ids kept stable); docs, methodology and strategy figures refreshed; dated reports archived (2026-10-22).
 - [x] Trophies page: club-trophy name matching, shared division winners, standings-over-race and club-record tie-breaks, club-record fallback for unclear years, no later-owner names on old winners (2026-10-22).
 - [x] Legacy series pages split into one race per night, series standings loaded, Thursday nights matched across the season, one trophy per legacy series (2026-10-22).

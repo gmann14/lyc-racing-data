@@ -115,7 +115,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "helm data",
         summary: "Participant records for helm-driven results; owner history is still incomplete.",
         detail:
-          "Helm names are preserved when they appear in the source files. Of the 272 boats in the archive, 141 have confirmed owners via manual enrichment. For the rest, ownership could not be confirmed from available records. LYC owns no keelboats; every racing boat is privately owned.",
+          "Helm names are preserved when they appear in the source files. Of the 276 boats in the archive, 141 have confirmed owners via manual enrichment. For the rest, ownership could not be confirmed from available records. LYC owns no keelboats; every racing boat is privately owned.",
       },
       {
         term: "One-Design Fleets (Sonar / IOD)",
@@ -134,7 +134,7 @@ export const METHODOLOGY_SECTIONS: MethodologySection[] = [
         shortLabel: "trophy consolidation",
         summary: "~100 event name variants are mapped to 37 canonical trophy names.",
         detail:
-          "Trophy race names vary across 27 years of data (spelling changes, format differences, apostrophe variations). The archive uses an explicit mapping table verified against the LYC Trophy Case historical record (1947-2025). Each trophy shows its full winner history across all name variants. Five additional recurring events appear in the data but are not yet verified against official records.",
+          "Trophy race names vary from season to season (spelling changes, format differences, apostrophe variations). The archive uses an explicit mapping table verified against the LYC Trophy Case historical record (1947-2025). Each trophy shows its full winner history across all name variants. Five additional recurring events appear in the data but are not yet verified against official records.",
       },
       {
         term: "TNS (Thursday Night Series)",
@@ -274,7 +274,7 @@ export const PUBLIC_METRIC_DEFINITIONS: PublicMetricDefinition[] = [
       participantScope: "Skipper/helm identity after enrichment.",
       eventScope: "Handicap-only results; special events excluded by default.",
       aggregation: "All boats by the same owner are combined into one participation entry.",
-      inclusionNotes: "Covers 141 of 272 boats with confirmed owners. Remaining boats show individually.",
+      inclusionNotes: "Covers 141 of 276 boats with confirmed owners. Remaining boats show individually.",
     },
   },
 ];

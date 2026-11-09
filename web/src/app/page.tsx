@@ -170,7 +170,7 @@ export default function HomePage() {
       <div className="mt-6 md:mt-8 bg-card rounded-lg shadow-sm border border-border overflow-hidden">
         <div className="px-5 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-lg md:text-xl font-bold text-navy">27 Years of Racing Data</h2>
+            <h2 className="text-lg md:text-xl font-bold text-navy">{overview.total_seasons} Years of Racing Data</h2>
             <p className="mt-1 text-sm text-gray-500">
               Fleet trends, race performance, participation patterns, Thursday Night deep dives, and weather conditions.
             </p>

@@ -1,17 +1,18 @@
 import Link from "next/link";
-import { getLeaderboards, type LeaderboardEntry } from "@/lib/data";
+import { getLeaderboards, getOverview, type LeaderboardEntry } from "@/lib/data";
 import { leaderKey } from "@/lib/analysis-stats";
 import InfoTip from "@/components/InfoTip";
 
 export default function LeaderboardsPage() {
   const lb = getLeaderboards();
+  const { year_range } = getOverview();
 
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">Leaderboards</h1>
       <p className="text-gray-500 mb-6">
         All-time rankings across {lb.fleet_by_year.length} seasons of digitized racing
-        data (1999&ndash;2025). Earlier results are not yet available. These tables use
+        data ({year_range.first}&ndash;{year_range.last}). Earlier results are not yet available. These tables use
         the handicap dataset and exclude{" "}
         {lb.excluded_event_count} flagged special events.{" "}
         <Link

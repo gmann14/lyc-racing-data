@@ -3,10 +3,10 @@
 ## Data Flow
 
 ```
-HTML Sources (~840 .htm files, 1999-2025)
+HTML Sources (~860 .htm files, 1999-2026)
     │
     ├── racing1999_2013/   (legacy WinRegatta: one page per race, plus series pages)
-    └── racing2014_2025/   (Sailwave: one page per event/series)
+    └── racing2014_2025/   (Sailwave: one page per event/series; 2026+ seasons too)
     │
     ▼
 Parse (classify_sources → parse_sailwave / parse_legacy)
@@ -85,9 +85,9 @@ Batch changes into one PR/merge to main — each push runs the deploy workflow.
 
 ### Generated files (in `web/public/data/`)
 - `overview.json` — Site-wide stats
-- `boats.json`, `boats/{id}.json`, `boats/{id}-races.json` — Boat list, detail, and head-to-head race logs (272 boats)
-- `events/{id}.json` — Per-event detail (751 files)
-- `seasons.json`, `seasons/{year}.json` — Season list and detail (27 seasons)
+- `boats.json`, `boats/{id}.json`, `boats/{id}-races.json` — Boat list, detail, and head-to-head race logs (276 boats)
+- `events/{id}.json` — Per-event detail (766 files)
+- `seasons.json`, `seasons/{year}.json` — Season list and detail (28 seasons)
 - `leaderboards.json` — All-time rankings
 - `trophies.json` — Trophy history with winners
 - `analysis.json` — Fleet trends, participation, TNS, weather
