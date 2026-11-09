@@ -6,6 +6,7 @@ import Link from "next/link";
 import DesktopNav from "@/components/DesktopNav";
 import MobileNav from "@/components/MobileNav";
 import SearchOverlay from "@/components/SearchOverlay";
+import { getOverview } from "@/lib/data";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,10 +25,11 @@ const crimsonPro = Crimson_Pro({
   weight: ["400", "600", "700"],
 });
 
+const { total_seasons, year_range } = getOverview();
+
 export const metadata: Metadata = {
   title: "LYC Racing Archive",
-  description:
-    "27 years of Lunenburg Yacht Club racing history — results, leaderboards, and boat profiles from 1999 to 2025.",
+  description: `${total_seasons} years of Lunenburg Yacht Club racing history — results, leaderboards, and boat profiles from ${year_range.first} to ${year_range.last}.`,
   // Favicons come from app/icon.png and app/apple-icon.png, which Next.js
   // links with the basePath applied.
 };
@@ -87,7 +89,7 @@ export default function RootLayout({
         <footer className="border-t border-border">
           <div className="max-w-6xl mx-auto px-4 py-4 md:py-6 flex items-center justify-between text-xs md:text-sm text-gray-400">
             <span>Lunenburg Yacht Club Racing Archive</span>
-            <span>1999 &ndash; 2025</span>
+            <span>{year_range.first} &ndash; {year_range.last}</span>
           </div>
         </footer>
       </body>

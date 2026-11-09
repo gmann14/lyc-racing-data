@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-27 years of Lunenburg Yacht Club racing data (1999-2025). HTML result pages → Python parsers → SQLite → JSON → static Next.js site on GitHub Pages.
+28 seasons of Lunenburg Yacht Club racing data (1999-2026). HTML result pages → Python parsers → SQLite → JSON → static Next.js site on GitHub Pages.
 
 ## Quick Reference
 
 | Command | What it does |
 |---------|-------------|
-| `make test` | Run all Python tests (~690) |
+| `make test` | Run all Python tests (~700) |
 | `make export` | Re-export JSON from current DB |
 | `make export-only T=trophies` | Export one target only |
 | `make build` | Export + Next.js build |
@@ -21,7 +21,7 @@
 
 ```
 racing1999_2013/          (~580 .htm files, legacy WinRegatta)
-racing2014_2025/          (~260 .htm files, modern Sailwave)
+racing2014_2025/          (~275 .htm files, modern Sailwave; 2026+ seasons go here too)
         ↓
 scraper/parse_legacy.py + parse_sailwave.py
         ↓
@@ -40,13 +40,20 @@ Next.js 16 static build → GitHub Pages
 
 CI (`.github/workflows/deploy.yml`, on push to main) runs pytest, `validate.py`, tsc, lint and the web unit tests, then builds and deploys. It does not run the Python pipeline: regenerate and commit the JSON locally.
 
+### Adding a season
+
+1. The club's schedule at https://lyc.ca/racing links each result page (files live at `https://lyc.ns.ca/racing/racingYYYY/*.htm`; directory listing is blocked). Download every linked page into `racing2014_2025/racingYYYY/`, keeping file names. Some links are broken (404) or duplicated; regattas on Clubspot or Yachtscoring (Sailfest, One Design Regatta, Chester Race Week) aren't Sailwave pages and aren't loaded.
+2. `python scraper/parse_sailwave.py`, then `make fresh` (fetches weather and tides for the new dates and appends them to the `enrichment/` caches).
+3. Check no existing id moved: compare `boats`, `events`, `races` and `participants` with a copy of the previous DB. Seasons after `ARCHIVE_LAST_YEAR` (`load_db.py`) load after the archive, and a merge keeps the archive boat's id.
+4. Map new event-name spellings to club trophies in `_TROPHY_NAME_MAP` (run `_map_trophy_name` over the season's trophy events), then `make export`, `make validate`, `make test` and the web checks.
+
 ## Key Files
 
 ### Python Pipeline (scraper/)
 
 | File | Purpose |
 |------|---------|
-| `parse_sailwave.py` | Parse Sailwave HTML (2014-2025) |
+| `parse_sailwave.py` | Parse Sailwave HTML (2014 onward) |
 | `parse_legacy.py` | Parse WinRegatta HTML (1999-2013) |
 | `classify_sources.py` | Detect HTML format type |
 | `load_db.py` | Load JSONL → SQLite with entity reconciliation |
@@ -100,7 +107,7 @@ Every statistic reads the TEMP table `counted_results` (`_build_counted_results`
 `_competitor_groups(conn, by_owner_only)` builds every leaderboard and participation list. Each boat-season goes to the boat's owner that year (`_owner_in_year`: the covering `boat_ownership` range, else the nearest; a sole owner owns every year):
 - `by_owner_only=False` → owner + boat name, merging one boat under different sail numbers (leaderboards)
 - `by_owner_only=True` → all of an owner's boats (participation charts, home page)
-- Example: Jim Mosher owns Sly Fox + Mojo → combined 518 races, 27-year streak; Buzz is Barry Eisener's 2016–18 and Bernd Hackstein's from 2019
+- Example: Jim Mosher owns Sly Fox + Mojo → combined 538 races, 28-year streak; Buzz is Barry Eisener's 2016–18 and Bernd Hackstein's from 2019
 
 ### Trophy Consolidation (trophies page)
 Event names map to the 37 club trophy-case names via `_TROPHY_NAME_MAP` plus normalised matching (`_trophy_key`: case, apostrophes, stray characters, initials, trailing "Race"/"Series"). Handicap winners come from `event_winners`; regattas/championships use first place in standings or a race. Within a trophy-year a standings winner beats a race winner, then the club record breaks ties; years with no clear DB winner use the club record, and a disagreeing DB winner carries a `club_record` note. Club-record skippers are replaced by the owner only if ownership covers the year or the initial+surname match. Course timing data is merged across all name variants.
@@ -111,25 +118,25 @@ The default stat scope excludes special events (regattas, championships with ext
 ## Database Schema (key tables)
 
 - `seasons` — one row per year
-- `events` — 751 events with name, type, year, source
-- `races` — 1,531 races with raw `date`, normalised `race_date` (ISO), start time, wind, course, distance
-- `results` — 12,658 individual race results (10,829 once each race is counted once)
+- `events` — 766 events with name, type, year, source
+- `races` — 1,568 races with raw `date`, normalised `race_date` (ISO), start time, wind, course, distance
+- `results` — 12,789 individual race results (10,960 once each race is counted once)
 - `series_standings` — series-level rankings with points (Sailwave summaries + legacy series pages)
-- `boats` — 272 boats with class, sail number, club (173 with handicap results)
+- `boats` — 276 boats with class, sail number, club (177 with handicap results)
 - `boat_ownership` — links boats to skippers with year ranges
-- `weather` — daily conditions for 685 race dates
-- `tides` — high/low predictions for 685 race dates
+- `weather` — daily conditions for 704 race dates
+- `tides` — high/low predictions for 704 race dates
 
 ## Testing
 
-~690 tests across 24 files. Run with `make test` or `pytest tests/ -q`. Web unit tests: `cd web && npm test`.
+~700 tests across 24 files. Run with `make test` or `pytest tests/ -q`. Web unit tests: `cd web && npm test`.
 
 Key test files:
 - `test_export_json.py` (77) — JSON export integrity, canonical grouping, real-data consistency
 - `test_counted_results.py` (39) — logical-race merging, trophy winners, owner-by-season groups
-- `test_load_db.py` (68) — DB loading, reconciliation, legacy series pages
+- `test_load_db.py` (72) — DB loading, reconciliation, legacy series pages, later-season load order
 - `test_race_dates.py` (54) — date/start-time normalisation
-- `test_trophy_history.py` (30) — trophies-page name matching and winner choice
+- `test_trophy_history.py` (35) — trophies-page name matching, winner choice, start-list grouping
 - `test_merge_owners.py` (66) — `enrichment/merge_owners.py`
 
 ## Important Patterns
@@ -155,9 +162,9 @@ Key test files:
 - `load_db --fresh` wipes the DB, then restores owners, weather and tides itself (from `enrichment/` caches); `validate.py` fails if weather/tides go missing from the export
 - Weather + tides are cached in `enrichment/*.json` — cache survives fresh rebuilds
 - `.DS_Store` in data dirs breaks export — `make clean-ds-store` first
-- Home page shows `handicap_boat_count` (173) not `total_boats` (272)
+- Home page shows `handicap_boat_count` (177) not `total_boats` (276)
 - Never filter stats by excluding variant events — that drops pre-2014 TNS nights (one event per night). Use `counted_results`
-- Boat ids follow the order boats are first seen at load: keep load order stable (e.g. `_load_summary` still registers boats on "Sailed: 0" start/entry lists while skipping their standings) or `/boats/#id` links break
+- Boat ids follow the order boats are first seen at load: keep load order stable (e.g. `_load_summary` still registers boats on "Sailed: 0" start/entry lists while skipping their standings) or `/boats/#id` links break. Seasons after `ARCHIVE_LAST_YEAR` load last for the same reason, and merges keep the archive boat's id.
 - JSON files are committed to git (CI checks and builds but doesn't run the Python pipeline)
 - After changing trophy or stats logic, run a full `make export` — `--only trophies` leaves boat pages and leaderboards on the old rule
 - Keep GitHub Actions usage low (user preference): batch changes into one PR/merge
@@ -167,7 +174,7 @@ Key test files:
 - **No club-owned keelboats**: LYC owns no keelboats; every racing boat is private. Sonar/IOD sail numbers and names still change across owners — track hulls, not sail numbers alone
 - **TNS = Thursday Night Series**, four monthly series (June–September). **Tuesdays are informal fun sails** (e.g. 2016 "Fun & Family"), excluded from handicap stats
 - **Trophies**: one per Sunday trophy race and per monthly TNS series, to each division's winner (A/B fleet, P/S division)
-- **Boland's pursuit pages** (2023, 2024) are published start times, not results — the club record (MOJO) is the winner
+- **Pursuit start lists** ("Sailed: 0" pages: Boland's 2023 and 2024, Leeward Island and RG Smith 2026) are published start times, not results. They group with the season's race for the same trophy; Boland's 2023 and 2024 have no results page, so the club record (MOJO) is the winner
 - **Pi vs Ping**: SEPARATE Sonars. Ping=415→754, Pi took 415 from 2015+
 - **Sly Fox + Mojo**: Both Jim Mosher's boats, combined in owner-merged views
 - **Awesome 2.0 → SOT After → So-Gnarly**: same hull, tracked across owners

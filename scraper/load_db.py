@@ -28,6 +28,11 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = PROJECT_ROOT / "lyc_racing.db"
 PARSED_DIR = PROJECT_ROOT / "scraper" / "parsed"
 
+# Ids follow load order, and the website links boats by id (/boats/#id). Seasons
+# added after the original 1999-2025 archive load last, so their new boats,
+# events and races take new ids instead of renumbering existing ones.
+ARCHIVE_LAST_YEAR = 2025
+
 MANUAL_BOAT_RULES = {
     "badbluej": {
         "canonical_name": "Bad Blue J",
@@ -859,6 +864,18 @@ class DatabaseLoader:
         self._participant_cache: dict[tuple, int] = {}
         self._boat_cache: dict[tuple, int] = {}
         self._skipper_cache: dict[str, int] = {}
+        # Highest boat id from the original archive; set once later seasons load.
+        self._archive_last_boat_id: int | None = None
+
+    def _merge_target(self, preferred_id: int, ids: list[int]) -> int:
+        """The boat id a merge keeps: the preferred row's, unless that boat was
+        first seen after the archive and an archive boat is in the merge, whose
+        id (already linked as /boats/#id) is kept instead."""
+        last = self._archive_last_boat_id
+        archive_ids = [i for i in ids if last is not None and i <= last]
+        if last is not None and preferred_id > last and archive_ids:
+            return min(archive_ids)
+        return preferred_id
 
     def create_schema(self):
         """Create all tables and indexes."""
@@ -904,7 +921,10 @@ class DatabaseLoader:
             return self._participant_cache[key]
 
         boat_id = None
-        if participant_type == "boat" and normalized_name:
+        # An entry with no real name ("????") and no real sail number can't be
+        # told apart from any other unknown boat, so it gets no boat record.
+        identifiable = bool(_canonicalize_boat_name(normalized_name)) or not _is_placeholder_sail_number(normalized_sail)
+        if participant_type == "boat" and normalized_name and identifiable:
             boat_id = self._get_or_create_boat(normalized_name, normalized_class, normalized_sail, normalized_club)
             boat_row = self.conn.execute(
                 "SELECT name, sail_number, class, club FROM boats WHERE id = ?",
@@ -1127,7 +1147,7 @@ class DatabaseLoader:
                         -row[0],
                     ),
                 )
-                canonical_id = canonical[0]
+                canonical_id = self._merge_target(canonical[0], [row[0] for row in group])
                 duplicate_ids = [row[0] for row in group if row[0] != canonical_id]
                 if duplicate_ids:
                     placeholders = ",".join("?" for _ in duplicate_ids)
@@ -1178,7 +1198,7 @@ class DatabaseLoader:
                             -row[0],
                         ),
                     )
-                    canonical_id = canonical[0]
+                    canonical_id = self._merge_target(canonical[0], [row[0] for row in merge_group])
                     duplicate_ids = [row[0] for row in merge_group if row[0] != canonical_id]
                     if duplicate_ids:
                         placeholders = ",".join("?" for _ in duplicate_ids)
@@ -1233,11 +1253,12 @@ class DatabaseLoader:
                         typo_variants.append(row)
 
                 if len(typo_variants) >= 2:
-                    duplicate_ids = [row[0] for row in typo_variants if row[0] != dominant[0]]
+                    target_id = self._merge_target(dominant[0], [row[0] for row in typo_variants])
+                    duplicate_ids = [row[0] for row in typo_variants if row[0] != target_id]
                     placeholders = ",".join("?" for _ in duplicate_ids)
                     self.conn.execute(
                         f"UPDATE participants SET boat_id = ? WHERE boat_id IN ({placeholders})",
-                        (dominant[0], *duplicate_ids),
+                        (target_id, *duplicate_ids),
                     )
                     self.conn.execute(
                         f"DELETE FROM boats WHERE id IN ({placeholders})",
@@ -1250,7 +1271,7 @@ class DatabaseLoader:
                             _normalize_boat_class(dominant[2]),
                             dominant_sail,
                             _collapse_whitespace(dominant[4]) or "LYC",
-                            dominant[0],
+                            target_id,
                         ),
                     )
                     merged_boats += len(duplicate_ids)
@@ -1298,7 +1319,7 @@ class DatabaseLoader:
                         -row[0],
                     ),
                 )
-                canonical_id = canonical[0]
+                canonical_id = self._merge_target(canonical[0], [row[0] for row in merge_group])
                 candidate_names = [_collapse_whitespace(row[1]) for row in merge_group if _collapse_whitespace(row[1])]
                 candidate_classes = [_normalize_boat_class(row[2]) for row in merge_group if _normalize_boat_class(row[2])]
                 candidate_sails = [_normalize_sail_number(row[3]) for row in merge_group if _normalize_sail_number(row[3])]
@@ -1754,11 +1775,14 @@ class DatabaseLoader:
 
         # Load Sailwave data
         sw_file = parsed_dir / "sailwave_parsed.jsonl"
+        later_pages = []
         if sw_file.exists():
             pages = []
             with open(sw_file) as f:
                 for line in f:
                     pages.append(json.loads(line))
+            later_pages = [p for p in pages if (p.get("year") or 0) > ARCHIVE_LAST_YEAR]
+            pages = [p for p in pages if (p.get("year") or 0) <= ARCHIVE_LAST_YEAR]
             print(f"Loading {len(pages)} Sailwave pages...")
             for page in pages:
                 self.load_parsed_page(page)
@@ -1775,6 +1799,12 @@ class DatabaseLoader:
             print(f"Loading {len(pages)} legacy pages...")
             for page in pages:
                 self.load_legacy_page(page)
+
+        if later_pages:
+            self._archive_last_boat_id = self.conn.execute("SELECT COALESCE(MAX(id), 0) FROM boats").fetchone()[0]
+            print(f"Loading {len(later_pages)} Sailwave pages from seasons after {ARCHIVE_LAST_YEAR}...")
+            for page in later_pages:
+                self.load_parsed_page(page)
 
         stats = self.reconcile_entities()
         date_stats = assign_race_dates(self.conn)

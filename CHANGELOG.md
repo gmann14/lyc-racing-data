@@ -2,6 +2,18 @@
 
 This file tracks changes to archive logic that materially affect published stats, entity identity, or public interpretation.
 
+## 2026-11-08
+
+### 2026 season
+
+- Added the 2026 season from the result pages linked on [lyc.ca/racing](https://lyc.ca/racing): the four Thursday series (June–September, A/B/S fleets) and the Blue Banner, Commodore, Leeward Island, R. G. Smith and Indian Point Hustle races — 9 events with 131 results from 18 boats (4 new: Dirty Harry, Boat 11, Tartar, Santana). The Charter Cup page linked from the schedule isn't on the club site, and the Clubspot/Yachtscoring regattas (Sailfest, One Design Regatta, Chester Race Week) aren't included. The 2026 Commodore Cup page has no date, so that race has no weather or tides.
+- Seasons after 2025 load after the original archive, so no existing boat, event or race id changes, and a merge that joins a new entry to an archive boat keeps the archive boat's id. Second Shift (sail 6 in 2025, 60109 in 2026) stays boat #162, now with sail 60109. Enchantress is now listed as a C&C 25-2, as the 2026 pages give it.
+- An entry with no name and no sail number ("????" / "xxxx", a Tartan 3400 at the Indian Point Hustle) no longer joins the unnamed 2017 Sonar 635; its result counts in the race but it has no boat page.
+- Start and entry lists (no races, no standings) group with the season's race for the same trophy instead of showing as empty events: the 2026 Leeward Island and R. G. Smith pursuit start times, the IFDS 2014 starts and the 2012 J29 North Americans entry list. Boland's 2023 and 2024 have only start lists and are unchanged.
+- The 2026 Leeward Island and R. G. Smith race names map to their club trophies. 2026 Thursday-series trophies count on boat pages and leaderboards but appear on the trophies page only once the club trophy case has 2026.
+- Totals: results 12,658 → 12,789 (counted once: 10,829 → 10,960; handicap: 5,246 → 5,376); canonical events 506 → 513; boats 272 → 276 (with handicap results: 173 → 177); weather and tides 685 → 704 race dates.
+- The site's year range and season counts now come from the data instead of hard-coded "1999–2025" / "27 years".
+
 ## 2026-10-22
 
 ### Start lists and fleet tables

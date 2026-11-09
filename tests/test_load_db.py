@@ -380,6 +380,33 @@ class TestDatabaseLoaderUnit:
         assert tuple(race) == ("05/06/25", "2025-06-05", "18:32:00")
         loader.close()
 
+    def test_later_seasons_load_after_the_archive(self, tmp_path):
+        # A new season's boats and events take new ids instead of renumbering the archive's.
+        later = _sample_sailwave_page()
+        later.update(source_path="racing2014_2025/racing2026/june_TNS.htm", year=2026)
+        for row in (later["summaries"][0]["rows"][0], later["races"][0]["rows"][0]):
+            row.update(boat="Enchantress", sail_number="582")
+        legacy = {
+            "source_path": "racing1999_2013/racing2005/june_glube_2.htm", "year": 2005,
+            "title": "Glube", "footer_event_name": "Glube",
+            "metadata": {"event_name": "Glube", "race_date": "16/06/2005", "race_number": 2},
+            "results": [_legacy_row("Scotch Mist", "16/06/2005", 1)],
+        }
+        parsed_dir = tmp_path / "parsed"
+        parsed_dir.mkdir()
+        (parsed_dir / "sailwave_parsed.jsonl").write_text(
+            "".join(json.dumps(p) + "\n" for p in (_sample_sailwave_page(), later)))
+        (parsed_dir / "legacy_parsed.jsonl").write_text(json.dumps(legacy) + "\n")
+
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        loader.load_all_parsed(parsed_dir)
+        boats = [r[0] for r in loader.conn.execute("SELECT name FROM boats ORDER BY id")]
+        years = [r[0] for r in loader.conn.execute("SELECT year FROM events ORDER BY id")]
+        assert boats == ["Poohsticks", "Scotch Mist", "Enchantress"]
+        assert years == [2025, 2005, 2026]
+        loader.close()
+
     def test_load_page_reuses_existing_source_page_id_for_duplicate_path(self, tmp_path):
         db_path = tmp_path / "test.db"
         loader = DatabaseLoader(db_path)
@@ -590,6 +617,50 @@ class TestDatabaseLoaderUnit:
         # Gosling now has a manual rule; 634 is related to 42634 so merged at creation
         assert boats == [("Gosling", "42634", "J/29 O/B")]
         assert stats["normalized_boats"] >= 1
+        loader.close()
+
+    def test_unnamed_entry_without_sail_gets_no_boat(self, tmp_path):
+        # 2026 Indian Point Hustle: "????" / "xxxx" must not join the 2017 "????" Sonar 635.
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        known = loader._get_or_create_participant("????", "635", "LYC", "boat", "Sonar")
+        unknown = loader._get_or_create_participant("????", "xxxx", None, "boat", "Tartan 3400")
+        loader.reconcile_entities()
+
+        assert unknown != known
+        boats = loader.conn.execute("SELECT sail_number, class FROM boats").fetchall()
+        assert [tuple(b) for b in boats] == [("635", "Sonar")]
+        assert loader.conn.execute(
+            "SELECT boat_id FROM participants WHERE id = ?", (unknown,)).fetchone()[0] is None
+        loader.close()
+
+    def test_new_sail_number_merge_keeps_the_archive_boat_id(self, tmp_path):
+        # Second Shift raced as sail 6 in 2025 and 60109 in 2026: one boat, 2025's id.
+        pages = []
+        for year, sail in ((2025, "6"), (2026, "60109")):
+            page = _sample_sailwave_page()
+            page.update(source_path=f"racing2014_2025/racing{year}/june_TNS.htm", year=year)
+            for row in (page["summaries"][0]["rows"][0], page["races"][0]["rows"][0]):
+                row.update(boat="Second Shift", boat_class="J/100", sail_number=sail)
+            pages.append(page)
+        parsed_dir = tmp_path / "parsed"
+        parsed_dir.mkdir()
+        (parsed_dir / "sailwave_parsed.jsonl").write_text("".join(json.dumps(p) + "\n" for p in pages))
+
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        loader.load_all_parsed(parsed_dir)
+        boats = loader.conn.execute("SELECT id, name, sail_number FROM boats").fetchall()
+        assert [tuple(b) for b in boats] == [(1, "Second Shift", "60109")]
+        loader.close()
+
+    def test_archive_merges_keep_their_usual_survivor(self, tmp_path):
+        # Without later seasons a merge keeps the boat it always kept (Piper stays #96).
+        loader = DatabaseLoader(tmp_path / "test.db")
+        assert loader._merge_target(96, [59, 96]) == 96
+        loader._archive_last_boat_id = 287
+        assert loader._merge_target(96, [59, 96]) == 96
+        assert loader._merge_target(289, [162, 289]) == 162
         loader.close()
 
     def test_reconcile_merges_zero_result_same_name_sail_typo_variant(self, tmp_path):

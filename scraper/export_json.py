@@ -269,6 +269,7 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
             continue
         dated_duplicate_candidates[(event["year"], name_root, first_race_date, numeric_source_root)] += 1
 
+    group_keys: dict[int, tuple[int, str]] = {}
     for event in event_rows:
         source_root = _canonical_source_stem(event["source_file"])
         original_stem = Path(event["source_file"] or "").stem.lower().replace("-", "_")
@@ -280,17 +281,37 @@ def _canonical_event_groups(conn: sqlite3.Connection) -> tuple[dict[int, dict], 
         event["name_root"] = name_root
         event["is_variant"] = is_variant
         if event["event_type"] == "tns" and event["month"]:
-            grouped[(event["year"], f"tns:{event['month']}")].append(event)
+            group_keys[event["id"]] = (event["year"], f"tns:{event['month']}")
         elif (
             event["first_race_date"]
             and numeric_source_root
             and dated_duplicate_candidates[(event["year"], name_root, event["first_race_date"], numeric_source_root)] > 1
         ):
-            grouped[(event["year"], f"dated:{name_root}:{event['first_race_date']}:{numeric_source_root}")].append(event)
+            group_keys[event["id"]] = (event["year"], f"dated:{name_root}:{event['first_race_date']}:{numeric_source_root}")
         elif source_root:
-            grouped[(event["year"], source_root)].append(event)
+            group_keys[event["id"]] = (event["year"], source_root)
         else:
             singletons.append(event)
+
+    # A start or entry list (no races, no standings) is another view of the same
+    # season's race for that trophy, e.g. a pursuit race's start times: group it
+    # with that race. A start list with no race page stays on its own.
+    def has_results(event: dict) -> bool:
+        return bool(event["race_count"] or event["standings_count"])
+
+    result_groups: dict[tuple[int, str], set[tuple[int, str]]] = defaultdict(set)
+    for event in event_rows:
+        if event["id"] in group_keys and has_results(event):
+            result_groups[(event["year"], _map_trophy_name(event["name"]))].add(group_keys[event["id"]])
+    for event in event_rows:
+        if event["id"] in group_keys and not has_results(event) and event["event_type"] in {"trophy", "championship"}:
+            targets = result_groups.get((event["year"], _map_trophy_name(event["name"])), set())
+            if len(targets) == 1:
+                group_keys[event["id"]] = next(iter(targets))
+
+    for event in event_rows:
+        if event["id"] in group_keys:
+            grouped[group_keys[event["id"]]].append(event)
 
     event_meta: dict[int, dict] = {}
     groups_by_primary: dict[int, list[dict]] = {}
@@ -1535,6 +1556,8 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "Leeward Island Race": "Leeward Island Trophy",
     "LYC Handicap - Leeward Island Tropy Race": "Leeward Island Trophy",
     "LYC Handicap - Leeward Islands Pursuit Race": "Leeward Island Trophy",
+    "LYC Handicap - Leeward Island (Pursuit Race)": "Leeward Island Trophy",
+    "LYC Handicap - Leeward Island Pursuit Race (14.2nm )": "Leeward Island Trophy",
     # Mahone Bay Challenge Cup
     "MAHONE BAY CHALLENGE": "Mahone Bay Challenge Cup",
     "LYC Handicap - Mahone Bay Regatta": "Mahone Bay Challenge Cup",
@@ -1566,6 +1589,8 @@ _TROPHY_NAME_MAP: dict[str, str] = {
     "LYC Handicap - RG Smith Trophy (Tancook Race )": "R. G. Smith Cup",
     "LYC Handicap - R.G. Smith Tancook Race": "R. G. Smith Cup",
     "LYC Handicap - RG Smith (Tancook Race)": "R. G. Smith Cup",
+    'LYC Handicap - RG Smith Tancook Race "Pursuit Race"': "R. G. Smith Cup",
+    "LYC Handicap - RG Smith Tancook Pursuit Race (22.2nm )": "R. G. Smith Cup",
     # R. H. Winters Cruise Trophy
     "LYC Handicap - R.H. Winters Trophy": "R. H. Winters Cruise Trophy",
     "LYC Handicap - Robert H Winters Trophy": "R. H. Winters Cruise Trophy",

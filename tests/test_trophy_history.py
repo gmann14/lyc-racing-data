@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+import sqlite3
+
 import pytest
+
+from scraper.load_db import DatabaseLoader
 
 from scraper.export_json import (
     TROPHY_CASE_CSV,
+    _canonical_event_groups,
     _consolidate_trophies,
+    _dict_factory,
     _map_trophy_name,
     _resolve_owner_name,
     _same_boat,
@@ -39,6 +45,10 @@ class TestTrophyNames:
         ("LYC Handicap - Craft Festival", "Craft Festival Cup"),
         ("Cruiser's Trophy", "Cruisers Trophy"),
         ("Cruisers' Trophy Series", "Cruisers Trophy"),
+        ("LYC Handicap - Leeward Island (Pursuit Race)", "Leeward Island Trophy"),
+        ("LYC Handicap - Leeward Island Pursuit Race (14.2nm )", "Leeward Island Trophy"),
+        ('LYC Handicap - RG Smith Tancook Race "Pursuit Race"', "R. G. Smith Cup"),
+        ("LYC Handicap - RG Smith Tancook Pursuit Race (22.2nm )", "R. G. Smith Cup"),
     ])
     def test_event_names_map_to_club_trophies(self, event_name: str, trophy: str) -> None:
         assert _map_trophy_name(event_name) == trophy
@@ -122,6 +132,32 @@ class TestStandingsWinners:
         rows = [{**self._row(1, division="P"), "source_format": "sailwave"},
                 {**self._row(2, rank=2, division="P"), "source_format": "sailwave"}]
         assert self._labels(_standings_winners(rows)) == {None: 1}
+
+
+class TestStartLists:
+    def test_start_list_joins_its_race_and_lone_start_list_stays(self, tmp_path):
+        # 2026: leeward_pursuit.htm holds only start times for the Leeward Island race.
+        loader = DatabaseLoader(tmp_path / "test.db")
+        loader.create_schema()
+        loader.conn.execute("INSERT INTO seasons (year) VALUES (2026)")
+        for event_id, name, page in (
+            (1, "LYC Handicap - Leeward Island (Pursuit Race)", "leeward"),
+            (2, "LYC Handicap - Leeward Island Pursuit Race (14.2nm )", "leeward_pursuit"),
+            (3, "LYC Handicap - Bolands Trophy Pursuit Race (16.7nm )", "bolands"),
+        ):
+            loader.conn.execute(
+                "INSERT INTO events (id, year, name, slug, event_type, source_format, source_file) "
+                "VALUES (?, 2026, ?, ?, 'trophy', 'sailwave', ?)",
+                (event_id, name, page, f"racing2014_2025/racing2026/{page}.htm"))
+        loader.conn.execute("INSERT INTO races (event_id, race_key, date) VALUES (1, 'r1', '26/07/26')")
+        loader.conn.commit()
+        loader.conn.row_factory = _dict_factory
+
+        meta, groups = _canonical_event_groups(loader.conn)
+        assert sorted(e["id"] for e in groups[1]) == [1, 2]
+        assert meta[2]["is_variant_view"] and meta[2]["canonical_event_id"] == 1
+        assert [e["id"] for e in groups[3]] == [3]
+        loader.close()
 
 
 @needs_club_record

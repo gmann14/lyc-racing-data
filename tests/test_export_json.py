@@ -261,7 +261,7 @@ class TestExportIntegration:
         assert data["handicap_events"] < data["total_events"]
         assert data["handicap_results"] < data["total_results"]
         assert data["year_range"]["first"] == 1999
-        assert data["year_range"]["last"] == 2025
+        assert data["year_range"]["last"] >= 2026
 
     def test_seasons_json_exists(self):
         path = OUTPUT_DIR / "seasons.json"
@@ -270,7 +270,7 @@ class TestExportIntegration:
         data = json.loads(path.read_text())
         assert len(data) >= 27
         # Most recent year should be first
-        assert data[0]["year"] == 2025
+        assert data[0]["year"] == max(season["year"] for season in data)
 
     def test_season_detail_has_events(self):
         path = OUTPUT_DIR / "seasons" / "2025.json"

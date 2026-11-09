@@ -1,28 +1,28 @@
 # LYC Racing Archive
 
-27 years of [Lunenburg Yacht Club](https://lyc.ns.ca) racing history (1999–2025), parsed from original HTML result pages into a searchable, browsable static website.
+28 seasons of [Lunenburg Yacht Club](https://lyc.ns.ca) racing history (1999–2026), parsed from original HTML result pages into a searchable, browsable static website.
 
 **Live site: [gmann14.github.io/lyc-racing-data](https://gmann14.github.io/lyc-racing-data/)**
 
 ## The Data
 
-About 840 HTML result pages from the LYC website and local Sailwave exports, covering every recorded race from 1999 to 2025. The archive includes Thursday Night Series, Sunday trophy races, regattas, and championships.
+About 860 HTML result pages from the LYC website and local Sailwave exports, covering every recorded race from 1999 to 2026. The archive includes Thursday Night Series, Sunday trophy races, regattas, and championships.
 
 | | Count |
 |---|---:|
-| Seasons | 27 |
-| Events | 506 canonical (751 source pages, including fleet and series views) |
-| Races | 1,531 |
-| Race results | 10,829 counted once each · 5,246 in handicap racing |
-| Boats | 272 total · 173 with handicap results |
+| Seasons | 28 |
+| Events | 513 canonical (766 source pages, including fleet and series views) |
+| Races | 1,568 |
+| Race results | 10,960 counted once each · 5,376 in handicap racing |
+| Boats | 276 total · 177 with handicap results |
 | Trophy histories | 42 trophies, 37 traced back to 1947 in the club trophy case |
-| Weather records | 685 race dates |
-| Tide predictions | 685 race dates |
+| Weather records | 704 race dates |
+| Tide predictions | 704 race dates |
 
 ## The Site
 
 - **Home** — Fleet stats, most active boats (owner-merged), fleet size trend
-- **Seasons** — Browse events and results by year (1999–2025)
+- **Seasons** — Browse events and results by year (1999–2026)
 - **Boats** — Full boat roster with career stats, season breakdowns, trophy wins
 - **Leaderboards** — Most wins, best win %, longest streaks, most trophies
 - **Trophies** — 37 trophy histories with winner records back to 1947, course timing data for fixed-distance races
@@ -36,7 +36,7 @@ All pages support `Cmd+K` search across boats, events, and seasons.
 
 ```
 HTML sources ──→ Python parsers ──→ SQLite ──→ JSON export ──→ Next.js static site
- (1999-2025)      (BeautifulSoup)     (DB)     (~1,330 files)    (GitHub Pages)
+ (1999-2026)      (BeautifulSoup)     (DB)     (~1,330 files)    (GitHub Pages)
 ```
 
 ### Pipeline
@@ -52,7 +52,7 @@ HTML sources ──→ Python parsers ──→ SQLite ──→ JSON export ─
 
 - **Canonical event grouping** — Fleet splits (overall, A/B, division views) are combined into one logical event.
 - **Counted results** — Each boat's result in each race counts once, even when the race appears on overall, fleet and series pages, and every pre-2014 Thursday night (one page per night) counts. Races sailed exclude DNS/DNC; wins, podiums and average finish count only races finished.
-- **Owners by season** — Each boat-season is credited to whoever owned the boat that year; participation charts combine an owner's boats (e.g., Jim Mosher's Sly Fox + Mojo = 518 races over 27 seasons).
+- **Owners by season** — Each boat-season is credited to whoever owned the boat that year; participation charts combine an owner's boats (e.g., Jim Mosher's Sly Fox + Mojo = 538 races over 28 seasons).
 - **Handicap dataset** — Leaderboards exclude special events (regattas with external competitors) by default.
 - **Trophies** — One per Sunday trophy race and per monthly Thursday series, to each division's winner (A/B fleet, P/S division). Event names map to the LYC Trophy Case record (1947–2025), which fills years without results and settles unclear ones.
 
@@ -78,7 +78,7 @@ cd web && npm install
 ### Common Commands
 
 ```sh
-make test             # Run all ~690 Python tests
+make test             # Run all ~700 Python tests
 make export           # Re-export JSON from current DB
 make build            # Export + Next.js build
 make fresh            # Full rebuild: wipe DB → reload (+owners, weather, tides) → export
@@ -108,7 +108,7 @@ Valid targets: `overview`, `seasons`, `events`, `boats`, `leaderboards`, `trophi
 
 ## Tests
 
-About 690 Python tests across 24 files cover parsing, loading, date normalisation, the counted-results base, trophies and export. Web unit tests run with `cd web && npm test`. CI runs both, plus validation, type check and lint, before every deploy.
+About 700 Python tests across 24 files cover parsing, loading, date normalisation, the counted-results base, trophies and export. Web unit tests run with `cd web && npm test`. CI runs both, plus validation, type check and lint, before every deploy.
 
 | Test file | Coverage |
 |-----------|----------|
@@ -139,7 +139,7 @@ About 690 Python tests across 24 files cover parsing, loading, date normalisatio
 │   ├── src/components/    Reusable UI components
 │   ├── src/lib/           Data loading + types
 │   └── public/data/       Generated JSON (~1,330 files)
-├── tests/                 ~690 Python tests
+├── tests/                 ~700 Python tests
 ├── reports/               Analyses and audits (old snapshots in reports/archive/)
 ├── racing1999_2013/       Legacy HTML source files
 ├── racing2014_2025/       Modern Sailwave HTML files
